@@ -1,0 +1,759 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "BlasterCharacter.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Blaster/Weapons/Weapon.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "BlasterAnimInstance.h"
+#include "Blaster/Blaster.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Blaster/GameMode/BlasterGameMode.h"
+#include "TimerManager.h"
+#include "Blaster/PlayerState/BlasterPlayerState.h"
+#include "Blaster/Platform/DynamicPlatform.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blaster/Weapons/WeaponTypes.h"
+
+
+// Sets default values
+ABlasterCharacter::ABlasterCharacter()
+{
+	PrimaryActorTick.bCanEverTick = true;
+
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(GetMesh());
+	CameraBoom->TargetArmLength = 600.0f;
+	CameraBoom->bUsePawnControlRotation = true;
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true); //component replication doesn't need to be registered
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 500.0f);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+	NetUpdateFrequency = 66.0f;
+	MinNetUpdateFrequency = 33.0f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
+}
+
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABlasterCharacter, Health);
+}
+
+
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	SimProxiesTurn();
+	TimeSinceLastMovementReplication = 0.0f;
+}
+
+
+void ABlasterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	UpdateHUDHealth();
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+	}
+
+	if (!HasAuthority() && IsLocallyControlled())
+	{
+		NewServerRequestDynamicPlatformStates();
+	}
+}
+
+void ABlasterCharacter::NewServerRequestDynamicPlatformStates_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("[server] player joined!"));
+
+	TArray<AActor*> DynPlatformActors;
+	UGameplayStatics::GetAllActorsOfClass(this, ADynamicPlatform::StaticClass(), DynPlatformActors);
+	for (AActor* DynPlatformActor : DynPlatformActors)
+	{
+		ADynamicPlatform* DynPlatform = Cast<ADynamicPlatform>(DynPlatformActor);
+		if (DynPlatform)
+		{
+			DynPlatform->ServerReplicatePlatformData();
+		}
+	}
+}
+
+
+void ABlasterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
+		if (TimeSinceLastMovementReplication > 0.1f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculateAO_Pitch();
+	}
+	HideCameraIfCharacterClose();
+	PollInitHUD();
+
+	if (!HasAuthority() && IsLocallyControlled() && bClientRequestedPlatformStatesFromServer)
+	{
+		ClientTimeToReceiveResponseToPlatformStatesRequest += DeltaTime;
+	}
+
+	if (HasAuthority())
+	{
+		AActor* Act = GetCharacterMovement()->CurrentFloor.HitResult.GetActor();
+		if (Act)
+		{ // bruh we really gonna do this shit every tick? maybe just use a collision box after all?
+			if (Cast<ADynamicPlatform>(Act))
+			{
+				//Cast<ADynamicPlatform>(Act)->bActive = !Cast<ADynamicPlatform>(Act)->bActive;
+			}
+		}
+	}
+}
+
+void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &ABlasterCharacter::LookUp);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABlasterCharacter::ReloadButtonPressed);
+}
+
+void ABlasterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
+
+void ABlasterCharacter::PollInitHUD()
+{
+	if (BlasterPlayerState == nullptr)
+	{
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if (BlasterPlayerState)
+		{
+			// Display current stats
+			BlasterPlayerState->DisplayUpdatedScore();
+			BlasterPlayerState->DisplayUpdatedKills();
+			BlasterPlayerState->DisplayUpdatedDeaths();
+		}
+	}
+}
+
+void ABlasterCharacter::PlayFireMontage(bool bAiming)
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ABlasterCharacter::PlayReloadMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ABlasterCharacter::PlayHitReactMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName("FromFront");
+		
+
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ABlasterCharacter::MoveForward(float Value)
+{
+	if (Controller != nullptr && Value != 0.0f)
+	{
+		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+		AddMovementInput(Direction, Value); // speed in character movement component
+	}
+}
+
+void ABlasterCharacter::MoveRight(float Value)
+{
+	if (Controller != nullptr && Value != 0.0f)
+	{
+		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
+		AddMovementInput(Direction, Value); // speed in character movement component
+	}
+}
+
+void ABlasterCharacter::Turn(float Value)
+{
+	AddControllerYawInput(Value);
+}
+
+void ABlasterCharacter::LookUp(float Value)
+{
+	AddControllerPitchInput(Value);
+}
+
+void ABlasterCharacter::EquipButtonPressed()
+{
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed(); // send server rpc
+		}
+	}
+}
+
+void ABlasterCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
+	}
+}
+
+void ABlasterCharacter::ReloadButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->Reload();
+	}
+}
+
+void ABlasterCharacter::AimButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void ABlasterCharacter::AimButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
+}
+
+void ABlasterCharacter::AimOffset(float DeltaTime)
+{
+	if (Combat && Combat->EquippedWeapon == nullptr) return;
+	float Speed = CalculateSpeed();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.0f && !bIsInAir) // standing still, not jumping
+	{
+		bRotateRootBone = true;
+		FRotator CurrentAimRotation = FRotator(0.0f, GetBaseAimRotation().Yaw, 0.0f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		if (TurningInPlace == ETurningInPlace::ETIP_NotTurning)
+		{
+			InterpAO_Yaw = AO_Yaw;
+		}
+		bUseControllerRotationYaw = true;
+		TurnInPlace(DeltaTime);
+	}
+	if (Speed > 0.0f || bIsInAir) // running or jumping
+	{
+		bRotateRootBone = false;
+		StartingAimRotation = FRotator(0.0f, GetBaseAimRotation().Yaw, 0.0f);
+		AO_Yaw = 0.0f;
+		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+	}
+
+	CalculateAO_Pitch();
+}
+
+void ABlasterCharacter::CalculateAO_Pitch()
+{
+	AO_Pitch = GetBaseAimRotation().Pitch;
+	if (AO_Pitch > 90.0f && !IsLocallyControlled()) // Fix Pitch in Multiplayer (#59)
+	{
+		// Map pitch from [270, 360) to [-90, 0)
+		FVector2D InRange(270.0f, 360.0f);
+		FVector2D OutRange(-90.0f, 0.0f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+		//todo: same solution to our yaw problem?
+	}
+}
+
+void ABlasterCharacter::SimProxiesTurn()
+{
+	// handle turning for simulated proxies
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	bRotateRootBone = false;
+
+	float Speed = CalculateSpeed();
+	if (Speed > 0.0f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+
+	if (FMath::Abs(ProxyYaw) > TurnThreshold)
+	{
+		if (ProxyYaw > TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+}
+
+void ABlasterCharacter::Jump()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();
+	}
+}
+
+void ABlasterCharacter::FireButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->FireButtonPressed(true);
+	}
+}
+
+void ABlasterCharacter::FireButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+}
+
+// this will only be called on server (authority)
+void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth); // replicated to clients, see OnRep_Health
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+
+	if (Health == 0.0f)
+	{
+		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+		if (BlasterGameMode)
+		{
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
+			if (BlasterPlayerController && AttackerController)
+			{
+				BlasterGameMode->PlayerKilled(this, BlasterPlayerController, AttackerController);
+			}
+		}
+	}
+}
+
+void ABlasterCharacter::OnRep_Health()
+{
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void ABlasterCharacter::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.0f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}
+	else if (AO_Yaw < -90.0f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
+	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
+	{
+		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.0f, DeltaTime, 4.0f);
+		AO_Yaw = InterpAO_Yaw;
+		if (FMath::Abs(AO_Yaw) < 15.0f)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+			StartingAimRotation = FRotator(0.0f, GetBaseAimRotation().Yaw, 0.0f);
+		}
+	}
+}
+
+
+
+
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon) // last value before replication happened
+{
+	// If weapon stopped overlapping
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(OverlappingWeapon != nullptr);
+	}
+	else
+	{
+		OverlappingWeapon->ShowPickupWidget(OverlappingWeapon != nullptr);
+	}
+}
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation() // SERVER RPC
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
+}
+
+
+void ABlasterCharacter::HideCameraIfCharacterClose()
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraHideThreshold)
+	{
+		GetMesh()->SetVisibility(false);
+		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else
+	{
+		GetMesh()->SetVisibility(true);
+		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
+}
+
+float ABlasterCharacter::CalculateSpeed()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.0f;
+	return Velocity.Size();
+}
+
+
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void ABlasterCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ABlasterCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
+}
+
+void ABlasterCharacter::ClientRequestDynamicPlatformStates()
+{
+	//ServerRequestDynamicPlatformStates();
+	//bClientRequestedPlatformStatesFromServer = true;
+}
+void ABlasterCharacter::ServerRequestDynamicPlatformStates_Implementation()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("received request from client."));
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[server] received request from client")));
+	//TArray<AActor*> DynPlatformActors;
+	//UGameplayStatics::GetAllActorsOfClass(this, ADynamicPlatform::StaticClass(), DynPlatformActors);
+
+	//// Get all state data of existing dynamic platforms necessary for replication (rpc'd) down to client
+	//TArray<FDynamicPlatformReplicationData> DynamicPlatformsReplicationDataArray;
+	//for (AActor* DynPlatformActor : DynPlatformActors)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("bMR BEAST actor"));
+
+	//	ADynamicPlatform* DynPlatform = Cast<ADynamicPlatform>(DynPlatformActor);
+	//	if (DynPlatform)
+	//	{
+	//		FDynamicPlatformReplicationData DynamicPlatformReplicationData;
+	//		DynamicPlatformReplicationData.Id = DynPlatform->GetId();
+	//		UE_LOG(LogTemp, Warning, TEXT("blastercahracter ID IS SEX: %d, %d"), DynPlatform->GetId(), DynPlatform->GetUniqueID());
+	//		DynamicPlatformReplicationData.CurrentChangeTime = DynPlatform->GetCurrentChangeTime();
+	//		DynamicPlatformReplicationData.bOppositeDirection = DynPlatform->GetIsOppositeDirection();
+	//		DynamicPlatformReplicationData.bActive = DynPlatform->GetIsActive();
+
+
+	//		UE_LOG(LogTemp, Warning, TEXT("SERVER JIMMY id is: %d"), DynamicPlatformReplicationData.Id);
+
+	//		DynamicPlatformsReplicationDataArray.Add(DynamicPlatformReplicationData);
+	//	}
+	//}
+
+	//ClientReceiveDynamicPlatformStates(DynamicPlatformsReplicationDataArray);
+}
+
+void ABlasterCharacter::ClientReceiveDynamicPlatformStates_Implementation(const TArray<FDynamicPlatformReplicationData>& DynamicPlatformsReplicationDataArray)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] received response from server")));
+	//bClientRequestedPlatformStatesFromServer = false;
+
+	//TArray<AActor*> DynPlatformActors;
+	//UGameplayStatics::GetAllActorsOfClass(this, ADynamicPlatform::StaticClass(), DynPlatformActors);
+
+	//// Find matching dynamic platforms between server and client by Id's
+	//for (AActor* DynPlatformActor : DynPlatformActors)
+	//{
+
+	//	ADynamicPlatform* DynPlatform = Cast<ADynamicPlatform>(DynPlatformActor);
+	//	if (DynPlatform)
+	//	{
+	//		for (FDynamicPlatformReplicationData DynamicPlatformsReplicationData : DynamicPlatformsReplicationDataArray)
+	//		{
+
+	//			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] id: %d"), DynamicPlatformsReplicationData.Id));
+
+	//			UE_LOG(LogTemp, Warning, TEXT("[client] Trying to match: %d, %d"), DynamicPlatformsReplicationData.Id, DynPlatform->GetId());
+
+	//			if (DynamicPlatformsReplicationData.Id == DynPlatform->GetId())
+	//			{
+	//				UE_LOG(LogTemp, Warning, TEXT("[client] found match for id: %d"), DynPlatform->GetId());
+
+	//				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] found match")));
+
+	//				DynPlatform->ClientUpdateDynamicPlatformState(
+	//					DynamicPlatformsReplicationData, 
+	//					ClientTimeToReceiveResponseToPlatformStatesRequest
+	//				);
+	//			}
+	//		}
+	//	}
+	//}
+}
+
+void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled() && OverlappingWeapon) // properties are not replicated from server to server.
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+}
+
+// Called only on server players who just reached 0 hp
+void ABlasterCharacter::ServerKill()
+{
+	MulticastKill();
+	GetWorldTimerManager().SetTimer(
+		RespawnTimer,
+		this,
+		&ABlasterCharacter::ServerRespawnTimerFinished,
+		RespawnDelay
+	);
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Drop();
+	}
+}
+
+// called on server+clients when just reached 0 hp
+void ABlasterCharacter::MulticastKill_Implementation()
+{
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDWeaponAmmo(0);
+	}
+	bKilled = true;
+	// Enable ragdoll physics:
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); // default is query only
+	GetMesh()->SetSimulatePhysics(true);
+
+	// Dissolve mesh effect
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 250.0f);
+	}
+	StartDissolve();
+
+	// Disable movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (BlasterPlayerController)
+	{
+		DisableInput(BlasterPlayerController);
+	}
+	// Disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABlasterCharacter::ServerRespawnTimerFinished()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	if (BlasterGameMode)
+	{
+		BlasterGameMode->RespawnPlayer(this, Controller);
+	}
+}
+
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
+bool ABlasterCharacter::IsAiming()
+{
+	return (Combat && Combat->bAiming);
+}
+
+AWeapon* ABlasterCharacter::GetEquippedWeapon()
+{
+	if (Combat == nullptr)
+	{
+		return nullptr;
+	}
+	return Combat->EquippedWeapon;
+}
+
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr)
+	{
+		return FVector();
+	}
+	return Combat->HitTarget;
+}
+
+
