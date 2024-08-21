@@ -21,13 +21,19 @@ public:
 	void SetHUDDeaths(int32 Deaths);
 	void SetHUDWeaponAmmo(int32 WeaponAmmo);
 	void SetHUDCarriedAmmo(int32 CarriedAmmo);
+	void SetHUDMatchCountdown(float CountdownTime);
 
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
+	void SetHUDTime();
 
 private:
 	bool IsHUDValid();
 	class ABlasterHUD* BlasterHUD = nullptr;
+
+	float MatchTime = 120.0f;
+	uint32 CountdownInt = 0;
 };
