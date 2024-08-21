@@ -33,9 +33,14 @@ public:
 
 	void Drop();
 
+	void AddAmmo(int32 AmmoToAdd);
+
 	void SetHUDAmmo();
 
 	bool IsAmmoEmpty();
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* EquipSound;
 protected:
 	virtual void BeginPlay() override;
 
@@ -143,6 +148,8 @@ public:
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE float GetAutomatic() const { return bAutomatic; }
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 
 };
 

@@ -100,8 +100,6 @@ void ABlasterCharacter::BeginPlay()
 
 void ABlasterCharacter::NewServerRequestDynamicPlatformStates_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("[server] player joined!"));
-
 	TArray<AActor*> DynPlatformActors;
 	UGameplayStatics::GetAllActorsOfClass(this, ADynamicPlatform::StaticClass(), DynPlatformActors);
 	for (AActor* DynPlatformActor : DynPlatformActors)
@@ -754,6 +752,15 @@ FVector ABlasterCharacter::GetHitTarget() const
 		return FVector();
 	}
 	return Combat->HitTarget;
+}
+
+ECombatState ABlasterCharacter::GetCombatState() const
+{
+	if (Combat == nullptr)
+	{
+		return ECombatState::ECS_MAX;
+	}
+	return Combat->CombatState;
 }
 
 

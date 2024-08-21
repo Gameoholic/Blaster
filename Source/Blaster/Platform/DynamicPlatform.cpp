@@ -49,7 +49,7 @@ void ADynamicPlatform::BeginPlay()
 		{
 			Id = BlasterGameMode->DynamicPlatformsAmount;
 			BlasterGameMode->DynamicPlatformsAmount += 1;
-			UE_LOG(LogTemp, Warning, TEXT("ID IS ON DYNAMICPLATFORM: %d"), Id);
+			//UE_LOG(LogTemp, Warning, TEXT("ID IS ON DYNAMICPLATFORM: %d"), Id);
 		}
 
 		BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ADynamicPlatform::ServerOnPlatformBeginOverlap);
@@ -139,7 +139,7 @@ void ADynamicPlatform::Tick(float DeltaTime)
 
 void ADynamicPlatform::OnRep_Id()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] onrep() Platform id is %d"), Id));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] onrep() Platform id is %d"), Id));
 
 	// Decrease amount of un-id'd platforms
 	UBlasterGameInstance* GameInstance = Cast<UBlasterGameInstance>(GetWorld()->GetGameInstance());
@@ -147,12 +147,12 @@ void ADynamicPlatform::OnRep_Id()
 
 	if (GameInstance)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] found gameinstance, %d"), GameInstance->NoIdDynamicPlatforms));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] found gameinstance, %d"), GameInstance->NoIdDynamicPlatforms));
 		GameInstance->NoIdDynamicPlatforms -= 1;
 		// If all platforms are now id's
 		if (GameInstance->NoIdDynamicPlatforms == 0)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] non id's is now 0"), Id));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] non id's is now 0"), Id));
 			// Get the blaster character that's locally controlled
 			TArray<AActor*> CharacterActors;
 			UGameplayStatics::GetAllActorsOfClass(this, ABlasterCharacter::StaticClass(), CharacterActors);
@@ -161,7 +161,7 @@ void ADynamicPlatform::OnRep_Id()
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(CharacterActor);
 				if (BlasterCharacter && BlasterCharacter->IsLocallyControlled())
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] about to request platform states from server")));
+					//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, FString::Printf(TEXT("[client] about to request platform states from server")));
 					// Now that we got all the platforms id'd, we request the platform states from server
 					BlasterCharacter->ClientRequestDynamicPlatformStates();
 				}
@@ -218,7 +218,7 @@ void ADynamicPlatform::ServerOnDynamicPlatformPlayerBeginOverlap()
 
 void ADynamicPlatform::ServerReplicatePlatformData()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Replicating on server... "));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Replicating on server... "));
 	FDynamicPlatformReplicationData ReplicationData;
 	ReplicationData.bActive = bActive;
 	ReplicationData.bOppositeDirection = bOppositeDirection;
@@ -267,15 +267,15 @@ FVector ADynamicPlatform::GetLocationForCurrentChangeTime()
 	FVector LeftoverDistanceFromPreviousCycles = PlatformRelativeMovement * CycleIndex;
 	if (HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(0, 0.5f, FColor::Blue, FString::Printf(TEXT("[auth] ChangeProgress: %f"), ChangeProgress));
-		GEngine->AddOnScreenDebugMessage(1, 0.5f, FColor::Blue, FString::Printf(TEXT("[auth] InterpolatedChangeProgress: %f"), InterpolatedChangeProgress));
+		//GEngine->AddOnScreenDebugMessage(0, 0.5f, FColor::Blue, FString::Printf(TEXT("[auth] ChangeProgress: %f"), ChangeProgress));
+		//GEngine->AddOnScreenDebugMessage(1, 0.5f, FColor::Blue, FString::Printf(TEXT("[auth] InterpolatedChangeProgress: %f"), InterpolatedChangeProgress));
 	}
 
 
 	if (!HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(2, 0.5f, FColor::Blue, FString::Printf(TEXT("[nonauth] ChangeProgress: %f"), ChangeProgress));
-		GEngine->AddOnScreenDebugMessage(3, 0.5f, FColor::Blue, FString::Printf(TEXT("[nonauth] InterpolatedChangeProgress: %f"), InterpolatedChangeProgress));
+		//GEngine->AddOnScreenDebugMessage(2, 0.5f, FColor::Blue, FString::Printf(TEXT("[nonauth] ChangeProgress: %f"), ChangeProgress));
+		//GEngine->AddOnScreenDebugMessage(3, 0.5f, FColor::Blue, FString::Printf(TEXT("[nonauth] InterpolatedChangeProgress: %f"), InterpolatedChangeProgress));
 	}
 
 	return StartLocation + PlatformRelativeMovement * InterpolatedChangeProgress + LeftoverDistanceFromPreviousCycles;
@@ -308,7 +308,7 @@ void ADynamicPlatform::MulticastReceivePlatformReplicationData_Implementation(FD
 {
 	CurrentTimeReceive = FDateTime::UtcNow();
 	FTimespan ServerClientTimeDifference = FTimespan(CurrentTimeReceive.GetTicks() - ReplicationData.TimeInServer.GetTicks());
-	GEngine->AddOnScreenDebugMessage(-1, 7.0f, FColor::White, FString::Printf(TEXT("MULTICAST receive new timings: %f, with delay of %f ms"), ReplicationData.CurrentChangeTime, ServerClientTimeDifference.GetTotalMilliseconds()));
+	//GEngine->AddOnScreenDebugMessage(-1, 7.0f, FColor::White, FString::Printf(TEXT("MULTICAST receive new timings: %f, with delay of %f ms"), ReplicationData.CurrentChangeTime, ServerClientTimeDifference.GetTotalMilliseconds()));
 
 
 	CurrentChangeTime = ReplicationData.CurrentChangeTime + ServerClientTimeDifference.GetTotalMicroseconds() / 1000000.0f; // TODO: THIS ISN'T ACCURATE AND DOESN;'T ACCOUNT FOR SERVER PING DELAY!!!
