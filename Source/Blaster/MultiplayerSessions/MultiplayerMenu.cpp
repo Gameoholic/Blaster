@@ -7,11 +7,11 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
 
-void UMultiplayerMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
+
+void UMultiplayerMenu::SetupMenu()
 {
-	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
-	NumPublicConnections = NumberOfPublicConnections;
-	MatchType = TypeOfMatch;
+	//
+	//PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	bIsFocusable = true;
@@ -44,6 +44,10 @@ void UMultiplayerMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOf
 		MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiplayerSessionsSubsystem->MultiplayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Couldn't set up sessions subsystem."));
+	}
 }
 
 bool UMultiplayerMenu::Initialize()
@@ -51,15 +55,6 @@ bool UMultiplayerMenu::Initialize()
 	if (!Super::Initialize())
 	{
 		return false;
-	}
-
-	if (HostButton)
-	{
-		HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked);
-	}
-	if (JoinButton)
-	{
-		JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked);
 	}
 
 	return true;
@@ -71,6 +66,21 @@ void UMultiplayerMenu::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+
+void UMultiplayerMenu::LookForSessions()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->FindSessions(1000);
+	}
+}
+
+void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
+{
+	MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
+}
+
+
 void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 {
 	if (bWasSuccessful)
@@ -78,21 +88,12 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->ServerTravel(PathToLobby);
+			World->ServerTravel(FString::Printf(TEXT("%s?listen"), *LobbyPath));
 		}
 	}
 	else
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString(TEXT("Failed to create session!"))
-			);
-		}
-		HostButton->SetIsEnabled(true);
+		UE_LOG(LogTemp, Error, TEXT("Failed to create session."));
 	}
 }
 
@@ -103,20 +104,46 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 		return;
 	}
 
-	for (auto Result : SessionResults)
+	TArray<FMultiplayerSessionInfo> FoundSessions;
+	for (auto SessionResult : SessionResults)
 	{
-		FString SettingsValue;
-		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
-		if (SettingsValue == MatchType)
+		FString BlasterGameValue = ""; // Diffrentiate between this and other steam games
+		SessionResult.Session.SessionSettings.Get(FName("BlasterGame"), BlasterGameValue);
+		FString SessionDisplayName = "";
+		SessionResult.Session.SessionSettings.Get(FName("SessionDisplayName"), SessionDisplayName);
+
+		
+		if (BlasterGameValue == "BlasterGame") // Check that the session actually belongs to our game
 		{
-			MultiplayerSessionsSubsystem->JoinSession(Result);
-			return;
+			FMultiplayerSessionInfo SessionInfo;
+			SessionInfo.SessionDisplayName = SessionDisplayName;
+			SessionInfo.CurrentPlayerAmount = SessionResult.Session.NumOpenPrivateConnections + 1;
+			SessionInfo.MaxPlayerAmount = SessionResult.Session.NumOpenPublicConnections + 1;
+			SessionInfo.Ping = SessionResult.PingInMs;
+			FOnlineSessionSearchResultWrapper SearchResultWrapper;
+			SearchResultWrapper.SessionSearchResult = SessionResult;
+			SessionInfo.SessionSearchResult = SearchResultWrapper;
+
+			FoundSessions.Add(SessionInfo);
 		}
 	}
-	if (!bWasSuccessful || SessionResults.Num() == 0)
+	if (!bWasSuccessful || FoundSessions.Num() == 0)
 	{
-		JoinButton->SetIsEnabled(true);
+		OnNoSessionsFound();
+		if (!bWasSuccessful)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Couldn't find sessions."));
+		}
 	}
+	else
+	{
+		OnSessionsFound(FoundSessions);
+	}
+}
+
+void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSearchResult)
+{
+	MultiplayerSessionsSubsystem->JoinSession(SessionSearchResult.SessionSearchResult);
 }
 
 void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
@@ -147,23 +174,7 @@ void UMultiplayerMenu::OnStartSession(bool bWasSuccessful)
 {
 }
 
-void UMultiplayerMenu::HostButtonClicked()
-{
-	HostButton->SetIsEnabled(false);
-	if (MultiplayerSessionsSubsystem)
-	{
-		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
-	}
-}
 
-void UMultiplayerMenu::JoinButtonClicked()
-{
-	JoinButton->SetIsEnabled(false);
-	if (MultiplayerSessionsSubsystem)
-	{
-		MultiplayerSessionsSubsystem->FindSessions(10000);
-	}
-}
 
 void UMultiplayerMenu::MenuTearDown()
 {

@@ -9,6 +9,39 @@
 #include "OnlineSubsystem.h"
 #include "MultiplayerMenu.generated.h"
 
+
+
+// Native type unavailable in BP
+USTRUCT(BlueprintType)
+struct FOnlineSessionSearchResultWrapper
+{
+	GENERATED_USTRUCT_BODY()
+
+	FOnlineSessionSearchResult SessionSearchResult;
+};
+
+USTRUCT(BlueprintType)
+struct FMultiplayerSessionInfo
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadOnly)
+	FString SessionDisplayName;
+	UPROPERTY(BlueprintReadOnly)
+	int32 CurrentPlayerAmount;
+	UPROPERTY(BlueprintReadOnly)
+	int32 MaxPlayerAmount;
+	UPROPERTY(BlueprintReadOnly)
+	int32 Ping;
+	UPROPERTY(BlueprintReadOnly)
+	FOnlineSessionSearchResultWrapper SessionSearchResult;
+
+
+	//FMultiplayerSessionInfo();
+};
+
+const FString LobbyPath = FString(TEXT("/Game/Maps/Lobby"));
+
 /**
  * 
  */
@@ -18,9 +51,16 @@ class BLASTER_API UMultiplayerMenu : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	//void MenuSetup(int32 NumberOfPublicConnections = 10, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/ThirdPersonCPP/Maps/Lobby")));
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup(int32 NumberOfPublicConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/ThirdPersonCPP/Maps/Lobby")));
+	void SetupMenu();
 
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSessionsFound(const TArray<FMultiplayerSessionInfo>& SessionsInfo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnNoSessionsFound();
 protected:
 
 	virtual bool Initialize() override;
@@ -39,25 +79,16 @@ protected:
 	void OnStartSession(bool bWasSuccessful);
 
 private:
+	UFUNCTION(BlueprintCallable)
+	void LookForSessions();
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
+	UFUNCTION(BlueprintCallable)
+	void CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN);
 
-	UPROPERTY(meta = (BindWidget))
-	UButton* JoinButton;
-
-	UFUNCTION()
-	void HostButtonClicked();
-
-	UFUNCTION()
-	void JoinButtonClicked();
+	UFUNCTION(BlueprintCallable)
+	void JoinSession(FOnlineSessionSearchResultWrapper SessionSearchResult);
 
 	void MenuTearDown();
 
-	// The subsystem designed to handle all online session functionality
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
-
-	int32 NumPublicConnections{ 4 };
-	FString MatchType{ TEXT("FreeForAll") };
-	FString PathToLobby{ TEXT("") };
 };

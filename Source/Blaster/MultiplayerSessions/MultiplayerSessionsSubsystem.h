@@ -32,7 +32,7 @@ public:
 	//
 	// To handle session functionality. The Menu class will call these
 	//
-	void CreateSession(int32 NumPublicConnections, FString MatchType);
+	void CreateSession(int32 NumPublicConnections, FString SessionDisplayName, bool bIsLAN);
 	void FindSessions(int32 MaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
@@ -80,8 +80,4 @@ private:
 	FDelegateHandle DestroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate StartSessionCompleteDelegate;
 	FDelegateHandle StartSessionCompleteDelegateHandle;
-
-	bool bCreateSessionOnDestroy{ false };
-	int32 LastNumPublicConnections;
-	FString LastMatchType;
 };
