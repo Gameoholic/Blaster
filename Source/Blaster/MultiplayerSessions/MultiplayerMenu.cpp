@@ -69,20 +69,31 @@ void UMultiplayerMenu::NativeDestruct()
 
 void UMultiplayerMenu::LookForSessions()
 {
-	if (MultiplayerSessionsSubsystem)
+	if (MultiplayerSessionsSubsystem && !bLookingForSessions && !bCreatingSession && !bJoiningSession)
 	{
+		bLookingForSessions = true;
+		OnLookingForSessionValueChanged(bLookingForSessions);
 		MultiplayerSessionsSubsystem->FindSessions(1000);
 	}
 }
 
 void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
 {
-	MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
+	UE_LOG(LogTemp, Error, TEXT("Creating SEX DANIEL 1"));
+	if (MultiplayerSessionsSubsystem && !bCreatingSession)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Creating SEX DANIEL 2"));
+		bCreatingSession = true;
+		OnCreatingSessionValueChanged(bCreatingSession);
+		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
+	}
 }
 
 
 void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 {
+	bCreatingSession = false;
+	OnCreatingSessionValueChanged(bCreatingSession);
 	if (bWasSuccessful)
 	{
 		UWorld* World = GetWorld();
@@ -99,6 +110,8 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 
 void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
+	bLookingForSessions = false;
+	OnLookingForSessionValueChanged(bLookingForSessions);
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
 		return;
@@ -112,9 +125,10 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 		FString SessionDisplayName = "";
 		SessionResult.Session.SessionSettings.Get(FName("SessionDisplayName"), SessionDisplayName);
 
-		
+		UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 0")); // TEMP DELETE THIS LINE
 		if (BlasterGameValue == "BlasterGame") // Check that the session actually belongs to our game
 		{
+			UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 1")); // TEMP DELETE THIS LINE
 			FMultiplayerSessionInfo SessionInfo;
 			SessionInfo.SessionDisplayName = SessionDisplayName;
 			SessionInfo.CurrentPlayerAmount = SessionResult.Session.NumOpenPrivateConnections + 1;
@@ -129,6 +143,7 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 	}
 	if (!bWasSuccessful || FoundSessions.Num() == 0)
 	{
+		UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 2")); // TEMP DELETE THIS LINE
 		OnNoSessionsFound();
 		if (!bWasSuccessful)
 		{
@@ -143,7 +158,12 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 
 void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSearchResult)
 {
-	MultiplayerSessionsSubsystem->JoinSession(SessionSearchResult.SessionSearchResult);
+	if (MultiplayerSessionsSubsystem && !bJoiningSession && !bCreatingSession)
+	{
+		bJoiningSession = true;
+		OnJoiningSessionValueChanged(bJoiningSession);
+		MultiplayerSessionsSubsystem->JoinSession(SessionSearchResult.SessionSearchResult);
+	}
 }
 
 void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)

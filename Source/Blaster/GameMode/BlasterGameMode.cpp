@@ -8,6 +8,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "Blaster/PlayerState/BlasterPlayerState.h"
 #include "Blaster/Platform/DynamicPlatform.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "Interfaces/OnlineSessionInterface.h"
+#include "Online/OnlineSessionNames.h"
 
 
 ABlasterGameMode::ABlasterGameMode()
@@ -47,6 +52,29 @@ void ABlasterGameMode::Tick(float DeltaTime)
 			StartMatch();
 		}
 	}
+
+
+
+	// UPDATE SESSION SETTINGS MID-GAME:
+	// if (!sessionInterface) do all of the following: also store both in variables, do similarly to subsystem.cpp
+	//test:
+		//IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+		//if (Subsystem)
+		//{
+		//	IOnlineSessionPtr SessionInterface = Subsystem->GetSessionInterface();
+		//	if (SessionInterface.IsValid())
+		//	{
+		//		auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
+		//		if (ExistingSession)
+		//		{
+		//			FOnlineSessionSettings UpdatedSessionSettings = ExistingSession->SessionSettings;
+		//			UpdatedSessionSettings.Set(FName("SessionDisplayName"), FString("CHANGED"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		//			SessionInterface->UpdateSession(NAME_GameSession, UpdatedSessionSettings, true);
+		//		}
+		//	}
+		//}
+
+	
 }
 
 // none of the parameters are null

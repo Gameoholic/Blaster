@@ -61,6 +61,22 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnNoSessionsFound();
+
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bLookingForSessions = false;
+	UPROPERTY(BlueprintReadOnly)
+	bool bJoiningSession = false;
+	UPROPERTY(BlueprintReadOnly)
+	bool bCreatingSession = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLookingForSessionValueChanged(bool bNewLookingForSessions);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnJoiningSessionValueChanged(bool bNewJoiningSession);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCreatingSessionValueChanged(bool bNewCreatingSession);
+
 protected:
 
 	virtual bool Initialize() override;
@@ -91,4 +107,8 @@ private:
 	void MenuTearDown();
 
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
+
+
+
+
 };
