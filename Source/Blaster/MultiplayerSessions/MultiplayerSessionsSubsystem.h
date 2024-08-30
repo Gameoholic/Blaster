@@ -16,6 +16,8 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FMultiplayerOnFindSessionsComplete, const T
 DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerOnJoinSessionComplete, EOnJoinSessionCompleteResult::Type Result);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnDestroySessionComplete, bool, bWasSuccessful);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnStartSessionComplete, bool, bWasSuccessful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnEndSessionComplete, bool, bWasSuccessful);
+
 
 
 /**
@@ -35,6 +37,7 @@ public:
 	void CreateSession(int32 NumPublicConnections, FString SessionDisplayName, bool bIsLAN);
 	void FindSessions(int32 MaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
+	void DestroySessionIfExists();
 	void DestroySession();
 	void StartSession();
 
@@ -48,18 +51,20 @@ public:
 	FMultiplayerOnJoinSessionComplete MultiplayerOnJoinSessionComplete;
 	FMultiplayerOnDestroySessionComplete MultiplayerOnDestroySessionComplete;
 	FMultiplayerOnStartSessionComplete MultiplayerOnStartSessionComplete;
+	FMultiplayerOnEndSessionComplete MultiplayerOnEndSessionComplete;
 
 protected:
 
 	//
 	// Internal callbacks for the delegates we'll add to the Online Session Interface delegate list.
-	// Thise don't need to be called outside this class.
+	// These don't need to be called outside this class.
 	//
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnEndSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
 	IOnlineSessionPtr SessionInterface;
@@ -80,4 +85,6 @@ private:
 	FDelegateHandle DestroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate StartSessionCompleteDelegate;
 	FDelegateHandle StartSessionCompleteDelegateHandle;
+	FOnEndSessionCompleteDelegate EndSessionCompleteDelegate;
+	FDelegateHandle EndSessionCompleteDelegateHandle;
 };

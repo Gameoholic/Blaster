@@ -10,8 +10,6 @@
 
 void UMultiplayerMenu::SetupMenu()
 {
-	//
-	//PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	bIsFocusable = true;
@@ -43,6 +41,7 @@ void UMultiplayerMenu::SetupMenu()
 		MultiplayerSessionsSubsystem->MultiplayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
 		MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiplayerSessionsSubsystem->MultiplayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
+		MultiplayerSessionsSubsystem->MultiplayerOnEndSessionComplete.AddDynamic(this, &ThisClass::OnEndSession);
 	}
 	else
 	{
@@ -79,31 +78,48 @@ void UMultiplayerMenu::LookForSessions()
 
 void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
 {
-	UE_LOG(LogTemp, Error, TEXT("Creating SEX DANIEL 1"));
+	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() called"));
 	if (MultiplayerSessionsSubsystem && !bCreatingSession)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Creating SEX DANIEL 2"));
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() CREATING."));
 		bCreatingSession = true;
 		OnCreatingSessionValueChanged(bCreatingSession);
 		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
+	}
+	else
+	{
+		if (bCreatingSession)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() failed - already creating session."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() failed - other"));
+		}
 	}
 }
 
 
 void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 {
+	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() called"));
+
 	bCreatingSession = false;
 	OnCreatingSessionValueChanged(bCreatingSession);
 	if (bWasSuccessful)
 	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Was successful!"));
 		UWorld* World = GetWorld();
 		if (World)
 		{
+			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Travelling..."));
 			World->ServerTravel(FString::Printf(TEXT("%s?listen"), *LobbyPath));
 		}
 	}
 	else
 	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Was NOT successful!"));
+
 		UE_LOG(LogTemp, Error, TEXT("Failed to create session."));
 	}
 }
@@ -125,10 +141,8 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 		FString SessionDisplayName = "";
 		SessionResult.Session.SessionSettings.Get(FName("SessionDisplayName"), SessionDisplayName);
 
-		UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 0")); // TEMP DELETE THIS LINE
 		if (BlasterGameValue == "BlasterGame") // Check that the session actually belongs to our game
 		{
-			UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 1")); // TEMP DELETE THIS LINE
 			FMultiplayerSessionInfo SessionInfo;
 			SessionInfo.SessionDisplayName = SessionDisplayName;
 			SessionInfo.CurrentPlayerAmount = SessionResult.Session.NumOpenPrivateConnections + 1;
@@ -143,7 +157,6 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 	}
 	if (!bWasSuccessful || FoundSessions.Num() == 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("SEX DAVID found 2")); // TEMP DELETE THIS LINE
 		OnNoSessionsFound();
 		if (!bWasSuccessful)
 		{
@@ -188,13 +201,45 @@ void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 
 void UMultiplayerMenu::OnDestroySession(bool bWasSuccessful)
 {
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnDestroySession() Was successful!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnDestroySession() Was NOTTT successful"));
+	}
 }
 
 void UMultiplayerMenu::OnStartSession(bool bWasSuccessful)
 {
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnStartSession() Was successful!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnStartSession() Was NOTTT successful"));
+	}
 }
-
-
+void UMultiplayerMenu::TempLeaveGame()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->DestroySession();
+	}
+}
+void UMultiplayerMenu::OnEndSession(bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnEndSession() Was successful!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnEndSession() Was NOTTT successful"));
+	}
+}
 
 void UMultiplayerMenu::MenuTearDown()
 {

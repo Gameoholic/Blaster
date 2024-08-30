@@ -39,6 +39,7 @@ public:
 	void CheckTimeSync(float DeltaTime);
 
 	void OnMatchStateSet(FName State);
+	void HandleMatchHasStarted();
 protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();
