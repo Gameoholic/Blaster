@@ -7,6 +7,7 @@
 #include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
+#include "Blaster/BlasterTypes/LogCategories.h"
 #include "MultiplayerMenu.generated.h"
 
 
@@ -77,9 +78,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCreatingSessionValueChanged(bool bNewCreatingSession);
 
-	UFUNCTION(BlueprintCallable)
-	void TempLeaveGame();
-
 protected:
 
 	virtual bool Initialize() override;
@@ -96,8 +94,6 @@ protected:
 	void OnDestroySession(bool bWasSuccessful);
 	UFUNCTION()
 	void OnStartSession(bool bWasSuccessful);
-	UFUNCTION()
-	void OnEndSession(bool bWasSuccessful);
 
 private:
 	UFUNCTION(BlueprintCallable)

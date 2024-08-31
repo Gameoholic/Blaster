@@ -41,11 +41,10 @@ void UMultiplayerMenu::SetupMenu()
 		MultiplayerSessionsSubsystem->MultiplayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
 		MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiplayerSessionsSubsystem->MultiplayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
-		MultiplayerSessionsSubsystem->MultiplayerOnEndSessionComplete.AddDynamic(this, &ThisClass::OnEndSession);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Couldn't set up sessions subsystem."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't set up sessions subsystem."));
 	}
 }
 
@@ -78,49 +77,35 @@ void UMultiplayerMenu::LookForSessions()
 
 void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
 {
-	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() called"));
 	if (MultiplayerSessionsSubsystem && !bCreatingSession)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() CREATING."));
 		bCreatingSession = true;
 		OnCreatingSessionValueChanged(bCreatingSession);
 		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
 	}
 	else
 	{
-		if (bCreatingSession)
-		{
-			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() failed - already creating session."));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu CreateSession() failed - other"));
-		}
+		// missing log here
 	}
 }
 
 
 void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() called"));
-
 	bCreatingSession = false;
 	OnCreatingSessionValueChanged(bCreatingSession);
 	if (bWasSuccessful)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Was successful!"));
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Travelling..."));
 			World->ServerTravel(FString::Printf(TEXT("%s?listen"), *LobbyPath));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnCreateSession() Was NOT successful!"));
-
-		UE_LOG(LogTemp, Error, TEXT("Failed to create session."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("OnCreateSession returned false. Returning to main menu."));
+		// todo: return to main menu
 	}
 }
 
@@ -160,7 +145,7 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 		OnNoSessionsFound();
 		if (!bWasSuccessful)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Couldn't find sessions."));
+			UE_LOG(LogBlasterNetworking, Error, TEXT("OnFindSessions wasn't successful. Returning to main menu."));
 		}
 	}
 	else
@@ -181,6 +166,12 @@ void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSear
 
 void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	if (Result != EOnJoinSessionCompleteResult::Type::Success)
+	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("OnJoinSession wasn't successful. Returning to main menu."));
+		// whenever we "return to main menu", I meant return to server browser, and make sure to reload server list
+		return;
+	}
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
 	{
@@ -201,43 +192,17 @@ void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 
 void UMultiplayerMenu::OnDestroySession(bool bWasSuccessful)
 {
-	if (bWasSuccessful)
+	if (!bWasSuccessful)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnDestroySession() Was successful!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnDestroySession() Was NOTTT successful"));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("OnDestroySession returned false."));
 	}
 }
 
 void UMultiplayerMenu::OnStartSession(bool bWasSuccessful)
 {
-	if (bWasSuccessful)
+	if (!bWasSuccessful)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnStartSession() Was successful!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnStartSession() Was NOTTT successful"));
-	}
-}
-void UMultiplayerMenu::TempLeaveGame()
-{
-	if (MultiplayerSessionsSubsystem)
-	{
-		MultiplayerSessionsSubsystem->DestroySession();
-	}
-}
-void UMultiplayerMenu::OnEndSession(bool bWasSuccessful)
-{
-	if (bWasSuccessful)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnEndSession() Was successful!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Menu OnEndSession() Was NOTTT successful"));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("OnStartSession returned false."));
 	}
 }
 

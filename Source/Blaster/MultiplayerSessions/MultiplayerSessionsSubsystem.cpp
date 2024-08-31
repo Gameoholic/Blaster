@@ -12,8 +12,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	FindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete)),
 	JoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionComplete)),
 	DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::OnDestroySessionComplete)),
-	StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete)),
-	EndSessionCompleteDelegate(FOnEndSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnEndSessionComplete))
+	StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete))
 
 {
 
@@ -21,18 +20,17 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 
 void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FString SessionDisplayName, bool bIsLAN)
 {
-	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Subsystem CreateSession() CREATING."));
 	if (!IsValidSessionInterface())
 	{
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Subsystem CreateSession() Not valid."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't create session because session interface isn't valid."));
+		MultiplayerOnCreateSessionComplete.Broadcast(false);
 		return;
 	}
 
-	auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
-	if (ExistingSession != nullptr)
+	if (SessionAlreadyExists())
 	{
-		// TODO HERE RETURN TO MAIN MENU or create it again in ondestroy()
-		UE_LOG(LogTemp, Error, TEXT("UNDERTALE Subsystem CreateSession() Existing session exists!"));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't create session because one already exists! Attempting to destroy it now."));
+		MultiplayerOnCreateSessionComplete.Broadcast(false);
 		DestroySession();
 		return;
 	}
@@ -41,7 +39,6 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	CreateSessionCompleteDelegateHandle = SessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 
 	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
-	//LastSessionSettings->bIsLANMatch = false; // TODO REPALCE WITH BOTTOM:
 	LastSessionSettings->bIsLANMatch = bIsLAN; // IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	LastSessionSettings->NumPublicConnections = NumPublicConnections;
 	LastSessionSettings->bAllowJoinInProgress = true;
@@ -69,20 +66,30 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 {
 	if (!IsValidSessionInterface())
 	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't look for sessions because session interface isn't valid."));
+		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+		return;
+	}
+
+	if (SessionAlreadyExists())
+	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't look for sessions because we are already in session! Attempting to destroy it now."));
+		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+		DestroySession();
 		return;
 	}
 
 	FindSessionsCompleteDelegateHandle = SessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegate);
-
+	
 	LastSessionSearch = MakeShareable(new FOnlineSessionSearch());
 	LastSessionSearch->MaxSearchResults = MaxSearchResults;
-	//LastSessionSearch->bIsLanQuery = false; // TEMP REPLACE WITH BUTTOM LINE:
-	LastSessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false; // this might cause issue
+	LastSessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false; // this might cause issues
 	LastSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), LastSessionSearch.ToSharedRef()))
 	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Error while looking for sessions!"));
 		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 	}
@@ -92,7 +99,16 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 {
 	if (!SessionInterface.IsValid())
 	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't join session because session interface isn't valid."));
 		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		return;
+	}
+
+	if (SessionAlreadyExists())
+	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't join session because we are already in session! Attempting to destroy it now."));
+		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		DestroySession();
 		return;
 	}
 
@@ -101,21 +117,27 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionResult))
 	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("Error while joining session."));
 		SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
 
 		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
 	}
 }
 
-void UMultiplayerSessionsSubsystem::DestroySessionIfExists()
+bool UMultiplayerSessionsSubsystem::SessionAlreadyExists()
 {
 	if (!IsValidSessionInterface())
 	{
-		return;
+		return false;
 	}
 
 	auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
-	if (ExistingSession != nullptr)
+	return ExistingSession != nullptr;
+}
+
+void UMultiplayerSessionsSubsystem::DestroySessionIfExists()
+{
+	if (SessionAlreadyExists())
 	{
 		DestroySession();
 	}
@@ -157,8 +179,6 @@ bool UMultiplayerSessionsSubsystem::IsValidSessionInterface()
 
 void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Subsystem OnCreateSessionComplete() called"));
-
 	if (SessionInterface)
 	{
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
@@ -204,17 +224,5 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 
 void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-}
-
-void UMultiplayerSessionsSubsystem::OnEndSessionComplete(FName SessionName, bool bWasSuccessful)
-{
-	UE_LOG(LogTemp, Error, TEXT("UNDERTALE Session ENDED!!!"));
-
-	if (SessionInterface)
-	{
-		SessionInterface->ClearOnEndSessionCompleteDelegate_Handle(EndSessionCompleteDelegateHandle);
-	}
-
-	MultiplayerOnEndSessionComplete.Broadcast(bWasSuccessful);
 }
 

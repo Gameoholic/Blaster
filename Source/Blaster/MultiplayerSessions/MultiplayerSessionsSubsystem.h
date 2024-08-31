@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "Blaster/BlasterTypes/LogCategories.h"
 #include "MultiplayerSessionsSubsystem.generated.h"
 
 
@@ -37,6 +38,7 @@ public:
 	void CreateSession(int32 NumPublicConnections, FString SessionDisplayName, bool bIsLAN);
 	void FindSessions(int32 MaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
+	bool SessionAlreadyExists();
 	void DestroySessionIfExists();
 	void DestroySession();
 	void StartSession();
@@ -51,7 +53,6 @@ public:
 	FMultiplayerOnJoinSessionComplete MultiplayerOnJoinSessionComplete;
 	FMultiplayerOnDestroySessionComplete MultiplayerOnDestroySessionComplete;
 	FMultiplayerOnStartSessionComplete MultiplayerOnStartSessionComplete;
-	FMultiplayerOnEndSessionComplete MultiplayerOnEndSessionComplete;
 
 protected:
 
@@ -64,7 +65,6 @@ protected:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
-	void OnEndSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
 	IOnlineSessionPtr SessionInterface;
@@ -85,6 +85,5 @@ private:
 	FDelegateHandle DestroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate StartSessionCompleteDelegate;
 	FDelegateHandle StartSessionCompleteDelegateHandle;
-	FOnEndSessionCompleteDelegate EndSessionCompleteDelegate;
 	FDelegateHandle EndSessionCompleteDelegateHandle;
 };
