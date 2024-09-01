@@ -22,6 +22,7 @@ public:
 	void SetHUDWeaponAmmo(int32 WeaponAmmo);
 	void SetHUDCarriedAmmo(int32 CarriedAmmo);
 	void SetHUDMatchCountdown(float CountdownTime);
+	void SetHUDAnnouncementCountdown(float CountdownTime);
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
@@ -40,6 +41,8 @@ public:
 
 	void OnMatchStateSet(FName State);
 	void HandleMatchHasStarted();
+
+	void HandleCooldown();
 protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();
@@ -57,11 +60,19 @@ protected:
 
 	void PollInit();
 
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidgame(FName StateOfMatch, float ProvidedWarmupTime, float ProvidedMatchTime, float ProvidedStartingTime);
+
 private:
 	bool IsHUDValid();
 	class ABlasterHUD* BlasterHUD = nullptr;
 
-	float MatchTime = 120.0f;
+	float LevelStartingTime = 0.0f;
+	float MatchTime = 0.0f;
+	float WarmupTime = 0.0f;
 	uint32 CountdownInt = 0;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)

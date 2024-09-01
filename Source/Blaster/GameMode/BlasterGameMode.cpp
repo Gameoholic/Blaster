@@ -13,7 +13,12 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Online/OnlineSessionNames.h"
+#include "Blaster/GameState/BlasterGameState.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
 
 ABlasterGameMode::ABlasterGameMode()
 {
@@ -52,6 +57,14 @@ void ABlasterGameMode::Tick(float DeltaTime)
 			StartMatch();
 		}
 	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.0f)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+	}
 
 
 
@@ -82,6 +95,7 @@ void ABlasterGameMode::PlayerKilled(ABlasterCharacter* KilledPlayer, ABlasterPla
 {
 	ABlasterPlayerState* AttackerPlayerState = AttackerController ? Cast<ABlasterPlayerState>(AttackerController->PlayerState) : nullptr;
 	ABlasterPlayerState* KilledPlayerState = KilledPlayerController ? Cast<ABlasterPlayerState>(KilledPlayerController->PlayerState) : nullptr;
+	ABlasterGameState* BlasterGameState = GetGameState<ABlasterGameState>();
 
 	if (KilledPlayer->IsKilled())
 	{
@@ -91,6 +105,7 @@ void ABlasterGameMode::PlayerKilled(ABlasterCharacter* KilledPlayer, ABlasterPla
 	{
 		AttackerPlayerState->ServerAddToScore(1.0f);
 		AttackerPlayerState->ServerAddToKills(1);
+		BlasterGameState->ServerUpdateTopScore(AttackerPlayerState);
 	}
 	if (KilledPlayerState)
 	{
