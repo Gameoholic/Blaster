@@ -44,7 +44,7 @@ void UMultiplayerMenu::SetupMenu()
 	}
 	else
 	{
-		UE_LOG(LogBlasterNetworking, Error, TEXT("Couldn't set up sessions subsystem."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't set up sessions subsystem."));
 	}
 }
 
@@ -73,6 +73,10 @@ void UMultiplayerMenu::LookForSessions()
 		OnLookingForSessionValueChanged(bLookingForSessions);
 		MultiplayerSessionsSubsystem->FindSessions(1000);
 	}
+	else
+	{
+		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot look for sessions, this is probably fine."));
+	}
 }
 
 void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
@@ -85,7 +89,7 @@ void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString Display
 	}
 	else
 	{
-		// missing log here
+		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot create session, this is probably fine."));
 	}
 }
 
@@ -96,6 +100,7 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 	OnCreatingSessionValueChanged(bCreatingSession);
 	if (bWasSuccessful)
 	{
+		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Create session was successful. Travelling to it."));
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -104,17 +109,18 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 	}
 	else
 	{
-		UE_LOG(LogBlasterNetworking, Error, TEXT("OnCreateSession returned false. Returning to main menu."));
-		// todo: return to main menu
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Create session was not successful."));
 	}
 }
 
 void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
+	UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found %d total sessions, checking them now."), SessionResults.Num());
 	bLookingForSessions = false;
 	OnLookingForSessionValueChanged(bLookingForSessions);
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
+		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Find sessions error - subsystem is null."));
 		return;
 	}
 
@@ -142,34 +148,45 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 	}
 	if (!bWasSuccessful || FoundSessions.Num() == 0)
 	{
-		OnNoSessionsFound();
 		if (!bWasSuccessful)
 		{
-			UE_LOG(LogBlasterNetworking, Error, TEXT("OnFindSessions wasn't successful."));
+			UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Session search not successful due to an error."));
 		}
+		else
+		{
+			UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found 0 compatible sessions."));
+		}
+		OnNoSessionsFound();
 	}
 	else
 	{
+		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found %d compatible sessions."), FoundSessions.Num());
 		OnSessionsFound(FoundSessions);
 	}
 }
 
 void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSearchResult)
 {
+	UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Attempting to join session."));
 	if (MultiplayerSessionsSubsystem && !bJoiningSession && !bCreatingSession)
 	{
 		bJoiningSession = true;
 		OnJoiningSessionValueChanged(bJoiningSession);
 		MultiplayerSessionsSubsystem->JoinSession(SessionSearchResult.SessionSearchResult);
 	}
+	else
+	{
+		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot join session, this is probably fine."));
+	}
 }
 
 void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] OnJoinSession called with result: %d"), Result);
+
 	if (Result != EOnJoinSessionCompleteResult::Type::Success)
 	{
-		UE_LOG(LogBlasterNetworking, Error, TEXT("OnJoinSession wasn't successful. Returning to main menu."));
-		// whenever we "return to main menu", I meant return to server browser, and make sure to reload server list
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] OnJoinSession wasn't successful."));
 		return;
 	}
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
@@ -184,6 +201,7 @@ void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
 			if (PlayerController)
 			{
+				UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Travelling to game."));
 				PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 			}
 		}
@@ -194,7 +212,7 @@ void UMultiplayerMenu::OnDestroySession(bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
 	{
-		UE_LOG(LogBlasterNetworking, Error, TEXT("OnDestroySession returned false."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't destroy session."));
 	}
 }
 
@@ -202,7 +220,7 @@ void UMultiplayerMenu::OnStartSession(bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
 	{
-		UE_LOG(LogBlasterNetworking, Error, TEXT("OnStartSession returned false."));
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't start session."));
 	}
 }
 
