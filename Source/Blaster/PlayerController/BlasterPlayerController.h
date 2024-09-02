@@ -15,6 +15,7 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDKills(int32 Kills);
@@ -43,7 +44,10 @@ public:
 	void HandleMatchHasStarted();
 
 	void HandleCooldown();
+
 protected:
+	virtual void SetupInputComponent() override;
+
 	virtual void BeginPlay() override;
 	void SetHUDTime();
 
@@ -89,5 +93,11 @@ private:
 	float HUDMaxHealth;
 	float HUDScore;
 	float HUDDeaths;
+
+	void TogglePauseMenu();
+
+	UPROPERTY(EditAnywhere, Category = HUD)
+	TSubclassOf<class UUserWidget> PauseMenuWidget;
+
 
 };

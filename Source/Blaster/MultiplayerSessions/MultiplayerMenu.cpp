@@ -145,7 +145,7 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 		OnNoSessionsFound();
 		if (!bWasSuccessful)
 		{
-			UE_LOG(LogBlasterNetworking, Error, TEXT("OnFindSessions wasn't successful. Returning to main menu."));
+			UE_LOG(LogBlasterNetworking, Error, TEXT("OnFindSessions wasn't successful."));
 		}
 	}
 	else

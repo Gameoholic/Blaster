@@ -12,6 +12,7 @@
 #include "Blaster/HUD/Announcement.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blaster/GameState/BlasterGameState.h"
+#include "Blaster/HUD/PauseMenu.h"
 
 
 
@@ -344,4 +345,31 @@ void ABlasterPlayerController::HandleCooldown()
 			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+}
+
+void ABlasterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	if (InputComponent == nullptr)
+	{
+		return;
+	}
+
+	InputComponent->BindAction("Menu", IE_Pressed, this, &ABlasterPlayerController::TogglePauseMenu);
+}
+
+
+void ABlasterPlayerController::TogglePauseMenu()
+{
+	if (PauseMenuWidget == nullptr)
+	{
+		return;
+	}
+
+	UPauseMenu* PauseMenu = CreateWidget<UPauseMenu>(this, PauseMenuWidget);
+	if (PauseMenu)
+	{
+		PauseMenu->SetupMenu();
+	}
+
 }
