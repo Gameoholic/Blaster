@@ -85,7 +85,6 @@ void UPauseMenu::ExitGame()
 
 void UPauseMenu::OnDestroySession(bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnDestroySession()"));
 
 	if (!bWasSuccessful)
 	{

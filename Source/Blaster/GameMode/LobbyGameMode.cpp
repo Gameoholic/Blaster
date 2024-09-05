@@ -20,3 +20,9 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		}
 	}
 }
+
+void ALobbyGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
+}

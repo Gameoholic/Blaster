@@ -17,10 +17,13 @@ void UBlasterGameInstance::Init()
 	// Make sure we don't have any existing session (aka hosting/connected to a session) when we start the game. This shouldn't happen but just in case.
 	// If issues still happen, move this to MultiplayerMenu.cpp on initialize, but there shouldn't be problems because we destroy on network failure anyway
 	MultiplayerSubsystem = MultiplayerSubsystem == nullptr ? GetSubsystem<UMultiplayerSessionsSubsystem>() : MultiplayerSubsystem;
+	
+	UE_LOG(LogBlasterNetworking, Warning, TEXT("[BlasterGameInstance] TEMPORARY destroying session."));
+	 MultiplayerSubsystem->DestroySession(); //return this if having issues
 	if (MultiplayerSubsystem != nullptr && MultiplayerSubsystem->SessionAlreadyExists())
 	{
-		UE_LOG(LogBlasterNetworking, Log, TEXT("[BlasterGameInstance] Found existing session on GameInstance Init. Destroying."));
-		MultiplayerSubsystem->DestroySessionIfExists();
+		UE_LOG(LogBlasterNetworking, Warning, TEXT("[BlasterGameInstance] Found existing session on GameInstance Init. Destroying."));
+		MultiplayerSubsystem->DestroySession();
 	}
 }
 

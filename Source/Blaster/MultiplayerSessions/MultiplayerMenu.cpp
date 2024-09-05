@@ -71,7 +71,7 @@ void UMultiplayerMenu::LookForSessions()
 	{
 		bLookingForSessions = true;
 		OnLookingForSessionValueChanged(bLookingForSessions);
-		MultiplayerSessionsSubsystem->FindSessions(1000);
+		MultiplayerSessionsSubsystem->FindSessions(10000);
 	}
 	else
 	{
@@ -116,11 +116,18 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
 	UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found %d total sessions, checking them now."), SessionResults.Num());
+
 	bLookingForSessions = false;
 	OnLookingForSessionValueChanged(bLookingForSessions);
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
 		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Find sessions error - subsystem is null."));
+		return;
+	}
+
+	if (!bWasSuccessful)
+	{
+		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Session search not successful due to an error."));
 		return;
 	}
 
@@ -146,16 +153,9 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 			FoundSessions.Add(SessionInfo);
 		}
 	}
-	if (!bWasSuccessful || FoundSessions.Num() == 0)
+	if (FoundSessions.Num() == 0)
 	{
-		if (!bWasSuccessful)
-		{
-			UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Session search not successful due to an error."));
-		}
-		else
-		{
-			UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found 0 compatible sessions."));
-		}
+		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found 0 compatible sessions."));
 		OnNoSessionsFound();
 	}
 	else
