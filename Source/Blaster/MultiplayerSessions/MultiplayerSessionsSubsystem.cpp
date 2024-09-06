@@ -51,6 +51,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	LastSessionSettings->Set(FName("BlasterGame"), FString("BlasterGame"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing); // Diffrentiate between this and other steam games
 	LastSessionSettings->Set(FName("SessionDisplayName"), SessionDisplayName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing); // Diffrentiate between this and other steam games
 	LastSessionSettings->BuildUniqueId = 1;
+	LastSessionSettings->Set(SEARCH_KEYWORDS, FString("BlasterGame"), EOnlineDataAdvertisementType::ViaOnlineService);
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings))
@@ -89,6 +90,7 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 	LastSessionSearch->MaxSearchResults = MaxSearchResults;
 	LastSessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false; // this might cause issues
 	LastSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+	LastSessionSearch->QuerySettings.Set(SEARCH_KEYWORDS, FString("BlasterGame"), EOnlineComparisonOp::Equals);
 
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
