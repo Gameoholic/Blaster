@@ -19,4 +19,5 @@ public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Tick(float DeltaTime) override;
 
+	void TravelToMap(FString MapPath);
 };
