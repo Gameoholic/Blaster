@@ -24,15 +24,15 @@ void ABlasterHUD::AddCharacterOverlay()
 	}
 }
 
-void ABlasterHUD::AddAnnouncement()
-{
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if (PlayerController && AnnouncementClass)
-	{
-		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
-		Announcement->AddToViewport();
-	}
-}
+//void ABlasterHUD::AddAnnouncement()
+//{
+//	APlayerController* PlayerController = GetOwningPlayerController();
+//	if (PlayerController && AnnouncementClass)
+//	{
+//		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+//		Announcement->AddToViewport();
+//	}
+//}
 
 
 void ABlasterHUD::DrawHUD()

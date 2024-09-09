@@ -15,56 +15,56 @@
 #include "Online/OnlineSessionNames.h"
 #include "Blaster/GameState/BlasterGameState.h"
 
-namespace MatchState
-{
-	const FName Cooldown = FName("Cooldown");
-}
+//namespace MatchState
+//{
+//	const FName Cooldown = FName("Cooldown");
+//}
 
 ABlasterGameMode::ABlasterGameMode()
 {
-	bDelayedStart = true;
+	//bDelayedStart = true;
 }
 
 void ABlasterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	LevelStartingTime = GetWorld()->GetTimeSeconds();
+	//LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
 
-void ABlasterGameMode::OnMatchStateSet()
-{
-	Super::OnMatchStateSet();
-
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
-		if (BlasterPlayer)
-		{
-			BlasterPlayer->OnMatchStateSet(MatchState);
-		}
-	}
-}
+//void ABlasterGameMode::OnMatchStateSet()
+//{
+//	Super::OnMatchStateSet();
+//
+//	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+//	{
+//		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
+//		if (BlasterPlayer)
+//		{
+//			BlasterPlayer->OnMatchStateSet(MatchState);
+//		}
+//	}
+//}
 
 void ABlasterGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (MatchState == MatchState::WaitingToStart)
-	{
-		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
-		if (CountdownTime <= 0.0f)
-		{
-			StartMatch();
-		}
-	}
-	else if (MatchState == MatchState::InProgress)
-	{
-		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
-		if (CountdownTime <= 0.0f)
-		{
-			SetMatchState(MatchState::Cooldown);
-		}
-	}
+	//if (MatchState == MatchState::WaitingToStart)
+	//{
+	//	CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+	//	if (CountdownTime <= 0.0f)
+	//	{
+	//		StartMatch();
+	//	}
+	//}
+	//else if (MatchState == MatchState::InProgress)
+	//{
+	//	CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+	//	if (CountdownTime <= 0.0f)
+	//	{
+	//		SetMatchState(MatchState::Cooldown);
+	//	}
+	//}
 
 
 
