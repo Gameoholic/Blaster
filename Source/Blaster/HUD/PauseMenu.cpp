@@ -79,7 +79,11 @@ void UPauseMenu::ReturnToMainMenu()
 
 void UPauseMenu::ExitGame()
 {
-
+	if (GetMultiplayerSessionsSubsystem())
+	{
+		MultiplayerSessionsSubsystem->DestroySession();
+	}
+	// leave game on OnDestroySession()
 }
 
 

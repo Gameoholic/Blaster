@@ -20,6 +20,7 @@
 #include "Blaster/Platform/DynamicPlatform.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blaster/Weapons/WeaponTypes.h"
+#include "Blaster/HUD/OverheadWidget.h"
 
 
 // Sets default values
@@ -149,6 +150,29 @@ void ABlasterCharacter::Tick(float DeltaTime)
 			}
 		}
 	}
+
+
+
+	// Set overhead widget displayname (not loaded immediately on BeginPlay on clients)
+	if (!bOverheadWidgetDisplayNameSet) // Only show nametags of other players, not self
+	{
+		OverheadWidgetCasted = OverheadWidgetCasted == nullptr ? Cast<UOverheadWidget>(OverheadWidget->GetUserWidgetObject()) : OverheadWidgetCasted;
+		if (GetPlayerState() && OverheadWidgetCasted && !IsLocallyControlled())
+		{
+			OverheadWidgetCasted->SetDisplayText(GetPlayerState()->GetPlayerName());
+			bOverheadWidgetDisplayNameSet = true;
+		}
+	}
+
+	// Make overhead widget face the locally controlled player character
+	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(
+		OverheadWidget->GetComponentLocation(),
+		UGameplayStatics::GetPlayerCameraManager(this, 0)->GetRootComponent()->GetComponentLocation()
+	);
+	OverheadWidget->SetWorldRotation(NewRotation);
+
+	
+	
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

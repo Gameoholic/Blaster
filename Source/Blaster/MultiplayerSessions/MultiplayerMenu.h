@@ -100,7 +100,7 @@ private:
 	void LookForSessions();
 
 	UFUNCTION(BlueprintCallable)
-	void CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN);
+	void CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN, FString HostDisplayName);
 
 	UFUNCTION(BlueprintCallable)
 	void JoinSession(FOnlineSessionSearchResultWrapper SessionSearchResult);

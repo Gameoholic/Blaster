@@ -65,7 +65,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, Category = Camera)
+	UPROPERTY(VisibleAnywhere, Category = Camera, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -178,6 +178,10 @@ private:
 	void ClientReceiveDynamicPlatformStates(const TArray<FDynamicPlatformReplicationData>& DynamicPlatformsReplicationDataArray);
 	bool bClientRequestedPlatformStatesFromServer = false;
 	float ClientTimeToReceiveResponseToPlatformStatesRequest = 0.0f;
+
+	class UOverheadWidget* OverheadWidgetCasted = nullptr;
+	bool bOverheadWidgetDisplayNameSet = false;
+	
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

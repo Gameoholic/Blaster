@@ -79,7 +79,7 @@ void UMultiplayerMenu::LookForSessions()
 	}
 }
 
-void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN)
+void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString DisplayName, bool bIsLAN, FString HostDisplayName)
 {
 	if (MultiplayerSessionsSubsystem && !bCreatingSession)
 	{

@@ -17,11 +17,12 @@ class BLASTER_API UOverheadWidget : public UUserWidget
 public:
 	UPROPERTY(meta = (BindWidget)) // Bind to text block in widget blueprint
 	class UTextBlock* DisplayText; // Needs to have same name as variable in widget blueprint
-	
-	void SetDisplayText(FString TextToDisplay);
+
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* TextBorder;
 
 	UFUNCTION(BlueprintCallable)
-	void ShowPlayerNetRole(APawn* InPawn);
+	void SetDisplayText(FString TextToDisplay);
 
 protected:
 	virtual void NativeDestruct() override;
