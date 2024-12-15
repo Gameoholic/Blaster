@@ -70,7 +70,6 @@ void UMultiplayerMenu::LookForSessions()
 	if (MultiplayerSessionsSubsystem && !bLookingForSessions && !bCreatingSession && !bJoiningSession)
 	{
 		bLookingForSessions = true;
-		OnLookingForSessionValueChanged(bLookingForSessions);
 		MultiplayerSessionsSubsystem->FindSessions(10000);
 	}
 	else
@@ -84,7 +83,6 @@ void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString Display
 	if (MultiplayerSessionsSubsystem && !bCreatingSession)
 	{
 		bCreatingSession = true;
-		OnCreatingSessionValueChanged(bCreatingSession);
 		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, DisplayName, bIsLAN);
 	}
 	else
@@ -97,7 +95,6 @@ void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString Display
 void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 {
 	bCreatingSession = false;
-	OnCreatingSessionValueChanged(bCreatingSession);
 	if (bWasSuccessful)
 	{
 		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Create session was successful. Travelling to it."));
@@ -118,7 +115,6 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 	UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Found %d total sessions, checking them now."), SessionResults.Num());
 
 	bLookingForSessions = false;
-	OnLookingForSessionValueChanged(bLookingForSessions);
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
 		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Find sessions error - subsystem is null."));
@@ -171,7 +167,6 @@ void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSear
 	if (MultiplayerSessionsSubsystem && !bJoiningSession && !bCreatingSession)
 	{
 		bJoiningSession = true;
-		OnJoiningSessionValueChanged(bJoiningSession);
 		MultiplayerSessionsSubsystem->JoinSession(SessionSearchResult.SessionSearchResult);
 	}
 	else
