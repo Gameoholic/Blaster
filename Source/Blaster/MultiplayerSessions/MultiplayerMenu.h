@@ -63,6 +63,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnNoSessionsFound();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayErrorMessage(const FString& ErrorMessage);
+
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bLookingForSessions = false;
@@ -101,7 +104,6 @@ private:
 	void MenuTearDown();
 
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
-
 
 
 

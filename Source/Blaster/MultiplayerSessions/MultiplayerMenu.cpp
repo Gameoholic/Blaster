@@ -6,6 +6,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
+#include "Blaster/GameInstance/BlasterGameInstance.h"
 
 
 void UMultiplayerMenu::SetupMenu()
@@ -32,6 +33,14 @@ void UMultiplayerMenu::SetupMenu()
 	if (GameInstance)
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
+
+		// Display network error message if there is any from Game Instance
+		UBlasterGameInstance* CastedGameInstance = Cast<UBlasterGameInstance>(GameInstance);
+		if (CastedGameInstance && CastedGameInstance->NetworkErrorMessage.Len() > 0)
+		{
+			DisplayErrorMessage(CastedGameInstance->NetworkErrorMessage);
+			CastedGameInstance->NetworkErrorMessage = FString(""); // Reset error message
+		}
 	}
 
 	if (MultiplayerSessionsSubsystem)
@@ -44,6 +53,7 @@ void UMultiplayerMenu::SetupMenu()
 	}
 	else
 	{
+		// UI Error Message not necessary here
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't set up sessions subsystem."));
 	}
 }
@@ -74,6 +84,7 @@ void UMultiplayerMenu::LookForSessions()
 	}
 	else
 	{
+		// No need to display error message
 		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot look for sessions, this is probably fine."));
 	}
 }
@@ -87,6 +98,7 @@ void UMultiplayerMenu::CreateSession(int32 NumPublicConnections, FString Display
 	}
 	else
 	{
+		// No need to display error message
 		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot create session, this is probably fine."));
 	}
 }
@@ -106,6 +118,7 @@ void UMultiplayerMenu::OnCreateSession(bool bWasSuccessful)
 	}
 	else
 	{
+		DisplayErrorMessage("Couldn't create server. Please try again.");
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Create session was not successful."));
 	}
 }
@@ -117,12 +130,14 @@ void UMultiplayerMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& 
 	bLookingForSessions = false;
 	if (MultiplayerSessionsSubsystem == nullptr)
 	{
+		DisplayErrorMessage("Couldn't look for servers. Please try again.");
 		UE_LOG(LogBlasterNetworking, Log, TEXT("[MultiplayerMenu] Find sessions error - subsystem is null."));
 		return;
 	}
 
 	if (!bWasSuccessful)
 	{
+		DisplayErrorMessage("Couldn't look for servers. Please try again.");
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Session search not successful due to an error."));
 		return;
 	}
@@ -172,6 +187,7 @@ void UMultiplayerMenu::JoinSession(FOnlineSessionSearchResultWrapper SessionSear
 	else
 	{
 		UE_LOG(LogBlasterNetworking, Warning, TEXT("[MultiplayerMenu] Cannot join session, this is probably fine."));
+		DisplayErrorMessage("Couldn't join the server. Please try again.");
 	}
 }
 
@@ -182,6 +198,7 @@ void UMultiplayerMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 	if (Result != EOnJoinSessionCompleteResult::Type::Success)
 	{
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] OnJoinSession wasn't successful."));
+		DisplayErrorMessage("Couldn't join the server. Please try again.");
 		return;
 	}
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
@@ -208,6 +225,7 @@ void UMultiplayerMenu::OnDestroySession(bool bWasSuccessful)
 	if (!bWasSuccessful)
 	{
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't destroy session."));
+		DisplayErrorMessage("An error occurred.");
 	}
 }
 
@@ -216,6 +234,7 @@ void UMultiplayerMenu::OnStartSession(bool bWasSuccessful)
 	if (!bWasSuccessful)
 	{
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerMenu] Couldn't start session."));
+		DisplayErrorMessage("An error occurred.");
 	}
 }
 
@@ -234,4 +253,6 @@ void UMultiplayerMenu::MenuTearDown()
 		}
 	}
 }
+
+
 

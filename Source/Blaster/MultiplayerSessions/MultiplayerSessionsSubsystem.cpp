@@ -116,7 +116,6 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 	{
 		UE_LOG(LogBlasterNetworking, Error, TEXT("[MultiplayerSessionsSubsystem] Couldn't join session because we are already in session! Attempting to destroy it now."));
 		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
-		DestroySession();
 		return;
 	}
 

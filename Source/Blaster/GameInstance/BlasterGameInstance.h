@@ -25,8 +25,10 @@ public:
 
 	virtual void Init() override;
 
-	void OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
-	void OnTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString);
+	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
+	void HandleTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString);
+
+	FString NetworkErrorMessage = FString("");
 
 private:
 	UMultiplayerSessionsSubsystem* MultiplayerSubsystem = nullptr;

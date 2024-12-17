@@ -9,8 +9,10 @@ void UBlasterGameInstance::Init()
 	UEngine* Engine = GetEngine();
 	if (Engine)
 	{
-		Engine->OnNetworkFailure().AddUObject(this, &UBlasterGameInstance::OnNetworkFailure);
-		Engine->OnTravelFailure().AddUObject(this, &UBlasterGameInstance::OnTravelFailure);
+		Engine->OnNetworkFailure().Clear(); // We call the original one later manually
+		Engine->OnTravelFailure().Clear(); // We call the original one later manually
+		Engine->OnNetworkFailure().AddUObject(this, &UBlasterGameInstance::HandleNetworkFailure); // Default is UEngine::HandleNetworkFailure
+		Engine->OnTravelFailure().AddUObject(this, &UBlasterGameInstance::HandleTravelFailure); // Default is UEngine::HandleTravelFailure
 	}
 
 	// Make sure we don't have any existing session (aka hosting/connected to a session) when we start the game. This shouldn't happen but just in case.
@@ -24,8 +26,12 @@ void UBlasterGameInstance::Init()
 	}
 }
 
-void UBlasterGameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+void UBlasterGameInstance::HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
 {
+	NetworkErrorMessage = FString(ErrorString); // Later displayed to client
+	// Call original network failure handler. We want to keep this order.
+	GetEngine()->HandleNetworkFailure(World, NetDriver, FailureType, ErrorString);
+
 	// In case the host disconnects the clients will remain in the session, so we must destroy the connection and leave it.
 	// We'll return to the main menu regardless, not sure why. Probably something internal in NetworkFailure()
 	UE_LOG(LogBlasterNetworking, Warning, TEXT("[BlasterGameInstance] Network Failure! %s"), *ErrorString);
@@ -38,9 +44,13 @@ void UBlasterGameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver
 }
 
 
-void UBlasterGameInstance::OnTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString)
+void UBlasterGameInstance::HandleTravelFailure(UWorld* World, ETravelFailure::Type FailureType, const FString& ErrorString)
 {
-	// I haven't really had any problems with server travel, but the logic here seems good so I'm keeping it.
+	NetworkErrorMessage = FString(ErrorString); // Later displayed to client
+	// Call original network failure handler. We want to keep this order.
+	GetEngine()->HandleTravelFailure(World, FailureType, ErrorString);
+
+	// I haven't had any problems with server travel, but the logic here seems good so I'm keeping it.
 	UE_LOG(LogBlasterNetworking, Warning, TEXT("[BlasterGameInstance] Travel Failure! %s"), *ErrorString);
 	MultiplayerSubsystem = MultiplayerSubsystem == nullptr ? GetSubsystem<UMultiplayerSessionsSubsystem>() : MultiplayerSubsystem;
 	if (MultiplayerSubsystem != nullptr)
@@ -49,3 +59,5 @@ void UBlasterGameInstance::OnTravelFailure(UWorld* World, ETravelFailure::Type F
 		MultiplayerSubsystem->DestroySessionIfExists();
 	}
 }
+
+
