@@ -21,6 +21,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blaster/Weapons/WeaponTypes.h"
 #include "Blaster/HUD/OverheadWidget.h"
+#include "Blaster/MultiplayerSessions/MultiplayerSessionsSubsystem.h"
+#include "Blaster/GameInstance/BlasterGameInstance.h"
+#include "Blaster/GameMode/LobbyGameMode.h"
 
 
 // Sets default values
@@ -485,6 +488,18 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 			if (BlasterPlayerController && AttackerController)
 			{
 				BlasterGameMode->PlayerKilled(this, BlasterPlayerController, AttackerController);
+			}
+		}
+
+		// todo: this sohudl called on locally controlled killed player
+		// If killed in lobby, player will be kicked
+		ALobbyGameMode* LobbyGameMode = GetWorld()->GetAuthGameMode<ALobbyGameMode>();
+		if (LobbyGameMode)
+		{
+			APlayerController* PlayerController = Cast<APlayerController>(Controller);
+			if (PlayerController)
+			{
+				LobbyGameMode->PlayerKilled(PlayerController);
 			}
 		}
 	}

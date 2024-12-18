@@ -4,6 +4,8 @@
 
 #include "LobbyGameMode.h"
 #include "GameFramework//GameStateBase.h"
+#include "Blaster/GameInstance/BlasterGameInstance.h"
+#include "GameFramework/GameSession.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
@@ -34,6 +36,17 @@ void ALobbyGameMode::TravelToMap(FString MapPath)
 	{
 		bUseSeamlessTravel = true;
 		World->ServerTravel(FString::Printf(TEXT("%s?listen"), *MapPath)); // listen server, clients to connect to
+	}
+}
+
+void ALobbyGameMode::PlayerKilled(APlayerController* KilledPlayerController)
+{
+	// If player died in the lobby, kick them
+	UBlasterGameInstance* BlasterGameInstance = Cast<UBlasterGameInstance>(GetGameInstance());
+	if (BlasterGameInstance)
+	{
+		// Access (authoritative) game session and kick player
+		GameSession.Get()->KickPlayer(KilledPlayerController, FText::FromString("This kick reason will not get displayed to clients."));
 	}
 }
 

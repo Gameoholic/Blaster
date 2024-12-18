@@ -30,6 +30,8 @@ public:
 
 	FString NetworkErrorMessage = FString("");
 
+	UMultiplayerSessionsSubsystem* GetMultiplayerSubsystem();
+
 private:
 	UMultiplayerSessionsSubsystem* MultiplayerSubsystem = nullptr;
 

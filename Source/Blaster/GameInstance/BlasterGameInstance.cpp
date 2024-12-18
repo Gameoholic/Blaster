@@ -60,4 +60,9 @@ void UBlasterGameInstance::HandleTravelFailure(UWorld* World, ETravelFailure::Ty
 	}
 }
 
+UMultiplayerSessionsSubsystem* UBlasterGameInstance::GetMultiplayerSubsystem()
+{
+	return MultiplayerSubsystem;
+}
+
 
