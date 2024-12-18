@@ -20,7 +20,6 @@ ALobbyHostWeapon::ALobbyHostWeapon()
 void ALobbyHostWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Shot"));
 	WidgetInteraction->PressPointerKey(EKeys::LeftMouseButton);
 	WidgetInteraction->ReleasePointerKey(EKeys::LeftMouseButton);
 }
