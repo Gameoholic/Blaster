@@ -19,6 +19,10 @@ public:
 	ALobbyHostWeapon();
 
 	virtual void Fire(const FVector& HitTarget) override;
+
+protected:
+	virtual void BeginPlay() override;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UWidgetInteractionComponent* WidgetInteraction;

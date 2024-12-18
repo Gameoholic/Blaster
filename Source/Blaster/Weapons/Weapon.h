@@ -62,6 +62,10 @@ protected:
 		int32 OtherBodyIndex
 	);
 
+	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
+	class ABlasterPlayerController* BlasterOwnerController = nullptr;
+
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	USkeletalMeshComponent* WeaponMesh;
@@ -126,8 +130,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
 
-	class ABlasterCharacter* BlasterOwnerCharacter = nullptr;
-	class ABlasterPlayerController* BlasterOwnerController = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
