@@ -505,6 +505,14 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 	}
 }
 
+void ABlasterCharacter::ForceEquipWeapon(AWeapon* WeaponToEquip)
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(WeaponToEquip);
+	}
+}
+
 void ABlasterCharacter::OnRep_Health()
 {
 	UpdateHUDHealth();
