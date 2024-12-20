@@ -3,6 +3,8 @@
 
 #include "LobbySettingsWidget.h"
 #include "Blaster/GameMode/LobbyGameMode.h"
+#include "Net/UnrealNetwork.h"
+
 
 void ULobbySettingsWidget::SelectMap(FString SelectedMapPathString)
 {
@@ -35,3 +37,6 @@ void ULobbySettingsWidget::StartGame()
 		}
 	}
 }
+
+
+

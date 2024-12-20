@@ -35,9 +35,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StartGame();
+
+
+
 private:
 	UPROPERTY(Category = "Settings", EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<FMapType> Maps = { };
 
+
 	FString SelectedMapPath = TEXT("");
+
+
+
 };
