@@ -6,6 +6,26 @@
 #include "Net/UnrealNetwork.h"
 
 
+
+
+ULobbySettingsWidgetComponent::ULobbySettingsWidgetComponent()
+{
+	SetIsReplicated(true);
+}
+
+void ULobbySettingsWidgetComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ULobbySettingsWidgetComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ULobbySettingsWidgetComponent, SelectedMapPath);
+}
+
+
 void ULobbySettingsWidgetComponent::SelectMap(FString SelectedMapPathString)
 {
 	// Path for some reason contains . and then repeats itself so we get rid of the dot and everything after it
@@ -37,14 +57,11 @@ void ULobbySettingsWidgetComponent::StartGame()
 	}
 }
 
-void ULobbySettingsWidgetComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ULobbySettingsWidgetComponent::OnRep_SelectedMapPath(FString LastMapPath)
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ULobbySettingsWidgetComponent, SelectedMapPath);
+	OnReplicatedSelectedMapPath();
 }
 
-void ULobbySettingsWidgetComponent::OnRep_SelectedMapPath(FString LastText)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("asd"));
-}
+
+
+

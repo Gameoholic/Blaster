@@ -30,26 +30,29 @@ class BLASTER_API ULobbySettingsWidgetComponent : public UWidgetComponent
 	GENERATED_BODY()
 
 public:
+	ULobbySettingsWidgetComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// Called as a result of LobbySettingsWidget BP events:
 	UFUNCTION(BlueprintCallable)
 	void SelectMap(FString SelectedMapPathString);
 
 	UFUNCTION(BlueprintCallable)
 	void StartGame();
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	// Rep events:
+	UFUNCTION()
+	void OnRep_SelectedMapPath(FString LastMapPath);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnReplicatedSelectedMapPath();
 
-
-	// Called by LobbySettingsWidget BP events:
-	//UFUNCTION(BlueprintCallable)
+protected:
+	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY(Category = "Settings", EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<FMapType> Maps = { };
 
-	UPROPERTY(ReplicatedUsing = OnRep_SelectedMapPath)
+	UPROPERTY(ReplicatedUsing = OnRep_SelectedMapPath, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FString SelectedMapPath = TEXT("");
-
-
-	UFUNCTION()
-	void OnRep_SelectedMapPath(FString LastText);
 };
