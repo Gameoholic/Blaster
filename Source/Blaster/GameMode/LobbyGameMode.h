@@ -20,6 +20,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void TravelToMap(FString MapPath);
-	virtual void PlayerKilled(class APlayerController* KilledPlayerController);
+	virtual void KickPlayer(class APlayerController* PlayerToKickController);
 
 };

@@ -499,7 +499,7 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 			APlayerController* PlayerController = Cast<APlayerController>(Controller);
 			if (PlayerController)
 			{
-				LobbyGameMode->PlayerKilled(PlayerController);
+				LobbyGameMode->KickPlayer(PlayerController);
 			}
 		}
 	}

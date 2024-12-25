@@ -10,6 +10,7 @@
  * 
  */
 
+
 USTRUCT(BlueprintType)
 struct FMapType
 {
@@ -39,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartGame();
 
+	UFUNCTION(BlueprintCallable)
+	void KickPlayer(APlayerState* PlayerToBeKicked);
+
 	// Rep events:
 	UFUNCTION()
 	void OnRep_SelectedMapPath(FString LastMapPath);
@@ -54,4 +58,7 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_SelectedMapPath, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FString SelectedMapPath = TEXT("");
+
+	class ALobbyGameMode* LobbyGameMode;
+	ALobbyGameMode* GetLobbyGameMode();
 };

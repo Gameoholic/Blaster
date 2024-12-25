@@ -4,6 +4,7 @@
 #include "LobbySettingsWidgetComponent.h"
 #include "Blaster/GameMode/LobbyGameMode.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/PlayerState.h"
 
 
 
@@ -37,18 +38,20 @@ void ULobbySettingsWidgetComponent::StartGame()
 		return;
 	}
 
-	UWorld* World = GetWorld();
-	if (World)
+	if (GetLobbyGameMode())
 	{
+		LobbyGameMode->TravelToMap(SelectedMapPath);
+	}
+}
 
-		AGameModeBase* GameMode = World->GetAuthGameMode();
-		if (GameMode != nullptr)
+void ULobbySettingsWidgetComponent::KickPlayer(APlayerState* PlayerToBeKicked)
+{
+	if (GetLobbyGameMode())
+	{
+		APlayerController* Controller = PlayerToBeKicked->GetPlayerController();
+		if (Controller)
 		{
-			ALobbyGameMode* LobbyGameMode = Cast<ALobbyGameMode>(GameMode);
-			if (LobbyGameMode != nullptr)
-			{
-				LobbyGameMode->TravelToMap(SelectedMapPath);
-			}
+			LobbyGameMode->KickPlayer(Controller);
 		}
 	}
 }
@@ -58,6 +61,27 @@ void ULobbySettingsWidgetComponent::OnRep_SelectedMapPath(FString LastMapPath)
 	OnReplicatedSelectedMapPath();
 }
 
+
+
+ALobbyGameMode* ULobbySettingsWidgetComponent::GetLobbyGameMode()
+{
+	if (LobbyGameMode)
+	{
+		return LobbyGameMode;
+	}
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		AGameModeBase* GameMode = World->GetAuthGameMode();
+		if (GameMode != nullptr)
+		{
+			LobbyGameMode = Cast<ALobbyGameMode>(GameMode);
+			return LobbyGameMode;
+		}
+	}
+	return nullptr;
+}
 
 
 

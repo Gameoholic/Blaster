@@ -39,14 +39,14 @@ void ALobbyGameMode::TravelToMap(FString MapPath)
 	}
 }
 
-void ALobbyGameMode::PlayerKilled(APlayerController* KilledPlayerController)
+void ALobbyGameMode::KickPlayer(APlayerController* PlayerToKickController)
 {
 	// If player died in the lobby, kick them
 	UBlasterGameInstance* BlasterGameInstance = Cast<UBlasterGameInstance>(GetGameInstance());
 	if (BlasterGameInstance)
 	{
 		// Access (authoritative) game session and kick player
-		GameSession.Get()->KickPlayer(KilledPlayerController, FText::FromString("This kick reason will not get displayed to clients."));
+		GameSession.Get()->KickPlayer(PlayerToKickController, FText::FromString("This kick reason will not get displayed to clients."));
 	}
 }
 
