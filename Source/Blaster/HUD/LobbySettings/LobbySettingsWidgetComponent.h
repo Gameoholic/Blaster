@@ -30,7 +30,6 @@ class BLASTER_API ULobbySettingsWidgetComponent : public UWidgetComponent
 	GENERATED_BODY()
 
 public:
-	ULobbySettingsWidgetComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Called as a result of LobbySettingsWidget BP events:

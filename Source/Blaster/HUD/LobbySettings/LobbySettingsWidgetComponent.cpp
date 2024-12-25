@@ -8,14 +8,10 @@
 
 
 
-ULobbySettingsWidgetComponent::ULobbySettingsWidgetComponent()
-{
-	SetIsReplicated(true);
-}
-
 void ULobbySettingsWidgetComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	SetIsReplicated(true);
 }
 
 void ULobbySettingsWidgetComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
