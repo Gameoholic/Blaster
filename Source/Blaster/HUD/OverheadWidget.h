@@ -21,8 +21,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* TextBorder;
 
-	UFUNCTION(BlueprintCallable)
 	void SetDisplayText(FString TextToDisplay);
+	// Appends host icon to the widget
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetIsHost();
 
 protected:
 	virtual void NativeDestruct() override;

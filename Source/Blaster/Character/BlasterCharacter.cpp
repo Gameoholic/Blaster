@@ -24,6 +24,7 @@
 #include "Blaster/MultiplayerSessions/MultiplayerSessionsSubsystem.h"
 #include "Blaster/GameInstance/BlasterGameInstance.h"
 #include "Blaster/GameMode/LobbyGameMode.h"
+#include "Blaster/GameState/LobbyGameState.h"
 
 
 // Sets default values
@@ -100,6 +101,8 @@ void ABlasterCharacter::BeginPlay()
 	{
 		NewServerRequestDynamicPlatformStates();
 	}
+
+	LobbyGameState = Cast<ALobbyGameState>(UGameplayStatics::GetGameState(this));
 }
 
 void ABlasterCharacter::NewServerRequestDynamicPlatformStates_Implementation()
@@ -160,9 +163,14 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	if (!bOverheadWidgetDisplayNameSet) // Only show nametags of other players, not self
 	{
 		OverheadWidgetCasted = OverheadWidgetCasted == nullptr ? Cast<UOverheadWidget>(OverheadWidget->GetUserWidgetObject()) : OverheadWidgetCasted;
-		if (GetPlayerState() && OverheadWidgetCasted && !IsLocallyControlled())
+		if (GetPlayerState() && OverheadWidgetCasted && !IsLocallyControlled() && LobbyGameState)
 		{
 			OverheadWidgetCasted->SetDisplayText(GetPlayerState()->GetPlayerName());
+			// If player is host, set host icon
+			if (LobbyGameState->HostPlayerName == GetPlayerState()->GetPlayerName())
+			{
+				OverheadWidgetCasted->SetIsHost();
+			}
 			bOverheadWidgetDisplayNameSet = true;
 		}
 	}

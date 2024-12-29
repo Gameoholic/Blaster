@@ -183,6 +183,10 @@ private:
 
 	class UOverheadWidget* OverheadWidgetCasted = nullptr;
 	bool bOverheadWidgetDisplayNameSet = false;
+
+
+
+	class ALobbyGameState* LobbyGameState = nullptr;
 	
 
 public:
