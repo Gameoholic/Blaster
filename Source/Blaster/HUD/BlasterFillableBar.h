@@ -28,6 +28,9 @@ public:
 	class UBorder* FullBar;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* TemporaryBar;
+
+	UPROPERTY(meta = (BindWidget))
 	UBorder* EmptyBar;
 
 protected:
@@ -36,6 +39,7 @@ protected:
 private:
 	class UHorizontalBoxSlot* FullBarSlot = nullptr;
 	UHorizontalBoxSlot* EmptyBarSlot = nullptr;
+	UHorizontalBoxSlot* TemporaryBarSlot = nullptr;
 
 	float CurrentPercentage = 1.0f;
 	float TargetPercentage = 1.0f;
@@ -46,5 +50,9 @@ private:
 	// Between 0-1 how much of the transition have we done
 	float PercentageChangeProgress = 0.0f;
 
-	void SetPercentage();
+	// This will be called per tick
+	void UpdateBars();
+
+	// Change individual bar's horizontal box slot size (fill)
+	void ChangeBarSize(UHorizontalBoxSlot* Slot, float Size);
 };
