@@ -16,7 +16,7 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	
 public:
 
-	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDHealth(float PreviousHealth, float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDKills(int32 Kills);
 	void SetHUDDeaths(int32 Deaths);

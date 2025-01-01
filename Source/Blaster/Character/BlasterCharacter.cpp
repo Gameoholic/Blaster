@@ -482,8 +482,9 @@ void ABlasterCharacter::FireButtonReleased()
 // this will only be called on server (authority)
 void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
+	float PreviousHealth = Health;
 	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth); // replicated to clients, see OnRep_Health
-	UpdateHUDHealth();
+	UpdateHUDHealth(PreviousHealth);
 	PlayHitReactMontage();
 
 	if (Health == 0.0f)
@@ -606,12 +607,12 @@ float ABlasterCharacter::CalculateSpeed()
 }
 
 
-void ABlasterCharacter::UpdateHUDHealth()
+void ABlasterCharacter::UpdateHUDHealth(float PreviousHealth)
 {
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 	if (BlasterPlayerController)
 	{
-		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+		BlasterPlayerController->SetHUDHealth(PreviousHealth == -1.0f ? Health : PreviousHealth, Health, MaxHealth);
 	}
 }
 

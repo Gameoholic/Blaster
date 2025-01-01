@@ -17,7 +17,7 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 
 public:
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* HealthBar;
+	class UBlasterFillableBar* HealthBar;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HealthText;
@@ -37,6 +37,5 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CarriedWeaponAmmoText;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MatchCountdownText;
+
 };

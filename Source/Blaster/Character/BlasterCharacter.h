@@ -41,7 +41,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void UpdateHUDHealth();
+	// Set to -1.0f if no previous health
+	void UpdateHUDHealth(float PreviousHealth = 1.0f);
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);

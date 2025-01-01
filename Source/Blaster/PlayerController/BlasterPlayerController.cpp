@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blaster/GameState/BlasterGameState.h"
 #include "Blaster/HUD/PauseMenu.h"
+#include "Blaster/HUD/BlasterFillableBar.h"
 
 
 
@@ -79,7 +80,7 @@ void ABlasterPlayerController::PollInit()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDHealth(HUDHealth, HUDHealth, HUDMaxHealth);
 				SetHUDScore(HUDScore);
 				SetHUDDeaths(HUDDeaths);
 			}
@@ -123,14 +124,13 @@ bool ABlasterPlayerController::IsHUDValid()
 	BlasterHUD = (BlasterHUD == nullptr && GetHUD() != nullptr) ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	return (BlasterHUD != nullptr && BlasterHUD->CharacterOverlay != nullptr &&
 		BlasterHUD->CharacterOverlay->HealthBar != nullptr && BlasterHUD->CharacterOverlay->HealthText != nullptr
-		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->WeaponAmmoText != nullptr
-		&& BlasterHUD->CharacterOverlay->MatchCountdownText != nullptr);
+		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->WeaponAmmoText != nullptr);
 }
 
 
 
 
-void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
+void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, float MaxHealth)
 {
 	if (!IsHUDValid())
 	{
@@ -141,7 +141,15 @@ void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 
 	const float HealthPercent = Health / MaxHealth;
-	BlasterHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
+	// If damage was more than 50% of max health
+	if (PreviousHealth - Health >= MaxHealth / 2.0f)
+	{
+		BlasterHUD->CharacterOverlay->HealthBar->StartPercentageChange(HealthPercent, 1.4f, 3.0f);
+	}
+	else
+	{
+		BlasterHUD->CharacterOverlay->HealthBar->StartPercentageChange(HealthPercent, 0.5f, 1.0f);
+	}
 	FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 	BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 }
@@ -235,7 +243,7 @@ void ABlasterPlayerController::OnPossess(APawn* InPawn)
 	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(InPawn);
 	if (BlasterCharacter)
 	{
-		SetHUDHealth(BlasterCharacter->GetHealth(), BlasterCharacter->GetMaxHealth());
+		SetHUDHealth(BlasterCharacter->GetHealth(), BlasterCharacter->GetHealth(), BlasterCharacter->GetMaxHealth());
 	}
 }
 
