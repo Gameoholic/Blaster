@@ -6,11 +6,21 @@
 #include "Components/HorizontalBoxSlot.h"
 
 
+void UBlasterFillableBar::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	FullBar->SetBrushColor(FullBarColor);
+	TemporaryBar->SetBrushColor(TemporaryBarColor);
+	EmptyBar->SetBrushColor(EmptyBarColor);
+
+	StartPercentageChange(DefaultPercentage, 0.0f, 0.0f); // Reset percentage to default value 1.0f
+}
 
 
 void UBlasterFillableBar::NativeOnInitialized()
 {
-	Super::OnInitialized();
+	Super::NativeOnInitialized();
 
 	FullBarSlot = Cast<UHorizontalBoxSlot>(FullBar->Slot);
 	TemporaryBarSlot = Cast<UHorizontalBoxSlot>(TemporaryBar->Slot);

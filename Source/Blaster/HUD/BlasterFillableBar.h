@@ -33,8 +33,21 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* EmptyBar;
 
+	UPROPERTY(EditAnywhere)
+	FLinearColor FullBarColor = FLinearColor(0.625f, 0.0f, 0.040111f, 1.0f);
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor TemporaryBarColor = FLinearColor(0.623529f, 0.0f, 0.039216f, 1.0f);
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor EmptyBarColor = FLinearColor(0.109375f, 0.0f, 0.007019f, 1.0f);
+
+	UPROPERTY(EditDefaultsOnly)
+	float DefaultPercentage = 1.0f;
+
 protected:
 	virtual void NativeOnInitialized() override;
+	virtual void NativePreConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 private:
 	class UHorizontalBoxSlot* FullBarSlot = nullptr;
