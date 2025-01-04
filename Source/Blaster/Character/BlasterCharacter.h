@@ -41,8 +41,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Set to -1.0f if no previous health
-	void UpdateHUDHealth(float PreviousHealth = 1.0f);
+	void UpdateHUDHealth();
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -128,6 +127,7 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_Health, VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.0f;
+	float PreviousHealth = Health;
 
 	UFUNCTION()
 	void OnRep_Health();
