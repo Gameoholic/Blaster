@@ -609,6 +609,7 @@ float ABlasterCharacter::CalculateSpeed()
 
 void ABlasterCharacter::UpdateHUDHealth(float PreviousHealth)
 {
+
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 	if (BlasterPlayerController)
 	{

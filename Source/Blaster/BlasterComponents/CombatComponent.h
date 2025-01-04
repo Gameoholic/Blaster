@@ -108,20 +108,6 @@ private:
 	
 	bool CanFire();
 
-	// Carried ammo for the currently-equipped weapon
-	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
-	int32 CarriedAmmo;
-
-	UFUNCTION()
-	void OnRep_CarriedAmmo();
-
-	TMap<EWeaponType, int32> ServerCarriedAmmoMap;
-
-	UPROPERTY(EditAnywhere)
-	int StartingARAmmo = 30;
-
-	void ServerInitCarriedAmmo();
-
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 

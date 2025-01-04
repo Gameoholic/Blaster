@@ -38,6 +38,7 @@ public:
 	void SetHUDAmmo();
 
 	bool IsAmmoEmpty();
+	int32 GetMagCapacity();
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* EquipSound;

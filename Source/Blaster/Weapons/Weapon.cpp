@@ -185,7 +185,7 @@ void AWeapon::SetHUDAmmo()
 		BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(BlasterOwnerCharacter->GetController()) : BlasterOwnerController;
 		if (BlasterOwnerController)
 		{
-			BlasterOwnerController->SetHUDWeaponAmmo(Ammo);
+			BlasterOwnerController->SetHUDWeaponAmmo(Ammo, MagCapacity);
 		}
 	}
 }
@@ -212,7 +212,7 @@ void AWeapon::OnRep_Ammo()
 		BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(BlasterOwnerCharacter->Controller) : BlasterOwnerController;
 		if (BlasterOwnerController)
 		{
-			BlasterOwnerController->SetHUDWeaponAmmo(Ammo);
+			BlasterOwnerController->SetHUDWeaponAmmo(Ammo, MagCapacity);
 		}
 	}
 }
@@ -237,4 +237,9 @@ void AWeapon::AddAmmo(int32 AmmoToAdd)
 bool AWeapon::IsAmmoEmpty()
 {
 	return Ammo <= 0;
+}
+
+int32 AWeapon::GetMagCapacity()
+{
+	return MagCapacity;
 }

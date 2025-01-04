@@ -28,7 +28,6 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
-	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 }
 
@@ -48,7 +47,7 @@ void UCombatComponent::BeginPlay()
 
 		if (Character->HasAuthority())
 		{
-			ServerInitCarriedAmmo();
+			//ServerInitCarriedAmmo();
 		}
 	}
 }
@@ -169,15 +168,10 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
 
-	if (ServerCarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
-	{
-		CarriedAmmo = ServerCarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-	}
-
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDWeaponAmmo(CarriedAmmo, EquippedWeapon->GetAmmo());
+		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
 	}
 
 
@@ -198,7 +192,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::Reload()
 {
-	if (EquippedWeapon == nullptr || CarriedAmmo <= 0 || 
+	if (EquippedWeapon == nullptr || 
 		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity())
 	{
 		return;
@@ -208,7 +202,7 @@ void UCombatComponent::Reload()
 
 void UCombatComponent::ServerReload_Implementation()
 {
-	if (Character == nullptr || CarriedAmmo <= 0 || EquippedWeapon == nullptr)
+	if (Character == nullptr || EquippedWeapon == nullptr)
 	{
 		return;
 	}
@@ -219,21 +213,16 @@ void UCombatComponent::ServerReload_Implementation()
 
 void UCombatComponent::UpdateAmmoValues()
 {
-	if (CarriedAmmo <= 0 || EquippedWeapon == nullptr)
+	if (EquippedWeapon == nullptr)
 	{
 		return;
 	}
 	int32 ReloadAmount = AmountToReload();
-	if (ServerCarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
-	{
-		ServerCarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
-		CarriedAmmo = ServerCarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-	}
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDWeaponAmmo(CarriedAmmo, EquippedWeapon->GetAmmo());
+		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
 	}
 
 	EquippedWeapon->AddAmmo(-ReloadAmount);
@@ -285,14 +274,7 @@ int32 UCombatComponent::AmountToReload()
 		return 0;
 	}
 	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
-
-	if (ServerCarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
-	{
-		int32 AmountCarried = ServerCarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-		int32 Least = FMath::Min(RoomInMag, AmountCarried);
-		return FMath::Clamp(RoomInMag, 0, Least);
-	}
-	return 0;
+	return RoomInMag;
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()
@@ -309,6 +291,12 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		Character->bUseControllerRotationYaw = true;
 
 		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+		}
 	}
 }
 
@@ -478,18 +466,5 @@ bool UCombatComponent::CanFire()
 	return (EquippedWeapon != nullptr && bCanFire && !EquippedWeapon->IsAmmoEmpty() && CombatState == ECombatState::ECS_Unoccupied);
 }
 
-void UCombatComponent::OnRep_CarriedAmmo()
-{
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDWeaponAmmo(CarriedAmmo, 0);
-	}
-}
-
-void UCombatComponent::ServerInitCarriedAmmo()
-{
-	ServerCarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingARAmmo);
-}
 
 
