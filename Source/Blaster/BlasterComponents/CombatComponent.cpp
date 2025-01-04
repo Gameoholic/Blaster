@@ -177,7 +177,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		Controller->SetHUDWeaponAmmo(CarriedAmmo, EquippedWeapon->GetAmmo());
 	}
 
 
@@ -233,7 +233,7 @@ void UCombatComponent::UpdateAmmoValues()
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		Controller->SetHUDWeaponAmmo(CarriedAmmo, EquippedWeapon->GetAmmo());
 	}
 
 	EquippedWeapon->AddAmmo(-ReloadAmount);
@@ -483,7 +483,7 @@ void UCombatComponent::OnRep_CarriedAmmo()
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		Controller->SetHUDWeaponAmmo(CarriedAmmo, 0);
 	}
 }
 

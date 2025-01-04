@@ -21,6 +21,11 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HealthText;
+	UPROPERTY(meta = (BindWidget))
+	class UBlasterFillableBar* AmmoBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* AmmoText;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ScoreText;
@@ -30,12 +35,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DeathsText;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* WeaponAmmoText;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* CarriedWeaponAmmoText;
 
 
 };

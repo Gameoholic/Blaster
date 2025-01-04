@@ -745,7 +745,7 @@ void ABlasterCharacter::MulticastKill_Implementation()
 {
 	if (BlasterPlayerController)
 	{
-		BlasterPlayerController->SetHUDWeaponAmmo(0);
+		//BlasterPlayerController->SetHUDWeaponAmmo(0);
 	}
 	bKilled = true;
 	// Enable ragdoll physics:

@@ -20,8 +20,7 @@ public:
 	void SetHUDScore(float Score);
 	void SetHUDKills(int32 Kills);
 	void SetHUDDeaths(int32 Deaths);
-	void SetHUDWeaponAmmo(int32 WeaponAmmo);
-	void SetHUDCarriedAmmo(int32 CarriedAmmo);
+	void SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMaxAmmo);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

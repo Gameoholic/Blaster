@@ -124,7 +124,8 @@ bool ABlasterPlayerController::IsHUDValid()
 	BlasterHUD = (BlasterHUD == nullptr && GetHUD() != nullptr) ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	return (BlasterHUD != nullptr && BlasterHUD->CharacterOverlay != nullptr &&
 		BlasterHUD->CharacterOverlay->HealthBar != nullptr && BlasterHUD->CharacterOverlay->HealthText != nullptr
-		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->WeaponAmmoText != nullptr);
+		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->AmmoBar != nullptr
+		&& BlasterHUD->CharacterOverlay->AmmoText != nullptr);
 }
 
 
@@ -152,6 +153,19 @@ void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, 
 	}
 	FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 	BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+}
+
+void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMaxAmmo)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	FString AmmoText = FString::Printf(TEXT("%d | %d"), WeaponRemainingAmmo, WeaponMaxAmmo);
+	BlasterHUD->CharacterOverlay->AmmoText->SetText(FText::FromString(AmmoText));
+
+	const float AmmoPercent = WeaponRemainingAmmo / WeaponMaxAmmo;
+	BlasterHUD->CharacterOverlay->AmmoBar->StartPercentageChange(AmmoPercent, 1.4f, 3.0f);
 }
 
 void ABlasterPlayerController::SetHUDScore(float Score)
@@ -188,25 +202,6 @@ void ABlasterPlayerController::SetHUDDeaths(int32 Deaths)
 	BlasterHUD->CharacterOverlay->DeathsText->SetText(FText::FromString(DeathsText));
 }
 
-void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponAmmo)
-{
-	if (!IsHUDValid())
-	{
-		return;
-	}
-	FString AmmoText = FString::Printf(TEXT("%d"), WeaponAmmo);
-	BlasterHUD->CharacterOverlay->WeaponAmmoText->SetText(FText::FromString(AmmoText));
-}
-
-void ABlasterPlayerController::SetHUDCarriedAmmo(int32 CarriedAmmo)
-{
-	if (!IsHUDValid())
-	{
-		return;
-	}
-	FString CarriedAmmoText = FString::Printf(TEXT("%d"), CarriedAmmo);
-	BlasterHUD->CharacterOverlay->CarriedWeaponAmmoText->SetText(FText::FromString(CarriedAmmoText));
-}
 
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 //{
