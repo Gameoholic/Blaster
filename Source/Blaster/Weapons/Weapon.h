@@ -130,6 +130,10 @@ private:
 	float FireDelay = 0.2f;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float CrosshairScatterFactor = 0.58f;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float CrosshairMinusAimingFactor = -0.58f;
 
 
 	UPROPERTY(EditAnywhere)
@@ -147,6 +151,9 @@ public:
 
 	FORCEINLINE float GetZoomedFOVMultiplier() const { return ZoomedFOVMultiplier; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE float GetCrosshairScatterFactor() const { return CrosshairScatterFactor; }
+	FORCEINLINE float GetCrosshairMinusAimingFactor() const { return CrosshairMinusAimingFactor; }
+
 
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE float GetAutomatic() const { return bAutomatic; }

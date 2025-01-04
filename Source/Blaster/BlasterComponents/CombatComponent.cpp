@@ -119,7 +119,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			{
 				if (EquippedWeapon)
 				{
-					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.0f, DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, EquippedWeapon->GetCrosshairMinusAimingFactor(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
 				}
 				CrosshairVelocityFactor /= 1.5F;
 			}
@@ -127,14 +127,18 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			{
 				if (EquippedWeapon)
 				{
-					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.58f, DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.0f, DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
 				}
 				//CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.0f, DeltaTime, 2.0f); // reset crosshair shooting factor faster
+			}
+			if (EquippedWeapon)
+			{
+				CrosshairWeaponFactor = EquippedWeapon->GetCrosshairScatterFactor();
 			}
 
 			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.0f, DeltaTime, 1.0f);
 
-			HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor + CrosshairAimFactor + CrosshairShootingFactor;
+			HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor + CrosshairAimFactor + CrosshairShootingFactor + CrosshairWeaponFactor;
 
 			HUD->SetHUDPackage(HUDPackage);
 		}
