@@ -144,10 +144,8 @@ void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, 
 
 	const float HealthPercent = Health / MaxHealth;
 	// If damage was more than 50% of max health
-	GEngine->AddOnScreenDebugMessage(-1, 2.0F, FColor::Red, FString::Printf(TEXT("Prev: %f"), PreviousHealth));
 	if (PreviousHealth - Health >= MaxHealth / 2.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0F, FColor::Red, TEXT("HI"));
 		BlasterHUD->CharacterOverlay->HealthBar->StartPercentageChange(HealthPercent, 1.4f, 3.0f);
 	}
 	else
