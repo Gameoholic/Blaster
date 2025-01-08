@@ -17,7 +17,8 @@ public class Blaster : ModuleRules
 			"OnlineSubsystemSteam",
             "UMG",
             "Slate",
-            "SlateCore"
+            "SlateCore",
+			"Niagara"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
