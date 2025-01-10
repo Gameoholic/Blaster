@@ -39,7 +39,7 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
+	class UBlasterProjectileMoveComponent* ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Tracer;
