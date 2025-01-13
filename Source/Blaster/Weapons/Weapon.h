@@ -131,13 +131,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
 	UPROPERTY(EditAnywhere, Category = Combat)
+	// How much to increase crosshair while holding this weapon (one-time)
 	float CrosshairScatterFactor = 0.58f;
 	UPROPERTY(EditAnywhere, Category = Combat)
-	float CrosshairMinusAimingFactor = -0.58f;
+	// How much to increase crosshair while aiming (one-time)
+	float CrosshairAimingFactor = -0.58f;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	// By how much to increase the crosshairs with EACH shot
+	float CrosshairShootingFactor = 0.6f;
 
 
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* FireSound;
 
 public:
 	void SetWeaponState(EWeaponState State);
@@ -152,8 +160,8 @@ public:
 	FORCEINLINE float GetZoomedFOVMultiplier() const { return ZoomedFOVMultiplier; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetCrosshairScatterFactor() const { return CrosshairScatterFactor; }
-	FORCEINLINE float GetCrosshairMinusAimingFactor() const { return CrosshairMinusAimingFactor; }
-
+	FORCEINLINE float GetCrosshairAimingFactor() const { return CrosshairAimingFactor; }
+	FORCEINLINE float GetCrosshairShootingFactor() const { return CrosshairShootingFactor; }
 
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE float GetAutomatic() const { return bAutomatic; }

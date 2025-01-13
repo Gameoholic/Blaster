@@ -11,6 +11,8 @@
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 
 
@@ -106,6 +108,10 @@ void AWeapon::Fire(const FVector& HitTarget)
 				);
 			}
 		}
+	}
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
 	ServerSpendAmmo();
 }

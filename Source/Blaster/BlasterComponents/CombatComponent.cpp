@@ -119,7 +119,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			{
 				if (EquippedWeapon)
 				{
-					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, EquippedWeapon->GetCrosshairMinusAimingFactor(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, EquippedWeapon->GetCrosshairAimingFactor(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
 				}
 				CrosshairVelocityFactor /= 1.5F;
 			}
@@ -389,7 +389,10 @@ void UCombatComponent::Fire()
 
 	ServerFire(HitTarget); // we trace this every frame in tick
 
-	CrosshairShootingFactor += 0.6f;
+	if (EquippedWeapon)
+	{
+		CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
+	}
 
 	StartFireTimer();
 }
