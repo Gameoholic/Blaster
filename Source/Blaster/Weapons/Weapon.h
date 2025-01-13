@@ -146,6 +146,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* FireSound;
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* MuzzleFlashParticles;
 
 public:
 	void SetWeaponState(EWeaponState State);

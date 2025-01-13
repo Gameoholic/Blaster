@@ -113,6 +113,16 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
+	if (MuzzleFlashParticles)
+	{
+		const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+		UWorld* World = GetWorld();
+		if (MuzzleFlashSocket && World)
+		{
+			FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+			UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
+		}
+	}
 	ServerSpendAmmo();
 }
 
