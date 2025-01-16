@@ -61,6 +61,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult);
 		HitTarget = HitResult.ImpactPoint;
+		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Blue, FString::Printf(TEXT("%f, %f, %f"), HitTarget.X, HitTarget.Y, HitTarget.Z));
+
 
 		SetHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
@@ -431,7 +433,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		CrosshairLocation.Y + FMath::FRandRange(-HUDPackage.CrosshairSpread * 16.0f, HUDPackage.CrosshairSpread * 16.0f) // currently BlasterHud.h STATIC NUMBER CROSSHAIR SPREAD MAX 16.0f
 	);  // screen space location after random scatter applied to the crosshair location
 
-
 	FVector ShootWorldPosition;
 	FVector ShootWorldDirection;
 	bool bScreenToWorldSuccessful = UGameplayStatics::DeprojectScreenToWorld(
@@ -453,7 +454,12 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 		FVector End = Start + ShootWorldDirection * TRACE_LENGTH;
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		//GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Pawn);
+
+		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Blue, FString::Printf(TEXT("%f, %f, %f"), HitTarget.X, HitTarget.Y, HitTarget.Z));
+
+
 		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
 		{
 			HUDPackage.CrosshairsColor = FLinearColor::Red;

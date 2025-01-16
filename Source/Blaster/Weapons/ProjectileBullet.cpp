@@ -9,7 +9,6 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 {
 	if (OtherActor == GetOwner())
 	{ 
-		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("OnHit Projectile"));
 		return;
 	}
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
