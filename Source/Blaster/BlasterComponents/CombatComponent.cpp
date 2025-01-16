@@ -61,7 +61,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult);
 		HitTarget = HitResult.ImpactPoint;
-		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Blue, FString::Printf(TEXT("%f, %f, %f"), HitTarget.X, HitTarget.Y, HitTarget.Z));
 
 
 		SetHUDCrosshairs(DeltaTime);
@@ -454,11 +453,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 		FVector End = Start + ShootWorldDirection * TRACE_LENGTH;
 
-		//GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Pawn);
-
-		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Blue, FString::Printf(TEXT("%f, %f, %f"), HitTarget.X, HitTarget.Y, HitTarget.Z));
-
 
 		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
 		{
