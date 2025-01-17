@@ -17,9 +17,13 @@ ALobbyHostWeapon::ALobbyHostWeapon()
 	WidgetInteraction->InteractionDistance = 2500;
 }
 
-void ALobbyHostWeapon::Fire(const FVector& HitTarget)
+void ALobbyHostWeapon::Fire(const FVector& HitTarget, bool bSilentFire)
 {
-	Super::Fire(HitTarget);
+	Super::Fire(HitTarget, bSilentFire);
+	if (bSilentFire)
+	{
+		return;
+	}
 	WidgetInteraction->PressPointerKey(EKeys::LeftMouseButton);
 	WidgetInteraction->ReleasePointerKey(EKeys::LeftMouseButton);
 }

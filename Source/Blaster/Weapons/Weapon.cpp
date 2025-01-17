@@ -86,9 +86,9 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 }
 
 
-void AWeapon::Fire(const FVector& HitTarget)
+void AWeapon::Fire(const FVector& HitTarget, bool bSilentFire)
 {
-	if (FireAnimation)
+	if (FireAnimation && !bSilentFire)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
@@ -110,11 +110,11 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-	if (FireSound)
+	if (FireSound && !bSilentFire)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
-	if (MuzzleFlashParticles)
+	if (MuzzleFlashParticles && !bSilentFire)
 	{
 		const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
 		UWorld* World = GetWorld();
@@ -124,7 +124,10 @@ void AWeapon::Fire(const FVector& HitTarget)
 			UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
 		}
 	}
-	ServerSpendAmmo();
+	if (!bSilentFire)
+	{
+		ServerSpendAmmo();
+	}
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

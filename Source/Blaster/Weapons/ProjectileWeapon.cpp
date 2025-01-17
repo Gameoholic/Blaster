@@ -5,9 +5,9 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Projectile.h"
 
-void AProjectileWeapon::Fire(const FVector& HitTarget)
+void AProjectileWeapon::Fire(const FVector& HitTarget, bool bSilentFire)
 {
-	Super::Fire(HitTarget);
+	Super::Fire(HitTarget, bSilentFire);
 
 	if (!HasAuthority())
 	{

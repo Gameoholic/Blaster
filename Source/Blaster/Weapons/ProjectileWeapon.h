@@ -15,7 +15,8 @@ class BLASTER_API AProjectileWeapon : public AWeapon
 	GENERATED_BODY()
 
 public:
-	virtual void Fire(const FVector& HitTarget) override;
+	// If projectile is silent, no ammo will be expended, and there'll be no sound or muzzle flash (used for multishot weapons)
+	virtual void Fire(const FVector& HitTarget, bool bSilentFire) override;
 	
 private:
 	UPROPERTY(EditAnywhere)

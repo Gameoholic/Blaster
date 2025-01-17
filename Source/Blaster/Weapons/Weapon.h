@@ -29,7 +29,8 @@ public:
 	virtual void OnRep_Owner() override;
 
 	void ShowPickupWidget(bool bShowWidget);
-	virtual void Fire(const FVector& HitTarget);
+	// If projectile is silent, no ammo will be expended, and there'll be no sound or muzzle flash (used for multishot weapons)
+	virtual void Fire(const FVector& HitTarget, bool bSilentFire);
 
 	void Drop();
 

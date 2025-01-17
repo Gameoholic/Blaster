@@ -45,11 +45,14 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 	void Fire();
-	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& TraceHitTarget); //to server
 
+	// If projectile is silent, no ammo will be expended, and there'll be no sound or muzzle flash (used for multishot weapons)
+	UFUNCTION(Server, Reliable)
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire); //to server
+
+	// If projectile is silent, no ammo will be expended, and there'll be no sound or muzzle flash (used for multishot weapons)
 	UFUNCTION(NetMulticast, Reliable) // to all clients+server
-	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire);
 
 	void SetHUDCrosshairs(float DeltaTime);
 

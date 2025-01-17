@@ -18,7 +18,7 @@ class BLASTER_API ALobbyHostWeapon : public AProjectileWeapon
 public:
 	ALobbyHostWeapon();
 
-	virtual void Fire(const FVector& HitTarget) override;
+	virtual void Fire(const FVector& HitTarget, bool bSilentFire) override;
 
 protected:
 	virtual void BeginPlay() override;

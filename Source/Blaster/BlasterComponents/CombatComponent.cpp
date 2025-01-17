@@ -395,11 +395,14 @@ void UCombatComponent::Fire()
 	}
 	bCanFire = false;
 
-	for (int32 i = 0; i < EquippedWeapon->GetProjectileAmountPerFire(); i++)
+	FHitResult HitResult;
+	TraceUnderCrosshairs(HitResult, true);
+	ServerFire(HitResult.ImpactPoint, false);
+	// If there are other shots, send them "quietly" (without sound, muzzle flash or expending bullets)
+	for (int32 i = 0; i < EquippedWeapon->GetProjectileAmountPerFire() - 1; i++)
 	{
-		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult, true);
-		ServerFire(HitResult.ImpactPoint);
+		ServerFire(HitResult.ImpactPoint, true);
 	}
 
 	CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
@@ -408,12 +411,12 @@ void UCombatComponent::Fire()
 }
 
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget) // executes on server
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire) // executes on server
 {
-	MulticastFire(TraceHitTarget);
+	MulticastFire(TraceHitTarget, bSilentFire);
 }
 
-void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget) //called from server, executes on server+clients
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire) //called from server, executes on server+clients
 {
 	if (EquippedWeapon == nullptr)
 	{
@@ -421,8 +424,11 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	}
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
+		if (!bSilentFire)
+		{
+			Character->PlayFireMontage(bAiming);
+		}
+		EquippedWeapon->Fire(TraceHitTarget, bSilentFire);
 	}
 }
 
