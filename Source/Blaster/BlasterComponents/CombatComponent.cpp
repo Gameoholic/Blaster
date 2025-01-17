@@ -389,20 +389,20 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::Fire()
 {
-	if (!CanFire())
+	if (!CanFire() || !EquippedWeapon)
 	{
 		return;
 	}
 	bCanFire = false;
 
-	FHitResult HitResult;
-	TraceUnderCrosshairs(HitResult, true);
-	ServerFire(HitResult.ImpactPoint);
-
-	if (EquippedWeapon)
+	for (int32 i = 0; i < EquippedWeapon->GetProjectileAmountPerFire(); i++)
 	{
-		CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult, true);
+		ServerFire(HitResult.ImpactPoint);
 	}
+
+	CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
 
 	StartFireTimer();
 }

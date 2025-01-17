@@ -42,6 +42,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* EquipSound;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -94,6 +95,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 MagCapacity;
+
+	UPROPERTY(EditAnywhere)
+	int32 ProjectileAmountPerFire = 1;
 
 	UFUNCTION()
 	void OnRep_Ammo();
@@ -170,6 +174,7 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE int32 GetProjectileAmountPerFire() const { return ProjectileAmountPerFire; }
 
 };
 
