@@ -58,13 +58,20 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (Character && Character->IsLocallyControlled())
 	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
-		HitTarget = HitResult.ImpactPoint;
-
-
 		SetHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
+
+		// Set crosshair target to red if target directly in crosshair
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult, false);
+		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::Red;
+		}
+		else
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::White;
+		}
 	}
 }
 
@@ -388,7 +395,9 @@ void UCombatComponent::Fire()
 	}
 	bCanFire = false;
 
-	ServerFire(HitTarget); // we trace this every frame in tick
+	FHitResult HitResult;
+	TraceUnderCrosshairs(HitResult, true);
+	ServerFire(HitResult.ImpactPoint);
 
 	if (EquippedWeapon)
 	{
@@ -418,7 +427,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 }
 
 
-void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
+void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bApplyCrosshairSpread)
 {
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -427,10 +436,15 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	}
 
 	FVector2D CrosshairLocation(ViewportSize.X / 2.0f, ViewportSize.Y / 2.0f); // screen space, viewport space
-	FVector2D ShootLocation(
-		CrosshairLocation.X + FMath::FRandRange(-HUDPackage.CrosshairSpread * 16.0f, HUDPackage.CrosshairSpread * 16.0f), // currently BlasterHud.h STATIC NUMBER CROSSHAIR SPREAD MAX 16.0f
-		CrosshairLocation.Y + FMath::FRandRange(-HUDPackage.CrosshairSpread * 16.0f, HUDPackage.CrosshairSpread * 16.0f) // currently BlasterHud.h STATIC NUMBER CROSSHAIR SPREAD MAX 16.0f
-	);  // screen space location after random scatter applied to the crosshair location
+	FVector2D CrosshairSpreadBonus = FVector2D(0.0f, 0.0f);
+	if (bApplyCrosshairSpread)
+	{
+		CrosshairSpreadBonus = FVector2D(
+			FMath::FRandRange(-HUDPackage.CrosshairSpread * 16.0f, HUDPackage.CrosshairSpread * 16.0f), // currently BlasterHud.h STATIC NUMBER CROSSHAIR SPREAD MAX 16.0f
+			FMath::FRandRange(-HUDPackage.CrosshairSpread * 16.0f, HUDPackage.CrosshairSpread * 16.0f) // currently BlasterHud.h STATIC NUMBER CROSSHAIR SPREAD MAX 16.0f
+		);
+	}
+	FVector2D ShootLocation = CrosshairLocation + CrosshairSpreadBonus;
 
 	FVector ShootWorldPosition;
 	FVector ShootWorldDirection;
@@ -454,15 +468,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		FVector End = Start + ShootWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Pawn);
-
-		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
-		{
-			HUDPackage.CrosshairsColor = FLinearColor::Red;
-		}
-		else
-		{
-			HUDPackage.CrosshairsColor = FLinearColor::White;
-		}
 	}
 }
 

@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bApplyCrosshairSpread);
+
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bIsAiming);
@@ -48,8 +50,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable) // to all clients+server
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
-
-	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 	void SetHUDCrosshairs(float DeltaTime);
 
@@ -84,8 +84,6 @@ private:
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
 	float CrosshairWeaponFactor;
-
-	FVector HitTarget;
 
 
 	/**

@@ -88,43 +88,48 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 
 void AWeapon::Fire(const FVector& HitTarget)
 {
-	if (FireAnimation)
+	for (int32 i = 0; i < 3; i++)
 	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
-	}
-	if (CasingClass)
-	{
-		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
-		if (AmmoEjectSocket)
-		{
-			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
 
-			UWorld* World = GetWorld();
-			if (World)
+
+		if (FireAnimation)
+		{
+			WeaponMesh->PlayAnimation(FireAnimation, false);
+		}
+		if (CasingClass)
+		{
+			const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
+			if (AmmoEjectSocket)
 			{
-				World->SpawnActor<ACasing>(
-					CasingClass,
-					SocketTransform.GetLocation(),
-					SocketTransform.GetRotation().Rotator()
-				);
+				FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+
+				UWorld* World = GetWorld();
+				if (World)
+				{
+					World->SpawnActor<ACasing>(
+						CasingClass,
+						SocketTransform.GetLocation(),
+						SocketTransform.GetRotation().Rotator()
+					);
+				}
 			}
 		}
-	}
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-	if (MuzzleFlashParticles)
-	{
-		const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
-		UWorld* World = GetWorld();
-		if (MuzzleFlashSocket && World)
+		if (FireSound)
 		{
-			FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-			UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 		}
+		if (MuzzleFlashParticles)
+		{
+			const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+			UWorld* World = GetWorld();
+			if (MuzzleFlashSocket && World)
+			{
+				FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+				UGameplayStatics::SpawnEmitterAtLocation(World, MuzzleFlashParticles, SocketTransform);
+			}
+		}
+		ServerSpendAmmo();
 	}
-	ServerSpendAmmo();
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

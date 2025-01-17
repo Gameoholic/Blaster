@@ -811,7 +811,9 @@ FVector ABlasterCharacter::GetHitTarget() const
 	{
 		return FVector();
 	}
-	return Combat->HitTarget;
+	FHitResult HitResult;
+	Combat->TraceUnderCrosshairs(HitResult, false);
+	return HitResult.ImpactPoint;
 }
 
 ECombatState ABlasterCharacter::GetCombatState() const
