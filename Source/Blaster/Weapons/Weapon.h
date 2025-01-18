@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* EquipSound;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UCameraShakeBase> CameraShake = nullptr;
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayCameraShake(EWeaponType WeaponType);
 
 protected:
 	virtual void BeginPlay() override;

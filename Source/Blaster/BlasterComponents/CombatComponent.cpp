@@ -415,6 +415,19 @@ void UCombatComponent::Fire()
 
 	CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
 
+	// Play camera shake
+	UWorld* World = GetWorld();
+	if (EquippedWeapon->CameraShake != nullptr && World)
+	{
+		UGameplayStatics::PlayWorldCameraShake(
+			World,
+			EquippedWeapon->CameraShake,
+			Character->GetActorLocation(),
+			0.0f,
+			500.0f
+		);
+	}
+
 	StartFireTimer();
 }
 
