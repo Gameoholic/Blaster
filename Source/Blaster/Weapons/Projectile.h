@@ -21,6 +21,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	void DestroyTimerFinished();
+
+	void DoRadialDamage();
+	UPROPERTY(EditAnywhere, Category = "Radial Damage")
+	float RadialDamageInnerRadius = 200.0f;
+	UPROPERTY(EditAnywhere, Category = "Radial Damage")
+	float RadialDamageOuterRadius = 500.0f;
+	UPROPERTY(EditAnywhere, Category = "Radial Damage")
+	// Exponential function falloff
+	float RadialDamageFalloff = 1.0f;
+
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 		const FHitResult& Hit);
@@ -37,17 +48,30 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
-private:
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* TrailSystem;
+
+	class UNiagaraComponent* TrailSystemComponent = nullptr;
+
+	void StartDestroyTimer();
+	void SpawnTrailSystem();
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ProjectileMesh;
+
 	UPROPERTY(VisibleAnywhere)
 	class UBlasterProjectileMoveComponent* ProjectileMovementComponent;
+
+private:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Tracer;
 
 	class UParticleSystemComponent* TracerComponent = nullptr;
 
-
-
+	FTimerHandle DestroyTimer;
+	UPROPERTY(EditAnywhere)
+	float DestroyTime = 8.0f;
 
 
 public:	

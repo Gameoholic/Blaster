@@ -11,6 +11,10 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Blaster.h"
 #include "Blaster/Weapons/BlasterProjectileMoveComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystemInstance.h"
+#include "NiagaraFunctionLibrary.h"
+
 
 AProjectile::AProjectile()
 {
@@ -30,6 +34,10 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent = CreateDefaultSubobject<UBlasterProjectileMoveComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->SetIsReplicated(true);
+
+	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
+	ProjectileMesh->SetupAttachment(RootComponent);
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AProjectile::BeginPlay()
@@ -56,6 +64,11 @@ void AProjectile::BeginPlay()
 	CollisionBox->IgnoreActorWhenMoving(GetOwner(), true);
 }
 
+void AProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor == GetOwner())
@@ -65,10 +78,62 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
-void AProjectile::Tick(float DeltaTime)
+void AProjectile::StartDestroyTimer()
 {
-	Super::Tick(DeltaTime);
+	GetWorldTimerManager().SetTimer(
+		DestroyTimer,
+		this,
+		&AProjectile::DestroyTimerFinished,
+		DestroyTime
+	);
+}
 
+void AProjectile::SpawnTrailSystem()
+{
+	if (TrailSystem)
+	{
+		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
+}
+
+
+
+void AProjectile::DestroyTimerFinished()
+{
+	Destroy();
+}
+
+void AProjectile::DoRadialDamage()
+{
+	APawn* FiringPawn = GetInstigator();
+	if (FiringPawn && HasAuthority())
+	{
+		AController* FiringController = FiringPawn->GetController();
+		if (FiringController)
+		{
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				this, // World context object
+				Damage, // base damage
+				0.0f, // min damage
+				GetActorLocation(), // origin
+				RadialDamageInnerRadius,
+				RadialDamageOuterRadius,
+				RadialDamageFalloff, // damage falloff
+				UDamageType::StaticClass(), // damage type class
+				TArray<AActor*>(), // ignore actors
+				this, // damage causer
+				FiringController // instigator controller
+			);
+		}
+	}
 }
 
 void AProjectile::Destroyed()
