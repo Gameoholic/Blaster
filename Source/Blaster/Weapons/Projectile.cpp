@@ -113,8 +113,6 @@ void AProjectile::DestroyTimerFinished()
 
 void AProjectile::DoRadialDamage()
 {
-	DrawDebugSphere(GetWorld(), GetActorLocation(), RadialDamageInnerRadius, 10, FColor::Red, false, 2.0f);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), RadialDamageOuterRadius, 10, FColor::Blue, false, 2.0f);
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn && HasAuthority())
 	{
