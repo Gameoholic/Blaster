@@ -13,6 +13,7 @@
 #include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 
 
 
@@ -252,6 +253,10 @@ void AWeapon::OnRep_Ammo()
 		if (BlasterOwnerController)
 		{
 			BlasterOwnerController->SetHUDWeaponAmmo(Ammo, MagCapacity);
+		}
+		if (BlasterOwnerCharacter->GetCombat() && GetAmmo() == GetMagCapacity()) // Is full
+		{
+			BlasterOwnerCharacter->GetCombat()->JumpToShotgunEnd();
 		}
 	}
 }

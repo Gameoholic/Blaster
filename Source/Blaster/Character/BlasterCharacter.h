@@ -211,6 +211,8 @@ public:
 	FORCEINLINE bool IsKilled() const { return bKilled; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
 	ECombatState GetCombatState() const;
 
 };

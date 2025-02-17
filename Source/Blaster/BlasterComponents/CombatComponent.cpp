@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "Sound\SoundCue.h"
+#include "Blaster/Character/BlasterAnimInstance.h"
 
 
 
@@ -43,11 +44,6 @@ void UCombatComponent::BeginPlay()
 		{
 			BaseFOV = Character->GetFollowCamera()->FieldOfView;
 			CurrentFOV = BaseFOV;
-		}
-
-		if (Character->HasAuthority())
-		{
-			//ServerInitCarriedAmmo();
 		}
 	}
 }
@@ -154,6 +150,14 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 }
 
 
+void UCombatComponent::ShotgunShellReload()
+{
+	if (Character && Character->HasAuthority())
+	{
+		UpdateShotgunAmmoValues();
+	}
+}
+
 
 
 
@@ -238,6 +242,38 @@ void UCombatComponent::UpdateAmmoValues()
 	}
 
 	EquippedWeapon->AddAmmo(-ReloadAmount);
+}
+
+void UCombatComponent::UpdateShotgunAmmoValues()
+{
+	if (Character == nullptr || EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+	}
+
+	EquippedWeapon->AddAmmo(-1);
+	bCanFire = true;
+
+	if (EquippedWeapon->GetAmmo() == EquippedWeapon->GetMagCapacity()) // If full
+	{
+		JumpToShotgunEnd();
+	}
+}
+
+void UCombatComponent::JumpToShotgunEnd()
+{
+	//Jump to ShotgunEnd section
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	if (AnimInstance && Character->GetReloadMontage())
+	{
+		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
+	}
 }
 
 void UCombatComponent::FinishReloading()
@@ -439,17 +475,20 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire) //called from server, executes on server+clients
 {
-	if (EquippedWeapon == nullptr)
+	if (EquippedWeapon == nullptr || Character == nullptr)
 	{
 		return;
 	}
-	if (Character && CombatState == ECombatState::ECS_Unoccupied)
+
+	if ((CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
+			|| (CombatState == ECombatState::ECS_Unoccupied))
 	{
 		if (!bSilentFire)
 		{
 			Character->PlayFireMontage(bAiming);
 		}
 		EquippedWeapon->Fire(TraceHitTarget, bSilentFire);
+		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
 
@@ -501,9 +540,19 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bAp
 
 
 
+
+
 bool UCombatComponent::CanFire()
 {
-	return (EquippedWeapon != nullptr && bCanFire && !EquippedWeapon->IsAmmoEmpty() && CombatState == ECombatState::ECS_Unoccupied);
+	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty())
+	{
+		return false;
+	}
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading)
+	{
+		return true;
+	}
+	return (CombatState == ECombatState::ECS_Unoccupied);
 }
 
 
