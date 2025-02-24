@@ -1,5 +1,11 @@
 #pragma once
 
+
+#define CUSTOM_DEPTH_PURPLE 250
+#define CUSTOM_DEPTH_GOLD 251
+#define CUSTOM_DEPTH_RED 252
+
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {

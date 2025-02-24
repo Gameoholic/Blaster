@@ -47,6 +47,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UCameraShakeBase> CameraShake = nullptr;
 
+	/**
+	* Enable/disable custom depth (for weapon outline)
+	*/
+	void EnableCustomDepth(bool bEnable);
+
 protected:
 	virtual void BeginPlay() override;
 
