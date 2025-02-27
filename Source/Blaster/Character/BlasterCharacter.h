@@ -108,6 +108,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
 
+
 	void HideCameraIfCharacterClose();
 	UPROPERTY(EditAnywhere)
 	float CameraHideThreshold = 200.0f;
