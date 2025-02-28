@@ -41,6 +41,12 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouched = BlasterCharacter->bIsCrouched;
 	bIsAiming = BlasterCharacter->IsAiming();
 	bIsEmoting = BlasterCharacter->GetIsEmoting();
+	SelectedEmoteAnimation = BlasterCharacter->GetSelectedEmoteAnimation();
+	if (bIsEmoting && SelectedEmoteAnimation == nullptr)
+	{
+		bIsEmoting = false;
+		UE_LOG(LogTemp, Error, TEXT("Animation was to be played but no animation was provided. Double check the emote has an animation attached."));
+	}
 	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 	bRotateRootBone = BlasterCharacter->ShouldRotateRootBone();
 	bKilled = BlasterCharacter->IsKilled();

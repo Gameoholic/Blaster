@@ -47,6 +47,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bIsEmoting;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UAnimSequence* SelectedEmoteAnimation = nullptr;
 
 	/// blendspace!
 

@@ -895,3 +895,13 @@ void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
 {
 	this->bEmoting = bIsEmoting;
 }
+
+UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
+{
+	return SelectedEmoteAnimation;
+}
+
+void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
+{
+	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+}

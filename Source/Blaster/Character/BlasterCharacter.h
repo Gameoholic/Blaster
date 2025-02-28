@@ -46,6 +46,9 @@ public:
 	bool GetIsEmoting();
 	void SetIsEmoting(bool bIsEmoting);
 
+	UAnimSequence* GetSelectedEmoteAnimation();
+	void SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -206,6 +209,7 @@ private:
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
 	bool bEmoting = false;
+	UAnimSequence* SelectedEmoteAnimation = nullptr;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -215,6 +219,7 @@ public:
 	bool IsAiming();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	UFUNCTION(BlueprintCallable) // TODO REMOVE THIS, NO NEED ONLY FOR TESTING
 	AWeapon* GetEquippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FVector GetHitTarget() const;
