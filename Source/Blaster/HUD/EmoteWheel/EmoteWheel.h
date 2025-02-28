@@ -7,11 +7,20 @@
 #include "EmoteWheel.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class BLASTER_API UEmoteWheel : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEmoteWheelRelease();
+private:
+	int32 SelectedEmoteIndex = -1;
+
+
+
 };

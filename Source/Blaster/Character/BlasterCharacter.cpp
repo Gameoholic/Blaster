@@ -25,6 +25,7 @@
 #include "Blaster/GameInstance/BlasterGameInstance.h"
 #include "Blaster/GameMode/LobbyGameMode.h"
 #include "Blaster/GameState/LobbyGameState.h"
+#include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
 
 
 // Sets default values
@@ -198,6 +199,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Pressed, this, &ABlasterCharacter::EmoteButtonPressed);
+	PlayerInputComponent->BindAction("Emote", IE_Released, this, &ABlasterCharacter::EmoteButtonReleased);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
@@ -387,13 +389,40 @@ void ABlasterCharacter::AimButtonReleased()
 }
 
 void ABlasterCharacter::EmoteButtonPressed()
-{
-	// TODO
+{	
+	if (!EmoteWheelWidget)
+	{
+		return;
+	}
+	EmoteWheel = CreateWidget<UEmoteWheel>(BlasterPlayerController, EmoteWheelWidget);
+	EmoteWheel->AddToViewport();
+
+	FInputModeGameAndUI InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputModeData.SetWidgetToFocus(EmoteWheel->TakeWidget());
+	BlasterPlayerController->SetInputMode(InputModeData);
+	BlasterPlayerController->SetShowMouseCursor(true);
+
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		BlasterPlayerController->SetMouseLocation(ViewportSize.X / 2, ViewportSize.Y / 2);
+	}
 }
 
 void ABlasterCharacter::EmoteButtonReleased()
 {
-	// TODO
+	if (!EmoteWheel)
+	{
+		return;
+	}
+	//EmoteWheel->OnEmoteWheelRelease();
+	EmoteWheel->RemoveFromParent();
+
+	FInputModeGameOnly InputModeData;
+	BlasterPlayerController->SetInputMode(InputModeData);
+	BlasterPlayerController->SetShowMouseCursor(false);
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
