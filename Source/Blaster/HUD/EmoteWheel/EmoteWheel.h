@@ -16,12 +16,17 @@ class BLASTER_API UEmoteWheel : public UUserWidget
 
 
 public:
+	void ReleaseEmoteWheel();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnEmoteWheelRelease();
+
+protected:
+	virtual void NativeOnInitialized() override;
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 SelectedEmoteIndex = -1;
 
-
+	class ABlasterCharacter* BlasterCharacter = nullptr;
 
 };

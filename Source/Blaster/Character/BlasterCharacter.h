@@ -43,7 +43,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(EWeaponType WeaponType);
 
-	bool GetIsDancing();
+	bool GetIsEmoting();
+	void SetIsEmoting(bool bIsEmoting);
 
 protected:
 	virtual void BeginPlay() override;
@@ -204,7 +205,7 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
-	bool bIsDancing = false;
+	bool bEmoting = false;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

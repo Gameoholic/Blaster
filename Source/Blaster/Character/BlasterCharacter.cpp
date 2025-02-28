@@ -417,8 +417,7 @@ void ABlasterCharacter::EmoteButtonReleased()
 	{
 		return;
 	}
-	EmoteWheel->OnEmoteWheelRelease();
-	EmoteWheel->RemoveFromParent();
+	EmoteWheel->ReleaseEmoteWheel();
 
 	FInputModeGameOnly InputModeData;
 	BlasterPlayerController->SetInputMode(InputModeData);
@@ -887,7 +886,12 @@ ECombatState ABlasterCharacter::GetCombatState() const
 }
 
 
-bool ABlasterCharacter::GetIsDancing()
+bool ABlasterCharacter::GetIsEmoting()
 {
-	return bIsDancing;
+	return bEmoting;
+}
+
+void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
+{
+	this->bEmoting = bIsEmoting;
 }
