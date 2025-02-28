@@ -417,12 +417,13 @@ void ABlasterCharacter::EmoteButtonReleased()
 	{
 		return;
 	}
-	//EmoteWheel->OnEmoteWheelRelease();
+	EmoteWheel->OnEmoteWheelRelease();
 	EmoteWheel->RemoveFromParent();
 
 	FInputModeGameOnly InputModeData;
 	BlasterPlayerController->SetInputMode(InputModeData);
 	BlasterPlayerController->SetShowMouseCursor(false);
+
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)

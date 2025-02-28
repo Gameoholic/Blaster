@@ -19,6 +19,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnEmoteWheelRelease();
 private:
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 SelectedEmoteIndex = -1;
 
 
