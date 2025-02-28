@@ -3,13 +3,18 @@
 
 #include "EmoteWheel.h"
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 
 
 void UEmoteWheel::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	BlasterCharacter = Cast<ABlasterCharacter>(GetOwningPlayer());
+	BlasterPlayerController = Cast<ABlasterPlayerController>(GetOwningPlayer());
+	if (BlasterPlayerController)
+	{
+		BlasterCharacter = Cast<ABlasterCharacter>(BlasterPlayerController);
+	}
 }
 
 void UEmoteWheel::ReleaseEmoteWheel()
@@ -17,6 +22,14 @@ void UEmoteWheel::ReleaseEmoteWheel()
 	if (BlasterCharacter)
 	{
 		BlasterCharacter->SetIsEmoting(SelectedEmoteIndex != -1);
+		if (SelectedEmoteIndex != -1)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, FString::Printf(TEXT("Emote: true")));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, FString::Printf(TEXT("Emote: false")));
+		}
 	}
 
 	OnEmoteWheelRelease();

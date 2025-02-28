@@ -28,5 +28,5 @@ private:
 	int32 SelectedEmoteIndex = -1;
 
 	class ABlasterCharacter* BlasterCharacter = nullptr;
-
+	class ABlasterPlayerController* BlasterPlayerController = nullptr;
 };
