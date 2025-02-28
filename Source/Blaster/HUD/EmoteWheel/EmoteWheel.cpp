@@ -18,6 +18,8 @@ void UEmoteWheel::ReleaseEmoteWheel()
 	{
 		BlasterCharacter->SetIsEmoting(SelectedEmoteIndex != -1);
 	}
+
+	OnEmoteWheelRelease();
 }
 
 
