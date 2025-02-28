@@ -13,7 +13,7 @@ void UEmoteWheel::NativeOnInitialized()
 	BlasterPlayerController = Cast<ABlasterPlayerController>(GetOwningPlayer());
 	if (BlasterPlayerController)
 	{
-		BlasterCharacter = Cast<ABlasterCharacter>(BlasterPlayerController);
+		BlasterCharacter = Cast<ABlasterCharacter>(BlasterPlayerController->GetCharacter());
 	}
 }
 
