@@ -43,6 +43,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(EWeaponType WeaponType);
 
+	bool GetIsDancing();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -57,6 +59,8 @@ protected:
 	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void EmoteButtonPressed();
+	void EmoteButtonReleased();
 	void AimOffset(float DeltaTime);
 	void CalculateAO_Pitch();
 	void SimProxiesTurn();
@@ -195,6 +199,7 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
+	bool bIsDancing = false;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
