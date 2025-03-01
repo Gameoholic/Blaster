@@ -91,6 +91,11 @@ private:
 
 	class UEmoteWheel* EmoteWheel;
 
+	UPROPERTY(EditAnywhere, Category = HUD) // TEST
+	class USoundCue* TestAudio;
+
+	UAudioComponent* TestNewAudio;
+
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;
 

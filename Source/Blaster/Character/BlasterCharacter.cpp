@@ -26,6 +26,8 @@
 #include "Blaster/GameMode/LobbyGameMode.h"
 #include "Blaster/GameState/LobbyGameState.h"
 #include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -904,6 +906,22 @@ void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
 		ServerPlayEmote(bIsEmoting, nullptr);
 	}
 	Combat->EquippedWeapon->Hide(bEmoting);
+
+
+	//TESTING:
+	if (TestNewAudio == nullptr)
+	{
+		TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
+	}
+
+	if (bEmoting)
+	{
+		TestNewAudio->Play();
+	}
+	else
+	{
+		TestNewAudio->Stop();
+	}
 }
 
 void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
