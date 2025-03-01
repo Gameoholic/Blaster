@@ -771,6 +771,8 @@ void ABlasterCharacter::ClientReceiveDynamicPlatformStates_Implementation(const 
 	//}
 }
 
+
+
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	if (OverlappingWeapon)
@@ -895,7 +897,36 @@ bool ABlasterCharacter::GetIsEmoting()
 
 void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
 {
-	this->bEmoting = bIsEmoting;
+	bEmoting = bIsEmoting;
+	// If not emoting, just stop playing the emote. If we are playing one, don't do anything here, wait for the SetSelectedEmote to be fired, otherwise we don't know what emote is playing in the rpc
+	if (!bEmoting)
+	{
+		ServerPlayEmote(bIsEmoting, nullptr);
+	}
+	Combat->EquippedWeapon->Hide(bEmoting);
+}
+
+void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
+{
+	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+	if (bEmoting)
+	{
+		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation);
+	}
+}
+
+
+void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
+{
+	bEmoting = bIsEmoting;
+	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+	Combat->EquippedWeapon->Hide(bIsEmoting);
+}
+
+void ABlasterCharacter::OnRep_Emoting()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("OnRep_Emoting"));
+	Combat->EquippedWeapon->Hide(bEmoting);
 }
 
 UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
@@ -903,7 +934,3 @@ UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
 	return SelectedEmoteAnimation;
 }
 
-void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
-{
-	SelectedEmoteAnimation = _SelectedEmoteAnimation;
-}

@@ -52,6 +52,9 @@ public:
 	*/
 	void EnableCustomDepth(bool bEnable);
 
+	// Hide weapon (for when emoting)
+	void Hide(bool bShouldHideWeapon);
+
 protected:
 	virtual void BeginPlay() override;
 

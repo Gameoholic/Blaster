@@ -208,10 +208,16 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
-	UPROPERTY(Replicated, VisibleAnywhere)
+	UFUNCTION(Server, Reliable)
+	void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation); //RPC
+
+	UPROPERTY(ReplicatedUsing = OnRep_Emoting, VisibleAnywhere)
 	bool bEmoting = false;
 	UPROPERTY(Replicated, VisibleAnywhere)
 	UAnimSequence* SelectedEmoteAnimation = nullptr;
+
+	UFUNCTION()
+	void OnRep_Emoting();
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

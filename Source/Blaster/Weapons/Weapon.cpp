@@ -90,6 +90,11 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 	}
 }
 
+void AWeapon::Hide(bool bShouldHideWeapon)
+{
+	WeaponMesh->SetHiddenInGame(bShouldHideWeapon);
+}
+
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
