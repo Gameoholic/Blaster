@@ -209,7 +209,8 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 void UCombatComponent::Reload()
 {
 	if (EquippedWeapon == nullptr || 
-		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity())
+		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity() ||
+		Character->GetIsEmoting())
 	{
 		return;
 	}
