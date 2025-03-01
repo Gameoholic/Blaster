@@ -544,7 +544,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bAp
 
 bool UCombatComponent::CanFire()
 {
-	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty())
+	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty() || Character->GetIsEmoting())
 	{
 		return false;
 	}
