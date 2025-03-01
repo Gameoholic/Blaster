@@ -6,6 +6,20 @@
 #include "Blueprint/UserWidget.h"
 #include "EmoteWheel.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FEmoteType
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FString Name;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UAnimSequence* Animation;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UTexture2D* Icon;
+};
+
 /**
  *
  */
@@ -31,4 +45,7 @@ private:
 
 	class ABlasterCharacter* BlasterCharacter = nullptr;
 	class ABlasterPlayerController* BlasterPlayerController = nullptr;
+
+	UPROPERTY(Category = "Settings", EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<FEmoteType> Emotes = { };
 };

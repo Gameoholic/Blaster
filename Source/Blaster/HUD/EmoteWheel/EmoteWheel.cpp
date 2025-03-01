@@ -23,14 +23,6 @@ void UEmoteWheel::ReleaseEmoteWheel()
 	{
 		BlasterCharacter->SetIsEmoting(SelectedEmoteIndex != -1);
 		BlasterCharacter->SetSelectedEmoteAnimation(SelectedEmoteAnimation);
-		if (SelectedEmoteIndex != -1)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, FString::Printf(TEXT("Emote: true")));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, FString::Printf(TEXT("Emote: false")));
-		}
 	}
 
 	OnEmoteWheelRelease();
