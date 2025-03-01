@@ -208,7 +208,9 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
+	UPROPERTY(Replicated, VisibleAnywhere)
 	bool bEmoting = false;
+	UPROPERTY(Replicated, VisibleAnywhere)
 	UAnimSequence* SelectedEmoteAnimation = nullptr;
 
 public:

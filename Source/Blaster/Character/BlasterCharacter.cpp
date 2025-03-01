@@ -76,6 +76,8 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, bEmoting);
+	DOREPLIFETIME(ABlasterCharacter, SelectedEmoteAnimation); // TODO: DO NOT REPLICATE ANIMATIONS, REPLICATE THE ID ONLY AND THEN SOMEHOW GET THE ANIM FROM THAT
 }
 
 
