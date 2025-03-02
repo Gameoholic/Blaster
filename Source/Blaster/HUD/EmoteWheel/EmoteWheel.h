@@ -17,6 +17,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UAnimSequence* Animation;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class USoundCue* Sound;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UTexture2D* Icon;
 };
 
@@ -45,7 +47,4 @@ private:
 
 	class ABlasterCharacter* BlasterCharacter = nullptr;
 	class ABlasterPlayerController* BlasterPlayerController = nullptr;
-
-	UPROPERTY(Category = "Settings", EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TArray<FEmoteType> Emotes = { };
 };

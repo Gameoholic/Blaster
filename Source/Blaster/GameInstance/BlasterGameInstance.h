@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Blaster/BlasterTypes/LogCategories.h"
 #include "Blaster/MultiplayerSessions/MultiplayerSessionsSubsystem.h"
+#include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
 
 #include "BlasterGameInstance.generated.h"
 
@@ -13,13 +14,17 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class BLASTER_API UBlasterGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
 
 public:
+	UPROPERTY(Category = "Emotes", EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TArray<FEmoteType> Emotes = { };
+
+
 	/** Amount of dynamic platforms in the current level that do not have an ID set yet. */
 	int32 NoIdDynamicPlatforms = 0;
 

@@ -921,24 +921,11 @@ void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteA
 		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation, SelectedEmoteSound);
 	}
 
-	////TESTING:
-	//if (bEmoting)
-	//{
-	//	if (EmoteAudio != nullptr)
-	//	{
-	//		EmoteAudio->Stop();
-	//	}
-	//	//TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
-	//	//TestNewAudio->SetupAttachment(RootComponent);
-	//	EmoteAudio->Play();
-	//}
-	//else
-	//{
-	//	if (EmoteAudio != nullptr)
-	//	{
-	//		EmoteAudio->Stop();
-	//	}
-	//}
+}
+
+void ABlasterCharacter::SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound)
+{
+	SelectedEmoteSound = _SelectedEmoteSound;
 }
 
 

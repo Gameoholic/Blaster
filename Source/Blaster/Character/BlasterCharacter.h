@@ -8,6 +8,7 @@
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
 #include "Blaster/BlasterTypes/CombatState.h"
+#include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
 
 #include "BlasterCharacter.generated.h"
 
@@ -48,6 +49,7 @@ public:
 
 	UAnimSequence* GetSelectedEmoteAnimation();
 	void SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation);
+	void SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound);
 
 protected:
 	virtual void BeginPlay() override;
@@ -216,6 +218,9 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
+
+	// EMOTES
+
 	UFUNCTION(Server, Reliable)
 	void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound); //RPC
 
@@ -229,6 +234,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_Emoting();
+
+
+
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -249,5 +257,4 @@ public:
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
 	ECombatState GetCombatState() const;
-
 };
