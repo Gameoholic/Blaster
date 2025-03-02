@@ -60,6 +60,10 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		// Set crosshair target to red if target directly in crosshair
 		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult, false);
+		if (HitResult.GetActor())
+		{
+			GEngine->AddOnScreenDebugMessage(1, 0.2f, FColor::Red, TEXT("HIT"));
+		}
 		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
 		{
 			HUDPackage.CrosshairsColor = FLinearColor::Red;
