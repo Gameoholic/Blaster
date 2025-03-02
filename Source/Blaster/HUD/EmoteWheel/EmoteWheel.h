@@ -42,8 +42,6 @@ protected:
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 SelectedEmoteIndex = -1;
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UAnimSequence* SelectedEmoteAnimation = nullptr;
 
 	class ABlasterCharacter* BlasterCharacter = nullptr;
 	class ABlasterPlayerController* BlasterPlayerController = nullptr;
