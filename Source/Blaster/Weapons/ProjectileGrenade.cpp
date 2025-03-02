@@ -24,9 +24,7 @@ void AProjectileGrenade::BeginPlay()
 
 void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("HI"));
 	// Destroy immediately if hit player
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, ImpactResult.GetActor()->GetName());
 	if (ImpactResult.GetActor()->GetClass()->IsChildOf<ABlasterCharacter>() && ImpactResult.GetActor() != GetOwner())
 	{
 		Destroy();
