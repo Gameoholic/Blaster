@@ -12,6 +12,7 @@
 #include "TimerManager.h"
 #include "Sound\SoundCue.h"
 #include "Blaster/Character/BlasterAnimInstance.h"
+#include "Blaster/Blaster.h"
 
 
 
@@ -64,7 +65,10 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		{
 			GEngine->AddOnScreenDebugMessage(1, 0.2f, FColor::Red, TEXT("HIT"));
 		}
-		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
+		// Will only turn red if hit actor is blaster character, AND the hit component was the mesh (not the capsule component for example).
+		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>()
+)
+//			&& HitResult.GetComponent()->GetCollisionObjectType() == ECC_SkeletalMesh
 		{
 			HUDPackage.CrosshairsColor = FLinearColor::Red;
 		}
@@ -539,7 +543,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bAp
 
 		FVector End = Start + ShootWorldDirection * TRACE_LENGTH;
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Pawn);
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Pawn); // This means anything that any actor that has Pawn set to Block in the collision presets counts. To disable switch to ignore
 	}
 }
 
