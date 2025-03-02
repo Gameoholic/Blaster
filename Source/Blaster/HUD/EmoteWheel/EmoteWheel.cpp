@@ -21,8 +21,7 @@ void UEmoteWheel::ReleaseEmoteWheel()
 {
 	if (BlasterCharacter)
 	{
-		BlasterCharacter->SetIsEmoting(SelectedEmoteIndex != -1);
-		BlasterCharacter->SetSelectedEmoteAnimation(SelectedEmoteAnimation);
+		BlasterCharacter->SetSelectedEmoteIndex(SelectedEmoteIndex);
 	}
 
 	OnEmoteWheelRelease();

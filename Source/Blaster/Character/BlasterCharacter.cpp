@@ -83,8 +83,8 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
-	DOREPLIFETIME(ABlasterCharacter, bEmoting);
-	DOREPLIFETIME(ABlasterCharacter, SelectedEmoteAnimation); // TODO: DO NOT REPLICATE ANIMATIONS, REPLICATE THE ID ONLY AND THEN SOMEHOW GET THE ANIM FROM THAT
+	//DOREPLIFETIME(ABlasterCharacter, bEmoting);
+	//DOREPLIFETIME(ABlasterCharacter, SelectedEmoteAnimation); // TODO: DO NOT REPLICATE ANIMATIONS, REPLICATE THE ID ONLY AND THEN SOMEHOW GET THE ANIM FROM THAT
 }
 
 
@@ -95,7 +95,6 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 	SimProxiesTurn();
 	TimeSinceLastMovementReplication = 0.0f;
 }
-
 
 void ABlasterCharacter::BeginPlay()
 {
@@ -897,58 +896,69 @@ ECombatState ABlasterCharacter::GetCombatState() const
 }
 
 
-bool ABlasterCharacter::GetIsEmoting()
+// EMOTES
+
+void ABlasterCharacter::SetSelectedEmoteIndex(int32 _SelectedEmoteIndex)
 {
-	return bEmoting;
+	SelectedEmoteIndex = _SelectedEmoteIndex;
 }
 
-void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
+int32 ABlasterCharacter::GetSelectedEmoteIndex()
 {
-	bEmoting = bIsEmoting;
+	return SelectedEmoteIndex;
+}
+//bool ABlasterCharacter::GetIsEmoting()
+//{
+//	return bEmoting;
+//}
+//
+//void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
+//{
+//	bEmoting = bIsEmoting;
 	// If not emoting, just stop playing the emote. If we are playing one, don't do anything here, wait for the SetSelectedEmote to be fired, otherwise we don't know what emote is playing in the rpc
-	if (!bEmoting)
-	{
-		ServerPlayEmote(bIsEmoting, nullptr, nullptr);
-	}
-	Combat->EquippedWeapon->Hide(bEmoting);
-}
-
-void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
-{
-	SelectedEmoteAnimation = _SelectedEmoteAnimation;
-	if (bEmoting)
-	{
-		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation, SelectedEmoteSound);
-	}
-
-}
-
-void ABlasterCharacter::SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound)
-{
-	SelectedEmoteSound = _SelectedEmoteSound;
-}
-
-
-void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
-{
-	bEmoting = bIsEmoting;
-	SelectedEmoteAnimation = _SelectedEmoteAnimation;
-	SelectedEmoteSound = _SelectedEmoteSound;
-	Combat->EquippedWeapon->Hide(bIsEmoting);
-	EmoteAudio->SetSound(SelectedEmoteSound);
-	if (bIsEmoting)
-	{
-		EmoteAudio->Play();
-	}
-	else
-	{
-		EmoteAudio->Stop();
-	}
-}
-
-void ABlasterCharacter::OnRep_Emoting()
-{
-	Combat->EquippedWeapon->Hide(bEmoting);
+//	if (!bEmoting)
+//	{
+//		ServerPlayEmote(bIsEmoting, nullptr, nullptr);
+//	}
+//	Combat->EquippedWeapon->Hide(bEmoting);
+//}
+//
+//void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
+//{
+//	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+//	if (bEmoting)
+//	{
+//		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation, SelectedEmoteSound);
+//	}
+//
+//}
+//
+//void ABlasterCharacter::SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound)
+//{
+//	SelectedEmoteSound = _SelectedEmoteSound;
+//}
+//
+//
+//void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
+//{
+//	bEmoting = bIsEmoting;
+//	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+//	SelectedEmoteSound = _SelectedEmoteSound;
+//	Combat->EquippedWeapon->Hide(bIsEmoting);
+//	EmoteAudio->SetSound(SelectedEmoteSound);
+//	if (bIsEmoting)
+//	{
+//		EmoteAudio->Play();
+//	}
+//	else
+//	{
+//		EmoteAudio->Stop();
+//	}
+//}
+//
+//void ABlasterCharacter::OnRep_Emoting()
+//{
+//	Combat->EquippedWeapon->Hide(bEmoting);
 
 
 
@@ -970,10 +980,10 @@ void ABlasterCharacter::OnRep_Emoting()
 	//		EmoteAudio->Stop();
 	//	}
 	//}
-}
-
-UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
-{
-	return SelectedEmoteAnimation;
-}
+//}
+//
+//UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
+//{
+//	return SelectedEmoteAnimation;
+//}
 

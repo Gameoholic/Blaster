@@ -44,12 +44,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(EWeaponType WeaponType);
 
-	bool GetIsEmoting();
-	void SetIsEmoting(bool bIsEmoting);
-
-	UAnimSequence* GetSelectedEmoteAnimation();
-	void SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation);
-	void SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound);
+	void SetSelectedEmoteIndex(int32 _SelectedEmoteIndex);
+	int32 GetSelectedEmoteIndex();
 
 protected:
 	virtual void BeginPlay() override;
@@ -95,11 +91,6 @@ private:
 	TSubclassOf<class UUserWidget> EmoteWheelWidget;
 
 	class UEmoteWheel* EmoteWheel;
-
-	UPROPERTY(EditAnywhere, Category = HUD) // TEST
-	class USoundCue* TestAudio;
-
-	UAudioComponent* TestNewAudio;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;
@@ -218,22 +209,23 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
+	int32 SelectedEmoteIndex = -1;
 
 	// EMOTES
 
-	UFUNCTION(Server, Reliable)
-	void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound); //RPC
+	//UFUNCTION(Server, Reliable)
+	//void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound); //RPC
 
-	UPROPERTY(ReplicatedUsing = OnRep_Emoting, VisibleAnywhere)
-	bool bEmoting = false;
-	UPROPERTY(Replicated, VisibleAnywhere)
-	UAnimSequence* SelectedEmoteAnimation = nullptr;
+	//UPROPERTY(ReplicatedUsing = OnRep_Emoting, VisibleAnywhere)
+	//bool bEmoting = false;
+	//UPROPERTY(Replicated, VisibleAnywhere)
+	//UAnimSequence* SelectedEmoteAnimation = nullptr;
 
-	UPROPERTY(Replicated, VisibleAnywhere)
-	USoundCue* SelectedEmoteSound = nullptr;
+	//UPROPERTY(Replicated, VisibleAnywhere)
+	//USoundCue* SelectedEmoteSound = nullptr;
 
-	UFUNCTION()
-	void OnRep_Emoting();
+	//UFUNCTION()
+	//void OnRep_Emoting();
 
 
 
@@ -257,4 +249,5 @@ public:
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
 	ECombatState GetCombatState() const;
+	FORCEINLINE bool GetIsEmoting() const { return SelectedEmoteIndex != -1; }
 };

@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Blaster/Weapons/Weapon.h"
 #include "Blaster/BlasterTypes/CombatState.h"
+#include "Blaster/GameInstance/BlasterGameInstance.h"
 
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
@@ -40,13 +41,22 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	EquippedWeapon = BlasterCharacter->GetEquippedWeapon();
 	bIsCrouched = BlasterCharacter->bIsCrouched;
 	bIsAiming = BlasterCharacter->IsAiming();
-	bIsEmoting = BlasterCharacter->GetIsEmoting();
-	SelectedEmoteAnimation = BlasterCharacter->GetSelectedEmoteAnimation();
-	if (bIsEmoting && SelectedEmoteAnimation == nullptr)
+
+	// Emotes
+	int32 SelectedEmoteIndex = BlasterCharacter->GetSelectedEmoteIndex();
+	bIsEmoting = SelectedEmoteIndex != -1;
+	if (bIsEmoting && SelectedEmoteIndex == -1)
 	{
 		bIsEmoting = false;
 		UE_LOG(LogTemp, Error, TEXT("Animation was to be played but no animation was provided. Double check the emote has an animation attached."));
 	}
+	
+	BlasterGameInstance = BlasterGameInstance == nullptr ? Cast<UBlasterGameInstance>(BlasterCharacter->GetGameInstance()) : BlasterGameInstance;
+	if (BlasterGameInstance && SelectedEmoteIndex != -1)
+	{
+		SelectedEmoteAnimation = BlasterGameInstance->Emotes[SelectedEmoteIndex].Animation;
+	}
+
 	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 	bRotateRootBone = BlasterCharacter->ShouldRotateRootBone();
 	bKilled = BlasterCharacter->IsKilled();

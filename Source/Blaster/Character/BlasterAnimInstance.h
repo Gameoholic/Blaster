@@ -24,6 +24,9 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 	class ABlasterCharacter* BlasterCharacter;
 
+	class UBlasterGameInstance* BlasterGameInstance;
+
+
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float Speed;
 
