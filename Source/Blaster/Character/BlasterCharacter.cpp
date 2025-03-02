@@ -929,7 +929,7 @@ void ABlasterCharacter::UpdateEmote()
 	// EmoteIndex automatically sets animation in BlasterAnimInstance.cpp
 	
 	// Hide weapon:
-	Combat->EquippedWeapon->Hide(SelectedEmoteIndex != -1);
+	Combat->EquippedWeapon->SetIsWeaponHidden(SelectedEmoteIndex != -1);
 
 	// Sound:
 	if (SelectedEmoteIndex != -1)

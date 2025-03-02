@@ -209,11 +209,11 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 void UCombatComponent::Reload()
 {
 	if (EquippedWeapon == nullptr || 
-		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity() ||
-		Character->GetIsEmoting())
+		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity())
 	{
 		return;
 	}
+	EquippedWeapon->SetIsWeaponHidden(false);
 	ServerReload();
 }
 
@@ -226,6 +226,7 @@ void UCombatComponent::ServerReload_Implementation()
 
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
+	EquippedWeapon->SetIsWeaponHidden(false);
 }
 
 void UCombatComponent::UpdateAmmoValues()
@@ -545,7 +546,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bAp
 
 bool UCombatComponent::CanFire()
 {
-	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty() || Character->GetIsEmoting())
+	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty())
 	{
 		return false;
 	}

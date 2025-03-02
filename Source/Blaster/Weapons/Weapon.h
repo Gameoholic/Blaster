@@ -55,6 +55,9 @@ public:
 	// Hide weapon (for when emoting)
 	void Hide(bool bShouldHideWeapon);
 
+
+	void SetIsWeaponHidden(bool _bWeaponHidden);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -156,6 +159,9 @@ private:
 	// By how much to increase the crosshairs with EACH shot
 	float CrosshairShootingFactor = 0.6f;
 
+	UPROPERTY(ReplicatedUsing = OnIsWeaponHiddenReplicated)
+	bool bWeaponHidden = false;
+
 
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
@@ -164,6 +170,9 @@ private:
 	USoundCue* FireSound;
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* MuzzleFlashParticles;
+
+	UFUNCTION()
+	void OnIsWeaponHiddenReplicated();
 
 public:
 	void SetWeaponState(EWeaponState State);

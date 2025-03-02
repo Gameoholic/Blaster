@@ -80,6 +80,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME(AWeapon, WeaponState);
 	DOREPLIFETIME(AWeapon, Ammo);
+	DOREPLIFETIME(AWeapon, bWeaponHidden);
 }
 
 void AWeapon::EnableCustomDepth(bool bEnable)
@@ -90,11 +91,16 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 	}
 }
 
-void AWeapon::Hide(bool bShouldHideWeapon)
+void AWeapon::SetIsWeaponHidden(bool _bWeaponHidden)
 {
-	WeaponMesh->SetHiddenInGame(bShouldHideWeapon);
+	bWeaponHidden = _bWeaponHidden;
+	WeaponMesh->SetHiddenInGame(bWeaponHidden);
 }
 
+void AWeapon::OnIsWeaponHiddenReplicated()
+{
+	WeaponMesh->SetHiddenInGame(bWeaponHidden);
+}
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
@@ -107,6 +113,7 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 
 void AWeapon::Fire(const FVector& HitTarget, bool bSilentFire)
 {
+	SetIsWeaponHidden(false);
 	if (FireAnimation && !bSilentFire)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
@@ -170,6 +177,7 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void AWeapon::SetWeaponState(EWeaponState State) //server-side
 {
 	WeaponState = State;
+	SetIsWeaponHidden(false);
 
 	switch (WeaponState)
 	{
@@ -205,6 +213,7 @@ void AWeapon::SetWeaponState(EWeaponState State) //server-side
 
 void AWeapon::OnRep_WeaponState()
 {
+	SetIsWeaponHidden(false);
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
@@ -286,6 +295,7 @@ void AWeapon::OnRep_Ammo()
 // Called on server
 void AWeapon::Drop()
 {
+	SetIsWeaponHidden(false);
 	SetWeaponState(EWeaponState::EWS_Dropped);
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
