@@ -209,25 +209,19 @@ private:
 
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
-	int32 SelectedEmoteIndex = -1;
 
 	// EMOTES
+	UPROPERTY(ReplicatedUsing = OnRep_SelectedEmoteIndex)
+	int32 SelectedEmoteIndex = -1;
+	UFUNCTION()
+	void OnRep_SelectedEmoteIndex();
 
-	//UFUNCTION(Server, Reliable)
-	//void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound); //RPC
+	UFUNCTION(Server, Reliable)
+	void ServerPlayEmote(int32 _SelectedEmoteIndex); //RPC
 
-	//UPROPERTY(ReplicatedUsing = OnRep_Emoting, VisibleAnywhere)
-	//bool bEmoting = false;
-	//UPROPERTY(Replicated, VisibleAnywhere)
-	//UAnimSequence* SelectedEmoteAnimation = nullptr;
+	void UpdateEmote();
 
-	//UPROPERTY(Replicated, VisibleAnywhere)
-	//USoundCue* SelectedEmoteSound = nullptr;
-
-	//UFUNCTION()
-	//void OnRep_Emoting();
-
-
+	class UBlasterGameInstance* BlasterGameInstance = nullptr;
 
 
 public:

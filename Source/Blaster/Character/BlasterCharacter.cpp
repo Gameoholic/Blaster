@@ -83,8 +83,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
-	//DOREPLIFETIME(ABlasterCharacter, bEmoting);
-	//DOREPLIFETIME(ABlasterCharacter, SelectedEmoteAnimation); // TODO: DO NOT REPLICATE ANIMATIONS, REPLICATE THE ID ONLY AND THEN SOMEHOW GET THE ANIM FROM THAT
+	DOREPLIFETIME(ABlasterCharacter, SelectedEmoteIndex);
 }
 
 
@@ -777,8 +776,6 @@ void ABlasterCharacter::ClientReceiveDynamicPlatformStates_Implementation(const 
 	//}
 }
 
-
-
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	if (OverlappingWeapon)
@@ -898,92 +895,62 @@ ECombatState ABlasterCharacter::GetCombatState() const
 
 // EMOTES
 
+// Method called on client/server when selected emote is updated
 void ABlasterCharacter::SetSelectedEmoteIndex(int32 _SelectedEmoteIndex)
 {
-	SelectedEmoteIndex = _SelectedEmoteIndex;
+	// First, update emote immediately on client
+	if (!HasAuthority())
+	{
+		SelectedEmoteIndex = _SelectedEmoteIndex;
+		UpdateEmote();
+	}
+	// Send RPC to server, OR update emote immediately if on server
+	ServerPlayEmote(_SelectedEmoteIndex); // Play emote on server
 }
+
+// Called on server when a client's emote changes
+void ABlasterCharacter::ServerPlayEmote_Implementation(int32 _SelectedEmoteIndex)
+{
+	SelectedEmoteIndex = _SelectedEmoteIndex; // This will get replicated to clients
+	UpdateEmote();
+}
+
+// Called on clients
+void ABlasterCharacter::OnRep_SelectedEmoteIndex()
+{
+	UpdateEmote();
+}
+
+
+// Called on client/server when emote index was changed and emote needs to play/stop. Handles sound, animation and weapon
+void ABlasterCharacter::UpdateEmote()
+{
+	// Animation:
+	// EmoteIndex automatically sets animation in BlasterAnimInstance.cpp
+	
+	// Hide weapon:
+	Combat->EquippedWeapon->Hide(SelectedEmoteIndex != -1);
+
+	// Sound:
+	if (SelectedEmoteIndex != -1)
+	{
+		BlasterGameInstance = BlasterGameInstance == nullptr ? Cast<UBlasterGameInstance>(GetGameInstance()) : BlasterGameInstance;
+		if (BlasterGameInstance)
+		{
+			USoundCue* EmoteSound = BlasterGameInstance->Emotes[SelectedEmoteIndex].Sound; // Because emote wheel grabs emotes directly from game instance, can safely assume the exact emote we need exists in the array
+			EmoteAudio->SetSound(EmoteSound);
+			EmoteAudio->Play();
+		}
+	}
+	else
+	{
+		EmoteAudio->Stop();
+	}
+}
+
+
 
 int32 ABlasterCharacter::GetSelectedEmoteIndex()
 {
 	return SelectedEmoteIndex;
 }
-//bool ABlasterCharacter::GetIsEmoting()
-//{
-//	return bEmoting;
-//}
-//
-//void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
-//{
-//	bEmoting = bIsEmoting;
-	// If not emoting, just stop playing the emote. If we are playing one, don't do anything here, wait for the SetSelectedEmote to be fired, otherwise we don't know what emote is playing in the rpc
-//	if (!bEmoting)
-//	{
-//		ServerPlayEmote(bIsEmoting, nullptr, nullptr);
-//	}
-//	Combat->EquippedWeapon->Hide(bEmoting);
-//}
-//
-//void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
-//{
-//	SelectedEmoteAnimation = _SelectedEmoteAnimation;
-//	if (bEmoting)
-//	{
-//		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation, SelectedEmoteSound);
-//	}
-//
-//}
-//
-//void ABlasterCharacter::SetSelectedEmoteSound(USoundCue* _SelectedEmoteSound)
-//{
-//	SelectedEmoteSound = _SelectedEmoteSound;
-//}
-//
-//
-//void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
-//{
-//	bEmoting = bIsEmoting;
-//	SelectedEmoteAnimation = _SelectedEmoteAnimation;
-//	SelectedEmoteSound = _SelectedEmoteSound;
-//	Combat->EquippedWeapon->Hide(bIsEmoting);
-//	EmoteAudio->SetSound(SelectedEmoteSound);
-//	if (bIsEmoting)
-//	{
-//		EmoteAudio->Play();
-//	}
-//	else
-//	{
-//		EmoteAudio->Stop();
-//	}
-//}
-//
-//void ABlasterCharacter::OnRep_Emoting()
-//{
-//	Combat->EquippedWeapon->Hide(bEmoting);
-
-
-
-	////TESTING:
-	//if (bEmoting)
-	//{
-	//	if (EmoteAudio != nullptr)
-	//	{
-	//		EmoteAudio->Stop();
-	//	}
-	//	//TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
-	//	//TestNewAudio->SetupAttachment(RootComponent);
-	//	EmoteAudio->Play();
-	//}
-	//else
-	//{
-	//	if (EmoteAudio != nullptr)
-	//	{
-	//		EmoteAudio->Stop();
-	//	}
-	//}
-//}
-//
-//UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
-//{
-//	return SelectedEmoteAnimation;
-//}
-
