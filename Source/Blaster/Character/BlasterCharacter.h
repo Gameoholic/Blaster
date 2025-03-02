@@ -211,7 +211,7 @@ private:
 	
 
 	// EMOTES
-	UPROPERTY(ReplicatedUsing = OnRep_SelectedEmoteIndex)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SelectedEmoteIndex, meta = (AllowPrivateAccess = "true"))
 	int32 SelectedEmoteIndex = -1;
 	UFUNCTION()
 	void OnRep_SelectedEmoteIndex();
