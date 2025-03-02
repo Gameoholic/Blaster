@@ -61,14 +61,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		// Set crosshair target to red if target directly in crosshair
 		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult, false);
-		if (HitResult.GetActor())
-		{
-			GEngine->AddOnScreenDebugMessage(1, 0.2f, FColor::Red, TEXT("HIT"));
-		}
 		// Will only turn red if hit actor is blaster character, AND the hit component was the mesh (not the capsule component for example).
-		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>()
-)
-//			&& HitResult.GetComponent()->GetCollisionObjectType() == ECC_SkeletalMesh
+		if (HitResult.GetActor() && HitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
 		{
 			HUDPackage.CrosshairsColor = FLinearColor::Red;
 		}
