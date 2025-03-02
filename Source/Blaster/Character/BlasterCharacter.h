@@ -86,6 +86,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* OverheadWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* EmoteAudio;
+
 	UPROPERTY(EditAnywhere, Category = HUD)
 	TSubclassOf<class UUserWidget> EmoteWheelWidget;
 
@@ -214,12 +217,15 @@ private:
 	class ALobbyGameState* LobbyGameState = nullptr;
 	
 	UFUNCTION(Server, Reliable)
-	void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation); //RPC
+	void ServerPlayEmote(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound); //RPC
 
 	UPROPERTY(ReplicatedUsing = OnRep_Emoting, VisibleAnywhere)
 	bool bEmoting = false;
 	UPROPERTY(Replicated, VisibleAnywhere)
 	UAnimSequence* SelectedEmoteAnimation = nullptr;
+
+	UPROPERTY(Replicated, VisibleAnywhere)
+	USoundCue* SelectedEmoteSound = nullptr;
 
 	UFUNCTION()
 	void OnRep_Emoting();

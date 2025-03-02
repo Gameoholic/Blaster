@@ -28,6 +28,7 @@
 #include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 
 // Sets default values
@@ -54,6 +55,10 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true); //component replication doesn't need to be registered
+
+	EmoteAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("EmoteAudio"));
+	EmoteAudio->SetupAttachment(RootComponent);
+	EmoteAudio->bAutoActivate = false;
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -903,25 +908,9 @@ void ABlasterCharacter::SetIsEmoting(bool bIsEmoting)
 	// If not emoting, just stop playing the emote. If we are playing one, don't do anything here, wait for the SetSelectedEmote to be fired, otherwise we don't know what emote is playing in the rpc
 	if (!bEmoting)
 	{
-		ServerPlayEmote(bIsEmoting, nullptr);
+		ServerPlayEmote(bIsEmoting, nullptr, nullptr);
 	}
 	Combat->EquippedWeapon->Hide(bEmoting);
-
-
-	//TESTING:
-	if (TestNewAudio == nullptr)
-	{
-		TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
-	}
-
-	if (bEmoting)
-	{
-		TestNewAudio->Play();
-	}
-	else
-	{
-		TestNewAudio->Stop();
-	}
 }
 
 void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteAnimation)
@@ -929,22 +918,71 @@ void ABlasterCharacter::SetSelectedEmoteAnimation(UAnimSequence* _SelectedEmoteA
 	SelectedEmoteAnimation = _SelectedEmoteAnimation;
 	if (bEmoting)
 	{
-		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation);
+		ServerPlayEmote(bEmoting, _SelectedEmoteAnimation, SelectedEmoteSound);
 	}
+
+	////TESTING:
+	//if (bEmoting)
+	//{
+	//	if (EmoteAudio != nullptr)
+	//	{
+	//		EmoteAudio->Stop();
+	//	}
+	//	//TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
+	//	//TestNewAudio->SetupAttachment(RootComponent);
+	//	EmoteAudio->Play();
+	//}
+	//else
+	//{
+	//	if (EmoteAudio != nullptr)
+	//	{
+	//		EmoteAudio->Stop();
+	//	}
+	//}
 }
 
 
-void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
+void ABlasterCharacter::ServerPlayEmote_Implementation(bool bIsEmoting, UAnimSequence* _SelectedEmoteAnimation, USoundCue* _SelectedEmoteSound) // Runs only on server. TODO: Like earlier TODO, do not send the animation itself over the server.
 {
 	bEmoting = bIsEmoting;
 	SelectedEmoteAnimation = _SelectedEmoteAnimation;
+	SelectedEmoteSound = _SelectedEmoteSound;
 	Combat->EquippedWeapon->Hide(bIsEmoting);
+	EmoteAudio->SetSound(SelectedEmoteSound);
+	if (bIsEmoting)
+	{
+		EmoteAudio->Play();
+	}
+	else
+	{
+		EmoteAudio->Stop();
+	}
 }
 
 void ABlasterCharacter::OnRep_Emoting()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("OnRep_Emoting"));
 	Combat->EquippedWeapon->Hide(bEmoting);
+
+
+
+	////TESTING:
+	//if (bEmoting)
+	//{
+	//	if (EmoteAudio != nullptr)
+	//	{
+	//		EmoteAudio->Stop();
+	//	}
+	//	//TestNewAudio = UGameplayStatics::SpawnSoundAttached(TestAudio, GetRootComponent());
+	//	//TestNewAudio->SetupAttachment(RootComponent);
+	//	EmoteAudio->Play();
+	//}
+	//else
+	//{
+	//	if (EmoteAudio != nullptr)
+	//	{
+	//		EmoteAudio->Stop();
+	//	}
+	//}
 }
 
 UAnimSequence* ABlasterCharacter::GetSelectedEmoteAnimation()
