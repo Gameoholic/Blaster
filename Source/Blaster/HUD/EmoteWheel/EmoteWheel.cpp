@@ -21,7 +21,10 @@ void UEmoteWheel::ReleaseEmoteWheel()
 {
 	if (BlasterCharacter)
 	{
-		BlasterCharacter->SetSelectedEmoteIndex(SelectedEmoteIndex);
+		if (BlasterCharacter->GetSelectedEmoteIndex() != SelectedEmoteIndex) // If player selected the same emote, just close the menu as if nothing changed
+		{
+			BlasterCharacter->SetSelectedEmoteIndex(SelectedEmoteIndex);
+		}
 	}
 
 	OnEmoteWheelRelease();
