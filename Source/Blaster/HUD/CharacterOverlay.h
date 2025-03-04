@@ -25,7 +25,10 @@ public:
 	class UBlasterFillableBar* AmmoBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AmmoText;
+	class UTextBlock* CurrentAmmoText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* MaxAmmoText;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ScoreText;

@@ -126,7 +126,7 @@ bool ABlasterPlayerController::IsHUDValid()
 	return (BlasterHUD != nullptr && BlasterHUD->CharacterOverlay != nullptr &&
 		BlasterHUD->CharacterOverlay->HealthBar != nullptr && BlasterHUD->CharacterOverlay->HealthText != nullptr
 		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->AmmoBar != nullptr
-		&& BlasterHUD->CharacterOverlay->AmmoText != nullptr);
+		&& BlasterHUD->CharacterOverlay->CurrentAmmoText != nullptr && BlasterHUD->CharacterOverlay->MaxAmmoText != nullptr);
 }
 
 
@@ -162,8 +162,8 @@ void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32
 	{
 		return;
 	}
-	FString AmmoText = FString::Printf(TEXT("%d | %d"), WeaponRemainingAmmo, WeaponMagCapacity);
-	BlasterHUD->CharacterOverlay->AmmoText->SetText(FText::FromString(AmmoText));
+	BlasterHUD->CharacterOverlay->CurrentAmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponRemainingAmmo)));
+	BlasterHUD->CharacterOverlay->MaxAmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponMagCapacity)));
 
 	const float AmmoPercent = (float)WeaponRemainingAmmo / WeaponMagCapacity;
 	BlasterHUD->CharacterOverlay->AmmoBar->StartPercentageChange(AmmoPercent, 1.4f, 1.0f);
