@@ -20,7 +20,11 @@ public:
 	class UBlasterFillableBar* HealthBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* HealthText;
+	class UTextBlock* CurrentHealthText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* MaxHealthText;
+
 	UPROPERTY(meta = (BindWidget))
 	class UBlasterFillableBar* AmmoBar;
 

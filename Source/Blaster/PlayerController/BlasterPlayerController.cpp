@@ -124,9 +124,11 @@ bool ABlasterPlayerController::IsHUDValid()
 {
 	BlasterHUD = (BlasterHUD == nullptr && GetHUD() != nullptr) ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	return (BlasterHUD != nullptr && BlasterHUD->CharacterOverlay != nullptr &&
-		BlasterHUD->CharacterOverlay->HealthBar != nullptr && BlasterHUD->CharacterOverlay->HealthText != nullptr
+		BlasterHUD->CharacterOverlay->HealthBar != nullptr
 		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->AmmoBar != nullptr
-		&& BlasterHUD->CharacterOverlay->CurrentAmmoText != nullptr && BlasterHUD->CharacterOverlay->MaxAmmoText != nullptr);
+		&& BlasterHUD->CharacterOverlay->CurrentAmmoText != nullptr && BlasterHUD->CharacterOverlay->MaxAmmoText != nullptr
+		&& BlasterHUD->CharacterOverlay->CurrentHealthText != nullptr &&
+		BlasterHUD->CharacterOverlay->MaxHealthText != nullptr);
 }
 
 
@@ -152,8 +154,8 @@ void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, 
 	{
 		BlasterHUD->CharacterOverlay->HealthBar->StartPercentageChange(HealthPercent, 0.5f, 1.0f);
 	}
-	FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
-	BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+	BlasterHUD->CharacterOverlay->CurrentHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Health)));
+	BlasterHUD->CharacterOverlay->MaxHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), MaxHealth)));
 }
 
 void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMagCapacity)
