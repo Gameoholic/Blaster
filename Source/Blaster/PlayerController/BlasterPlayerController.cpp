@@ -154,8 +154,8 @@ void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, 
 	{
 		BlasterHUD->CharacterOverlay->HealthBar->StartPercentageChange(HealthPercent, 0.5f, 1.0f);
 	}
-	BlasterHUD->CharacterOverlay->CurrentHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)Health)));
-	BlasterHUD->CharacterOverlay->MaxHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)MaxHealth)));
+	BlasterHUD->CharacterOverlay->CurrentHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FMath::CeilToInt32(Health))));
+	BlasterHUD->CharacterOverlay->MaxHealthText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FMath::CeilToInt32(MaxHealth))));
 }
 
 void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMagCapacity)
