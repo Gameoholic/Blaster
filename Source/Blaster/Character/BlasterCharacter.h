@@ -63,6 +63,7 @@ protected:
 	void AimButtonReleased();
 	void EmoteButtonPressed();
 	void EmoteButtonReleased();
+	void ChangeEmoteWheelPage(float MouseWheelDirection);
 	void AimOffset(float DeltaTime);
 	void CalculateAO_Pitch();
 	void SimProxiesTurn();

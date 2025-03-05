@@ -35,7 +35,13 @@ public:
 	void ReleaseEmoteWheel();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnEmoteWheelRelease();
+	void OnEmoteWheelReleased();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEmoteWheelNextPagePressed();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEmoteWheelPreviousPagePressed();
 
 protected:
 	virtual void NativeOnInitialized() override;

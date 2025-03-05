@@ -27,8 +27,10 @@ void UEmoteWheel::ReleaseEmoteWheel()
 		}
 	}
 
-	OnEmoteWheelRelease();
+	OnEmoteWheelReleased();
 }
+
+
 
 
 

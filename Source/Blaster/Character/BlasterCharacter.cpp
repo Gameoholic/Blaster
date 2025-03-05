@@ -207,6 +207,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Pressed, this, &ABlasterCharacter::EmoteButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Released, this, &ABlasterCharacter::EmoteButtonReleased);
+	PlayerInputComponent->BindAxis("EmoteWheelPage", this, &ABlasterCharacter::ChangeEmoteWheelPage);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
@@ -429,8 +430,25 @@ void ABlasterCharacter::EmoteButtonReleased()
 	FInputModeGameOnly InputModeData;
 	BlasterPlayerController->SetInputMode(InputModeData);
 	BlasterPlayerController->SetShowMouseCursor(false);
-
 }
+
+void ABlasterCharacter::ChangeEmoteWheelPage(float MouseWheelDirection)
+{
+	if (!EmoteWheel)
+	{
+		return;
+	}
+
+	if (MouseWheelDirection == 1.0f)
+	{
+		EmoteWheel->OnEmoteWheelNextPagePressed();
+	}
+	else if (MouseWheelDirection == -1.0f)
+	{
+		EmoteWheel->OnEmoteWheelPreviousPagePressed();
+	}
+}
+
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
