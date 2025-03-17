@@ -119,6 +119,9 @@ private:
 
 	void ServerSpendAmmo();
 
+	UPROPERTY(EditAnywhere)
+	bool bDroppable;
+
 	/*
 	* Textures for the weapon crosshairs
 	*/

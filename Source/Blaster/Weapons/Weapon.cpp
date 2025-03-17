@@ -295,6 +295,11 @@ void AWeapon::OnRep_Ammo()
 // Called on server
 void AWeapon::Drop()
 {
+	if (!bDroppable)
+	{
+		Destroy();
+		return;
+	}
 	SetIsWeaponHidden(false);
 	SetWeaponState(EWeaponState::EWS_Dropped);
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);

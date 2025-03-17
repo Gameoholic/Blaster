@@ -331,7 +331,11 @@ int32 UCombatComponent::AmountToReload()
 
 void UCombatComponent::OnRep_EquippedWeapon()
 {
-	if (EquippedWeapon && Character)
+	if (!Character)
+	{
+		return;
+	}
+	if (EquippedWeapon)
 	{
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
@@ -349,6 +353,15 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		{
 			Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
 		}
+	}
+	else
+	{
+		EquippedWeapon->Destroy();
+		//const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		//if (HandSocket)
+		//{
+		//	HandSocket->AttachActor(nullptr, Character->GetMesh());
+		//}
 	}
 }
 

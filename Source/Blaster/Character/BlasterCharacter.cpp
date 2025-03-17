@@ -659,6 +659,7 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation() // SERVER RPC
 }
 
 
+
 void ABlasterCharacter::HideCameraIfCharacterClose()
 {
 	if (!IsLocallyControlled())
