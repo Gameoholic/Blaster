@@ -23,6 +23,8 @@ public:
 	void SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMagCapacity);
 	void SetHUDMainWeapon(FString WeaponName, FSlateBrush WeaponIcon);
 	void SetHUDSecondaryWeapon(FString WeaponName, FSlateBrush WeaponIcon);
+	void SetHUDItem1(FString ItemName, FSlateBrush ItemIcon);
+	void SetHUDItem2(FString ItemName, FSlateBrush ItemIcon);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

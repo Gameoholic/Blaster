@@ -133,7 +133,11 @@ bool ABlasterPlayerController::IsHUDValid()
 		BlasterHUD->CharacterOverlay->MainWeaponName != nullptr &&
 		BlasterHUD->CharacterOverlay->MainWeaponIcon != nullptr &&
 		BlasterHUD->CharacterOverlay->SecondaryWeaponName != nullptr &&
-		BlasterHUD->CharacterOverlay->SecondaryWeaponIcon != nullptr);
+		BlasterHUD->CharacterOverlay->SecondaryWeaponIcon != nullptr &&
+		BlasterHUD->CharacterOverlay->Item1Name != nullptr &&
+		BlasterHUD->CharacterOverlay->Item1Icon != nullptr &&
+		BlasterHUD->CharacterOverlay->Item2Name != nullptr &&
+		BlasterHUD->CharacterOverlay->Item2Icon != nullptr);
 }
 
 
@@ -194,6 +198,26 @@ void ABlasterPlayerController::SetHUDSecondaryWeapon(FString WeaponName, FSlateB
 	}
 	BlasterHUD->CharacterOverlay->SecondaryWeaponName->SetText(FText::FromString(WeaponName));
 	BlasterHUD->CharacterOverlay->SecondaryWeaponIcon->SetBrush(WeaponIcon);
+}
+
+void ABlasterPlayerController::SetHUDItem1(FString ItemName, FSlateBrush ItemIcon)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->Item1Name->SetText(FText::FromString(ItemName));
+	BlasterHUD->CharacterOverlay->Item1Icon->SetBrush(ItemIcon);
+}
+
+void ABlasterPlayerController::SetHUDItem2(FString ItemName, FSlateBrush ItemIcon)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->Item2Name->SetText(FText::FromString(ItemName));
+	BlasterHUD->CharacterOverlay->Item2Icon->SetBrush(ItemIcon);
 }
 
 void ABlasterPlayerController::SetHUDScore(float Score)

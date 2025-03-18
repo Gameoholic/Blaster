@@ -16,6 +16,10 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 	
 
 public:
+	UPROPERTY(EditDefaultsOnly)
+	FSlateBrush InvisibleImage;
+
+
 	UPROPERTY(meta = (BindWidget))
 	class UBlasterFillableBar* HealthBar;
 
@@ -55,5 +59,19 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* SecondaryWeaponIcon;
+
+
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Item1Name;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Item1Icon;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Item2Name;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Item2Icon;
 
 };
