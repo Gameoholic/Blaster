@@ -241,7 +241,7 @@ void ABlasterCharacter::PollInitHUD()
 
 void ABlasterCharacter::PlayFireMontage(bool bAiming)
 {
-	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	if (Combat == nullptr || Combat->MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -258,7 +258,7 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 
 void ABlasterCharacter::PlayReloadMontage()
 {
-	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	if (Combat == nullptr || Combat->MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -269,7 +269,7 @@ void ABlasterCharacter::PlayReloadMontage()
 		AnimInstance->Montage_Play(ReloadMontage);
 		FName SectionName;
 
-		switch (Combat->EquippedWeapon->GetWeaponType())
+		switch (Combat->MainWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRifle:
 			SectionName = FName("Rifle");
@@ -299,7 +299,7 @@ void ABlasterCharacter::PlayReloadMontage()
 
 void ABlasterCharacter::PlayHitReactMontage()
 {
-	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	if (Combat == nullptr || Combat->MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -452,7 +452,7 @@ void ABlasterCharacter::ChangeEmoteWheelPage(float MouseWheelDirection)
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
-	if (Combat && Combat->EquippedWeapon == nullptr) return;
+	if (Combat && Combat->MainWeapon == nullptr) return;
 	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
@@ -497,7 +497,7 @@ void ABlasterCharacter::CalculateAO_Pitch()
 void ABlasterCharacter::SimProxiesTurn()
 {
 	// handle turning for simulated proxies
-	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+	if (Combat == nullptr || Combat->MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -669,17 +669,17 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraHideThreshold)
 	{
 		GetMesh()->SetVisibility(false);
-		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		if (Combat && Combat->MainWeapon && Combat->MainWeapon->GetWeaponMesh())
 		{
-			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+			Combat->MainWeapon->GetWeaponMesh()->bOwnerNoSee = true;
 		}
 	}
 	else
 	{
 		GetMesh()->SetVisibility(true);
-		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		if (Combat && Combat->MainWeapon && Combat->MainWeapon->GetWeaponMesh())
 		{
-			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+			Combat->MainWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
 }
@@ -819,9 +819,9 @@ void ABlasterCharacter::ServerKill()
 		&ABlasterCharacter::ServerRespawnTimerFinished,
 		RespawnDelay
 	);
-	if (Combat && Combat->EquippedWeapon)
+	if (Combat && Combat->MainWeapon)
 	{
-		Combat->EquippedWeapon->Drop();
+		Combat->MainWeapon->Drop();
 	}
 }
 
@@ -858,7 +858,7 @@ void ABlasterCharacter::MulticastKill_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Hide sniper scope
-	if (IsLocallyControlled() && Combat && Combat->bAiming && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+	if (IsLocallyControlled() && Combat && Combat->bAiming && Combat->MainWeapon && Combat->MainWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 	{
 		ShowSniperScopeWidget(false);
 	}
@@ -875,7 +875,7 @@ void ABlasterCharacter::ServerRespawnTimerFinished()
 
 bool ABlasterCharacter::IsWeaponEquipped()
 {
-	return (Combat && Combat->EquippedWeapon);
+	return (Combat && Combat->MainWeapon);
 }
 
 bool ABlasterCharacter::IsAiming()
@@ -889,7 +889,7 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	{
 		return nullptr;
 	}
-	return Combat->EquippedWeapon;
+	return Combat->MainWeapon;
 }
 
 FVector ABlasterCharacter::GetHitTarget() const
@@ -949,7 +949,7 @@ void ABlasterCharacter::UpdateEmote()
 	// EmoteIndex automatically sets animation in BlasterAnimInstance.cpp
 	
 	// Hide weapon:
-	Combat->EquippedWeapon->SetIsWeaponHidden(SelectedEmoteIndex != -1);
+	Combat->MainWeapon->SetIsWeaponHidden(SelectedEmoteIndex != -1);
 
 	// Sound:
 	if (SelectedEmoteIndex != -1)

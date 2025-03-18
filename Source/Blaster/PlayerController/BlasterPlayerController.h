@@ -21,6 +21,8 @@ public:
 	void SetHUDKills(int32 Kills);
 	void SetHUDDeaths(int32 Deaths);
 	void SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32 WeaponMagCapacity);
+	void SetHUDMainWeapon(FString WeaponName, FSlateBrush WeaponIcon);
+	void SetHUDSecondaryWeapon(FString WeaponName, FSlateBrush WeaponIcon);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

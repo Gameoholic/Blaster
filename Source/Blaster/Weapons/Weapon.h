@@ -84,6 +84,12 @@ protected:
 
 
 private:
+	UPROPERTY(EditAnywhere)
+	FString DisplayName = FString("Unnamed Weapon");
+
+	UPROPERTY(EditAnywhere)
+	FSlateBrush Icon;
+
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -199,6 +205,9 @@ public:
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE int32 GetProjectileAmountPerFire() const { return ProjectileAmountPerFire; }
+
+	FORCEINLINE FString GetDisplayName() const { return DisplayName; }
+	FORCEINLINE FSlateBrush GetIcon() const { return Icon; }
 
 };
 

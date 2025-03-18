@@ -28,7 +28,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, MainWeapon);
+	DOREPLIFETIME(UCombatComponent, SecondaryWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 }
@@ -84,13 +85,13 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
 		if (HUD)
 		{
-			if (EquippedWeapon)
+			if (MainWeapon)
 			{
-				HUDPackage.CrosshairsCenter = EquippedWeapon->GetCrosshairsCenter();
-				HUDPackage.CrosshairsLeft = EquippedWeapon->GetCrosshairsLeft();
-				HUDPackage.CrosshairsRight = EquippedWeapon->GetCrosshairsRight();
-				HUDPackage.CrosshairsTop = EquippedWeapon->GetCrosshairsTop();
-				HUDPackage.CrosshairsBottom = EquippedWeapon->GetCrosshairsBottom();
+				HUDPackage.CrosshairsCenter = MainWeapon->GetCrosshairsCenter();
+				HUDPackage.CrosshairsLeft = MainWeapon->GetCrosshairsLeft();
+				HUDPackage.CrosshairsRight = MainWeapon->GetCrosshairsRight();
+				HUDPackage.CrosshairsTop = MainWeapon->GetCrosshairsTop();
+				HUDPackage.CrosshairsBottom = MainWeapon->GetCrosshairsBottom();
 			}
 			else
 			{
@@ -123,23 +124,23 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 			if (bAiming)
 			{
-				if (EquippedWeapon)
+				if (MainWeapon)
 				{
-					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, EquippedWeapon->GetCrosshairAimingFactor(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, MainWeapon->GetCrosshairAimingFactor(), DeltaTime, MainWeapon->GetZoomInterpSpeed());
 				}
 				CrosshairVelocityFactor /= 1.5F;
 			}
 			else
 			{
-				if (EquippedWeapon)
+				if (MainWeapon)
 				{
-					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.0f, DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+					CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.0f, DeltaTime, MainWeapon->GetZoomInterpSpeed());
 				}
 				//CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.0f, DeltaTime, 2.0f); // reset crosshair shooting factor faster
 			}
-			if (EquippedWeapon)
+			if (MainWeapon)
 			{
-				CrosshairWeaponFactor = EquippedWeapon->GetCrosshairScatterFactor();
+				CrosshairWeaponFactor = MainWeapon->GetCrosshairScatterFactor();
 			}
 
 			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.0f, DeltaTime, 1.0f);
@@ -170,36 +171,46 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	{
 		return;
 	}
-	if (EquippedWeapon)
+	// If both weapon slots are taken, replace main weapon. Otherwise, make current main weapon the secondary
+	if (MainWeapon && SecondaryWeapon)
 	{
-		EquippedWeapon->Drop();
+		MainWeapon->Drop();
+	}
+	else if (MainWeapon)
+	{
+		SecondaryWeapon = MainWeapon;
 	}
 
-	EquippedWeapon = WeaponToEquip;
-	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	MainWeapon = WeaponToEquip;
+	MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
 	{
-		HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+		HandSocket->AttachActor(MainWeapon, Character->GetMesh());
 	}
-	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->SetHUDAmmo();
+	MainWeapon->SetOwner(Character);
+	MainWeapon->SetHUDAmmo();
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+		Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
+		Controller->SetHUDMainWeapon(MainWeapon->GetDisplayName(), MainWeapon->GetIcon());
+		if (SecondaryWeapon)
+		{
+			Controller->SetHUDSecondaryWeapon(SecondaryWeapon->GetDisplayName(), SecondaryWeapon->GetIcon());
+		}
 	}
 
 
 
-	if (EquippedWeapon->EquipSound)
+	if (MainWeapon->EquipSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
 	}
 
-	if (EquippedWeapon->IsAmmoEmpty())
+	if (MainWeapon->IsAmmoEmpty())
 	{
 		Reload();
 	}
@@ -210,30 +221,30 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::Reload()
 {
-	if (EquippedWeapon == nullptr || 
-		CombatState == ECombatState::ECS_Reloading || EquippedWeapon->GetAmmo() >= EquippedWeapon->GetMagCapacity())
+	if (MainWeapon == nullptr ||
+		CombatState == ECombatState::ECS_Reloading || MainWeapon->GetAmmo() >= MainWeapon->GetMagCapacity())
 	{
 		return;
 	}
-	EquippedWeapon->SetIsWeaponHidden(false);
+	MainWeapon->SetIsWeaponHidden(false);
 	ServerReload();
 }
 
 void UCombatComponent::ServerReload_Implementation()
 {
-	if (Character == nullptr || EquippedWeapon == nullptr)
+	if (Character == nullptr || MainWeapon == nullptr)
 	{
 		return;
 	}
 
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
-	EquippedWeapon->SetIsWeaponHidden(false);
+	MainWeapon->SetIsWeaponHidden(false);
 }
 
 void UCombatComponent::UpdateAmmoValues()
 {
-	if (EquippedWeapon == nullptr)
+	if (MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -242,15 +253,15 @@ void UCombatComponent::UpdateAmmoValues()
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+		Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
 	}
 
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	MainWeapon->AddAmmo(-ReloadAmount);
 }
 
 void UCombatComponent::UpdateShotgunAmmoValues()
 {
-	if (Character == nullptr || EquippedWeapon == nullptr)
+	if (Character == nullptr || MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -258,13 +269,13 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+		Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
 	}
 
-	EquippedWeapon->AddAmmo(-1);
+	MainWeapon->AddAmmo(-1);
 	bCanFire = true;
 
-	if (EquippedWeapon->GetAmmo() == EquippedWeapon->GetMagCapacity()) // If full
+	if (MainWeapon->GetAmmo() == MainWeapon->GetMagCapacity()) // If full
 	{
 		JumpToShotgunEnd();
 	}
@@ -321,42 +332,42 @@ void UCombatComponent::HandleReload()
 
 int32 UCombatComponent::AmountToReload()
 {
-	if (EquippedWeapon == nullptr)
+	if (MainWeapon == nullptr)
 	{
 		return 0;
 	}
-	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
+	int32 RoomInMag = MainWeapon->GetMagCapacity() - MainWeapon->GetAmmo();
 	return RoomInMag;
 }
 
-void UCombatComponent::OnRep_EquippedWeapon()
+void UCombatComponent::OnRep_MainWeaponEquipped()
 {
 	if (!Character)
 	{
 		return;
 	}
-	if (EquippedWeapon)
+	if (MainWeapon)
 	{
-		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 		if (HandSocket)
 		{
-			HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+			HandSocket->AttachActor(MainWeapon, Character->GetMesh());
 		}
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 
-		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
 
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
-			Controller->SetHUDWeaponAmmo(EquippedWeapon->GetAmmo(), EquippedWeapon->GetMagCapacity());
+			Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
 		}
 	}
 	else
 	{
-		EquippedWeapon->Destroy();
+		MainWeapon->Destroy();
 		//const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 		//if (HandSocket)
 		//{
@@ -365,16 +376,21 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UCombatComponent::OnRep_SecondaryWeaponEquipped()
+{
+	
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
-	if (EquippedWeapon == nullptr) return;
+	if (MainWeapon == nullptr) return;
 	if (bAiming)
 	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, BaseFOV * EquippedWeapon->GetZoomedFOVMultiplier(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, BaseFOV * MainWeapon->GetZoomedFOVMultiplier(), DeltaTime, MainWeapon->GetZoomInterpSpeed());
 	}
 	else
 	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, BaseFOV, DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, BaseFOV, DeltaTime, MainWeapon->GetZoomInterpSpeed());
 	}
 
 	if (Character && Character->GetFollowCamera())
@@ -386,7 +402,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
-	if (Character == nullptr || EquippedWeapon == nullptr)
+	if (Character == nullptr || MainWeapon == nullptr)
 	{
 		return;
 	}
@@ -396,7 +412,7 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
-	if (Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+	if (Character->IsLocallyControlled() && MainWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 	{
 		Character->ShowSniperScopeWidget(bIsAiming);
 	}
@@ -424,16 +440,16 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 
 void UCombatComponent::StartFireTimer()
 {
-	if (EquippedWeapon == nullptr || Character == nullptr) return;
+	if (MainWeapon == nullptr || Character == nullptr) return;
 	Character->GetWorldTimerManager().SetTimer(
-		FireTimer, this, &UCombatComponent::FireTimerFinished, EquippedWeapon->GetFireDelay()
+		FireTimer, this, &UCombatComponent::FireTimerFinished, MainWeapon->GetFireDelay()
 	);
 }
 
 void UCombatComponent::FireTimerFinished()
 {
 	bCanFire = true;
-	if (bFireButtonPressed && EquippedWeapon && EquippedWeapon->GetAutomatic())
+	if (bFireButtonPressed && MainWeapon && MainWeapon->GetAutomatic())
 	{
 		Fire();
 	}
@@ -442,7 +458,7 @@ void UCombatComponent::FireTimerFinished()
 		//Character->GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 
-	if (EquippedWeapon->IsAmmoEmpty())
+	if (MainWeapon->IsAmmoEmpty())
 	{
 		Reload();
 	}
@@ -450,7 +466,7 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::Fire()
 {
-	if (!CanFire() || !EquippedWeapon)
+	if (!CanFire() || !MainWeapon)
 	{
 		return;
 	}
@@ -460,21 +476,21 @@ void UCombatComponent::Fire()
 	TraceUnderCrosshairs(HitResult, true);
 	ServerFire(HitResult.ImpactPoint, false);
 	// If there are other shots, send them "quietly" (without sound, muzzle flash or expending bullets)
-	for (int32 i = 0; i < EquippedWeapon->GetProjectileAmountPerFire() - 1; i++)
+	for (int32 i = 0; i < MainWeapon->GetProjectileAmountPerFire() - 1; i++)
 	{
 		TraceUnderCrosshairs(HitResult, true);
 		ServerFire(HitResult.ImpactPoint, true);
 	}
 
-	CrosshairShootingFactor += EquippedWeapon->GetCrosshairShootingFactor();
+	CrosshairShootingFactor += MainWeapon->GetCrosshairShootingFactor();
 
 	// Play camera shake
 	UWorld* World = GetWorld();
-	if (EquippedWeapon->CameraShake != nullptr && World)
+	if (MainWeapon->CameraShake != nullptr && World)
 	{
 		UGameplayStatics::PlayWorldCameraShake(
 			World,
-			EquippedWeapon->CameraShake,
+			MainWeapon->CameraShake,
 			Character->GetActorLocation(),
 			0.0f,
 			500.0f
@@ -492,19 +508,19 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget, bool bSilentFire) //called from server, executes on server+clients
 {
-	if (EquippedWeapon == nullptr || Character == nullptr)
+	if (MainWeapon == nullptr || Character == nullptr)
 	{
 		return;
 	}
 
-	if ((CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
+	if ((CombatState == ECombatState::ECS_Reloading && MainWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
 			|| (CombatState == ECombatState::ECS_Unoccupied))
 	{
 		if (!bSilentFire)
 		{
 			Character->PlayFireMontage(bAiming);
 		}
-		EquippedWeapon->Fire(TraceHitTarget, bSilentFire);
+		MainWeapon->Fire(TraceHitTarget, bSilentFire);
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
@@ -561,11 +577,11 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult, bool bAp
 
 bool UCombatComponent::CanFire()
 {
-	if (EquippedWeapon == nullptr || !bCanFire || EquippedWeapon->IsAmmoEmpty())
+	if (MainWeapon == nullptr || !bCanFire || MainWeapon->IsAmmoEmpty())
 	{
 		return false;
 	}
-	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading)
+	if (MainWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading)
 	{
 		return true;
 	}

@@ -44,4 +44,16 @@ public:
 	UTextBlock* DeathsText;
 
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MainWeaponName;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* MainWeaponIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* SecondaryWeaponName;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* SecondaryWeaponIcon;
+
 };

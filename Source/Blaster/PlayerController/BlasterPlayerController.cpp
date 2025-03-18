@@ -14,6 +14,7 @@
 #include "Blaster/GameState/BlasterGameState.h"
 #include "Blaster/HUD/PauseMenu.h"
 #include "Blaster/HUD/BlasterFillableBar.h"
+#include "Components/Image.h"
 
 
 
@@ -128,7 +129,11 @@ bool ABlasterPlayerController::IsHUDValid()
 		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->AmmoBar != nullptr
 		&& BlasterHUD->CharacterOverlay->CurrentAmmoText != nullptr && BlasterHUD->CharacterOverlay->MaxAmmoText != nullptr
 		&& BlasterHUD->CharacterOverlay->CurrentHealthText != nullptr &&
-		BlasterHUD->CharacterOverlay->MaxHealthText != nullptr);
+		BlasterHUD->CharacterOverlay->MaxHealthText != nullptr &&
+		BlasterHUD->CharacterOverlay->MainWeaponName != nullptr &&
+		BlasterHUD->CharacterOverlay->MainWeaponIcon != nullptr &&
+		BlasterHUD->CharacterOverlay->SecondaryWeaponName != nullptr &&
+		BlasterHUD->CharacterOverlay->SecondaryWeaponIcon != nullptr);
 }
 
 
@@ -171,6 +176,26 @@ void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32
 	BlasterHUD->CharacterOverlay->AmmoBar->StartPercentageChange(AmmoPercent, 1.4f, 1.0f);
 }
 
+void ABlasterPlayerController::SetHUDMainWeapon(FString WeaponName, FSlateBrush WeaponIcon)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->MainWeaponName->SetText(FText::FromString(WeaponName));
+	BlasterHUD->CharacterOverlay->MainWeaponIcon->SetBrush(WeaponIcon);
+}
+
+void ABlasterPlayerController::SetHUDSecondaryWeapon(FString WeaponName, FSlateBrush WeaponIcon)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->SecondaryWeaponName->SetText(FText::FromString(WeaponName));
+	BlasterHUD->CharacterOverlay->SecondaryWeaponIcon->SetBrush(WeaponIcon);
+}
+
 void ABlasterPlayerController::SetHUDScore(float Score)
 {
 	if (!IsHUDValid())
@@ -182,6 +207,8 @@ void ABlasterPlayerController::SetHUDScore(float Score)
 	FString ScoreText = FString::Printf(TEXT("Score: %d"), FMath::CeilToInt(Score));
 	BlasterHUD->CharacterOverlay->ScoreText->SetText(FText::FromString(ScoreText));
 }
+
+
 
 void ABlasterPlayerController::SetHUDKills(int32 Kills)
 {
