@@ -270,6 +270,11 @@ void UCombatComponent::ServerSwitchWeapon_Implementation()
 		{
 			Reload();
 		}
+
+		if (CombatState == ECombatState::ECS_Reloading)
+		{
+			StopReload();
+		}
 	}
 
 }
@@ -283,6 +288,12 @@ void UCombatComponent::Reload()
 	}
 	MainWeapon->SetIsWeaponHidden(false);
 	ServerReload();
+}
+
+void UCombatComponent::StopReload()
+{
+	Character->StopReloadMontage();
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::ServerReload_Implementation()
@@ -429,6 +440,11 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 			{
 				Controller->SetHUDSecondaryWeapon(SecondaryWeapon->GetDisplayName(), SecondaryWeapon->GetIcon());
 			}
+		}
+
+		if (CombatState == ECombatState::ECS_Reloading)
+		{
+			StopReload();
 		}
 	}
 	else

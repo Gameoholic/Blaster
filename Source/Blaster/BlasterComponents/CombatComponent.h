@@ -30,6 +30,7 @@ public:
 	void ServerSwitchWeapon();
 
 	void Reload();
+	void StopReload();
 
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();

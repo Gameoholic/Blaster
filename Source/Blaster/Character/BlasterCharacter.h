@@ -26,6 +26,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
+	void StopReloadMontage();
 	virtual void OnRep_ReplicatedMovement() override;
 
 	void ServerKill();
