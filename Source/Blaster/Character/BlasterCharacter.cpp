@@ -298,6 +298,20 @@ void ABlasterCharacter::PlayReloadMontage()
 	}
 }
 
+void ABlasterCharacter::ResetReloadMontage()
+{
+	if (Combat == nullptr || Combat->MainWeapon == nullptr)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_SetPosition(ReloadMontage, 0.0f);
+	}
+}
+
 void ABlasterCharacter::StopReloadMontage()
 {
 	if (Combat == nullptr || Combat->MainWeapon == nullptr)

@@ -27,6 +27,7 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 	void StopReloadMontage();
+	void ResetReloadMontage();
 	virtual void OnRep_ReplicatedMovement() override;
 
 	void ServerKill();

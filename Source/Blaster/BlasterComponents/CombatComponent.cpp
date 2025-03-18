@@ -225,6 +225,12 @@ void UCombatComponent::SwitchWeaponButtonReleased()
 	{
 		return;
 	}
+
+	// Client side fix for reload animation not restarting when switching between 2 reloading weapons
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		Character->ResetReloadMontage();
+	}
 	ServerSwitchWeapon();
 }
 
@@ -443,10 +449,11 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 			}
 		}
 
-		//if (CombatState == ECombatState::ECS_Reloading)
-		//{
-		//	StopReload();
-		//}
+		// Fix on clients for switching from reloading weapon to another reloading weapon
+		if (CombatState == ECombatState::ECS_Reloading)
+		{
+			Character->ResetReloadMontage();
+		}
 	}
 	else
 	{
