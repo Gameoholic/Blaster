@@ -273,9 +273,10 @@ void UCombatComponent::ServerSwitchWeapon_Implementation()
 
 		if (MainWeapon->IsAmmoEmpty())
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("AMMO EMPTY tyes"));
 			Reload();
 		}
+
+		StopFireTimer();
 	}
 
 }
@@ -527,6 +528,12 @@ void UCombatComponent::StartFireTimer()
 	Character->GetWorldTimerManager().SetTimer(
 		FireTimer, this, &UCombatComponent::FireTimerFinished, MainWeapon->GetFireDelay()
 	);
+}
+
+void UCombatComponent::StopFireTimer()
+{
+	Character->GetWorldTimerManager().ClearTimer(FireTimer);
+	FireTimerFinished();
 }
 
 void UCombatComponent::FireTimerFinished()

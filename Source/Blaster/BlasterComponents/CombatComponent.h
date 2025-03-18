@@ -121,6 +121,7 @@ private:
 
 	bool bCanFire = true;
 	void StartFireTimer();
+	void StopFireTimer();
 	void FireTimerFinished();
 	
 	bool CanFire();
