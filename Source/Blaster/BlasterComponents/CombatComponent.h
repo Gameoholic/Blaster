@@ -25,7 +25,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
-	void SwitchWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSwitchWeapon();
+
 	void Reload();
 
 	UFUNCTION(BlueprintCallable)
@@ -52,6 +55,8 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 	void Fire();
+
+	void SwitchWeaponButtonReleased();
 
 	// If projectile is silent, no ammo will be expended, and there'll be no sound or muzzle flash (used for multishot weapons)
 	UFUNCTION(Server, Reliable)

@@ -179,6 +179,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	else if (MainWeapon)
 	{
 		SecondaryWeapon = MainWeapon;
+		SecondaryWeapon->SetIsWeaponHidden(true);
 	}
 
 	MainWeapon = WeaponToEquip;
@@ -218,13 +219,21 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character->bUseControllerRotationYaw = true;
 }
 
-void UCombatComponent::SwitchWeapon()
+void UCombatComponent::SwitchWeaponButtonReleased()
 {
 	if (!SecondaryWeapon)
 	{
 		return;
 	}
+	ServerSwitchWeapon();
+}
 
+void UCombatComponent::ServerSwitchWeapon_Implementation()
+{
+	if (!SecondaryWeapon)
+	{
+		return;
+	}
 	// Switch weapons
 	AWeapon* PreviousMainWeapon = MainWeapon;
 	MainWeapon = SecondaryWeapon;
@@ -239,24 +248,30 @@ void UCombatComponent::SwitchWeapon()
 		HandSocket->AttachActor(MainWeapon, Character->GetMesh());
 	}
 
-	// Update HUD
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
+	if (Character->IsLocallyControlled())
 	{
-		Controller->SetHUDMainWeapon(MainWeapon->GetDisplayName(),MainWeapon->GetIcon());
-		Controller->SetHUDSecondaryWeapon(SecondaryWeapon->GetDisplayName(), SecondaryWeapon->GetIcon());
-		Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDMainWeapon(MainWeapon->GetDisplayName(), MainWeapon->GetIcon());
+			if (SecondaryWeapon)
+			{
+				Controller->SetHUDSecondaryWeapon(SecondaryWeapon->GetDisplayName(), SecondaryWeapon->GetIcon());
+			}
+			Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
+		}
+
+		if (MainWeapon->EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
+		}
+
+		if (MainWeapon->IsAmmoEmpty())
+		{
+			Reload();
+		}
 	}
 
-	if (MainWeapon->EquipSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
-	}
-
-	if (MainWeapon->IsAmmoEmpty())
-	{
-		Reload();
-	}
 }
 
 void UCombatComponent::Reload()
@@ -388,6 +403,12 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 	}
 	if (MainWeapon)
 	{
+		if (SecondaryWeapon)
+		{
+			SecondaryWeapon->SetIsWeaponHidden(true);
+		}
+		MainWeapon->SetIsWeaponHidden(false);
+
 		MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 		if (HandSocket)
@@ -403,6 +424,11 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 		if (Controller)
 		{
 			Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
+			Controller->SetHUDMainWeapon(MainWeapon->GetDisplayName(), MainWeapon->GetIcon());
+			if (SecondaryWeapon)
+			{
+				Controller->SetHUDSecondaryWeapon(SecondaryWeapon->GetDisplayName(), SecondaryWeapon->GetIcon());
+			}
 		}
 	}
 	else

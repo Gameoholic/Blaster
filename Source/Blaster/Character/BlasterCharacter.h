@@ -68,7 +68,7 @@ protected:
 	void CalculateAO_Pitch();
 	void SimProxiesTurn();
 	virtual void Jump() override;
-	void SwitchWeapon();
+	void SwitchWeaponButtonReleased();
 	void FireButtonPressed();
 	void FireButtonReleased();
 	UFUNCTION()

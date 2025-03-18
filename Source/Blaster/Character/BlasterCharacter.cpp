@@ -199,7 +199,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ABlasterCharacter::SwitchWeapon);
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ABlasterCharacter::SwitchWeaponButtonReleased);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
@@ -546,9 +546,12 @@ void ABlasterCharacter::Jump()
 	}
 }
 
-void ABlasterCharacter::SwitchWeapon()
+void ABlasterCharacter::SwitchWeaponButtonReleased()
 {
-	Combat->SwitchWeapon();
+	if (Combat)
+	{
+		Combat->SwitchWeaponButtonReleased();
+	}
 }
 
 void ABlasterCharacter::FireButtonPressed()
