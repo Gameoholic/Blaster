@@ -548,17 +548,7 @@ void ABlasterCharacter::Jump()
 
 void ABlasterCharacter::SwitchWeapon()
 {
-	if (!Combat->SecondaryWeapon)
-	{
-		return;
-	}
-	
-	AWeapon* PreviousMainWeapon = Combat->MainWeapon;
-	Combat->MainWeapon = Combat->SecondaryWeapon;
-	Combat->SecondaryWeapon = PreviousMainWeapon;
-
-	BlasterPlayerController->SetHUDMainWeapon(Combat->MainWeapon->GetDisplayName(), Combat->MainWeapon->GetIcon());
-	BlasterPlayerController->SetHUDSecondaryWeapon(Combat->SecondaryWeapon->GetDisplayName(), Combat->SecondaryWeapon->GetIcon());
+	Combat->SwitchWeapon();
 }
 
 void ABlasterCharacter::FireButtonPressed()
