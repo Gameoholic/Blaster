@@ -266,14 +266,15 @@ void UCombatComponent::ServerSwitchWeapon_Implementation()
 			UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
 		}
 
-		if (MainWeapon->IsAmmoEmpty())
-		{
-			Reload();
-		}
-
 		if (CombatState == ECombatState::ECS_Reloading)
 		{
 			StopReload();
+		}
+
+		if (MainWeapon->IsAmmoEmpty())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("AMMO EMPTY tyes"));
+			Reload();
 		}
 	}
 
