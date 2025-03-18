@@ -265,20 +265,18 @@ void UCombatComponent::ServerSwitchWeapon_Implementation()
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
 		}
-
-		if (CombatState == ECombatState::ECS_Reloading)
-		{
-			StopReload();
-		}
-
-		if (MainWeapon->IsAmmoEmpty())
-		{
-			Reload();
-		}
-
-		StopFireTimer();
 	}
 
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		StopReload();
+	}
+
+	if (MainWeapon->IsAmmoEmpty())
+	{
+		ServerReload();
+	}
+	StopFireTimer();
 }
 
 void UCombatComponent::Reload()
@@ -385,6 +383,7 @@ void UCombatComponent::OnRep_CombatState()
 		HandleReload();
 		break;
 	case ECombatState::ECS_Unoccupied:
+		StopReload();
 		if (bFireButtonPressed)
 		{
 			Fire();
@@ -444,10 +443,10 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 			}
 		}
 
-		if (CombatState == ECombatState::ECS_Reloading)
-		{
-			StopReload();
-		}
+		//if (CombatState == ECombatState::ECS_Reloading)
+		//{
+		//	StopReload();
+		//}
 	}
 	else
 	{
