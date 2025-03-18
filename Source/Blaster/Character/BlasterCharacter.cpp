@@ -199,6 +199,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ABlasterCharacter::SwitchWeapon);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
@@ -543,6 +544,21 @@ void ABlasterCharacter::Jump()
 	{
 		Super::Jump();
 	}
+}
+
+void ABlasterCharacter::SwitchWeapon()
+{
+	if (!Combat->SecondaryWeapon)
+	{
+		return;
+	}
+	
+	AWeapon* PreviousMainWeapon = Combat->MainWeapon;
+	Combat->MainWeapon = Combat->SecondaryWeapon;
+	Combat->SecondaryWeapon = PreviousMainWeapon;
+
+	BlasterPlayerController->SetHUDMainWeapon(Combat->MainWeapon->GetDisplayName(), Combat->MainWeapon->GetIcon());
+	BlasterPlayerController->SetHUDSecondaryWeapon(Combat->SecondaryWeapon->GetDisplayName(), Combat->SecondaryWeapon->GetIcon());
 }
 
 void ABlasterCharacter::FireButtonPressed()
