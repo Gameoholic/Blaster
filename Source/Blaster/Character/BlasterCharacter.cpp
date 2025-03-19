@@ -29,6 +29,7 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
+#include "Blaster/Items/Item.h"
 
 
 // Sets default values
@@ -1010,4 +1011,20 @@ void ABlasterCharacter::UpdateEmote()
 int32 ABlasterCharacter::GetSelectedEmoteIndex()
 {
 	return SelectedEmoteIndex;
+}
+
+
+// ITEMS
+void ABlasterCharacter::AddItem(Item* Item)
+{
+	if (Item1 && Item2)
+	{
+		return;
+	}
+	Item1 == nullptr ? Item1 = Item : Item2 = Item;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDItem1(Item1->GetName(), Item1->GetIcon());
+		BlasterPlayerController->SetHUDItem2(Item2->GetName(), Item2->GetIcon());
+	}
 }

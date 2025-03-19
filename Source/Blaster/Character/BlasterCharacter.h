@@ -9,8 +9,9 @@
 #include "Components/TimelineComponent.h"
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
-
+#include "Blaster/Items/Item.h"
 #include "BlasterCharacter.generated.h"
+
 
 // Only temporary player stats should be stored here (persistent only when player isn't dead, resets when dead)
 UCLASS()
@@ -49,6 +50,9 @@ public:
 	void SetSelectedEmoteIndex(int32 _SelectedEmoteIndex);
 	int32 GetSelectedEmoteIndex();
 
+	// Adds the item to one of the 2 available item slots
+	UFUNCTION(BlueprintCallable)
+	void AddItem(Item* Item);
 protected:
 	virtual void BeginPlay() override;
 
@@ -226,6 +230,11 @@ private:
 	void UpdateEmote();
 
 	class UBlasterGameInstance* BlasterGameInstance = nullptr;
+
+
+	// ITEMS
+	class Item* Item1;
+	class Item* Item2;
 
 
 public:
