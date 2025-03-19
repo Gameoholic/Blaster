@@ -3,25 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "Item.generated.h"
 
 /**
  * 
  */
-class BLASTER_API Item
+UCLASS()
+class BLASTER_API UItem : public UObject
 {
-public:
-	Item();
-	~Item();
-
+	GENERATED_BODY()
 private:
 	UPROPERTY(EditDefaultsOnly)
 	FString Name;
-
 	UPROPERTY(EditDefaultsOnly)
 	FSlateBrush Icon;
-
 public:
 	FORCEINLINE FString GetName() { return Name; }
 	FORCEINLINE FSlateBrush GetIcon() { return Icon; }
-
 };

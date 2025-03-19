@@ -9,7 +9,6 @@
 #include "Components/TimelineComponent.h"
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "Blaster/HUD/EmoteWheel/EmoteWheel.h"
-#include "Blaster/Items/Item.h"
 #include "BlasterCharacter.generated.h"
 
 
@@ -52,7 +51,7 @@ public:
 
 	// Adds the item to one of the 2 available item slots
 	UFUNCTION(BlueprintCallable)
-	void AddItem(Item* Item);
+	void AddItem(class UItem* Item);
 protected:
 	virtual void BeginPlay() override;
 
@@ -232,9 +231,9 @@ private:
 	class UBlasterGameInstance* BlasterGameInstance = nullptr;
 
 
-	// ITEMS
-	class Item* Item1;
-	class Item* Item2;
+	 //ITEMS
+	UItem* Item1;
+	UItem* Item2;
 
 
 public:

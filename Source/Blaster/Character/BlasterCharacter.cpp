@@ -1015,7 +1015,7 @@ int32 ABlasterCharacter::GetSelectedEmoteIndex()
 
 
 // ITEMS
-void ABlasterCharacter::AddItem(Item* Item)
+void ABlasterCharacter::AddItem(UItem* Item)
 {
 	if (Item1 && Item2)
 	{
