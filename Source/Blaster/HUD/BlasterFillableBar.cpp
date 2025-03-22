@@ -71,15 +71,6 @@ void UBlasterFillableBar::StartPercentageChange(float NewPercentage, float Perce
 	// Empty bar remains the same
 }
 
-// full bar: 0.9
-// temp: 0.0
-// empty: 0.1
-
-// full: 0.5 (-target percentage)
-// temp: 0.4 (=target percentage) ...-> 0.0
-// empty: 0.1 ...-> 0.5 (+ target percentage)
-
-
 void UBlasterFillableBar::UpdateBars()
 {
 	if (!FullBarSlot || !TemporaryBarSlot || !EmptyBarSlot)

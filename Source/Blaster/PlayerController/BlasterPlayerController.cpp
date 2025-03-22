@@ -25,6 +25,7 @@ void ABlasterPlayerController::BeginPlay()
 	//ServerCheckMatchState();
 
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+	ResetHUD();
 	//ServerCheckMatchState();
 }
 
@@ -124,31 +125,31 @@ void ABlasterPlayerController::PollInit()
 bool ABlasterPlayerController::IsHUDValid()
 {
 	BlasterHUD = (BlasterHUD == nullptr && GetHUD() != nullptr) ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-	return (BlasterHUD != nullptr && BlasterHUD->CharacterOverlay != nullptr &&
-		BlasterHUD->CharacterOverlay->HealthBar != nullptr
-		&& BlasterHUD->CharacterOverlay->ScoreText != nullptr && BlasterHUD->CharacterOverlay->AmmoBar != nullptr
-		&& BlasterHUD->CharacterOverlay->CurrentAmmoText != nullptr && BlasterHUD->CharacterOverlay->MaxAmmoText != nullptr
-		&& BlasterHUD->CharacterOverlay->CurrentHealthText != nullptr &&
-		BlasterHUD->CharacterOverlay->MaxHealthText != nullptr &&
-		BlasterHUD->CharacterOverlay->MainWeaponName != nullptr &&
-		BlasterHUD->CharacterOverlay->MainWeaponIcon != nullptr &&
-		BlasterHUD->CharacterOverlay->SecondaryWeaponName != nullptr &&
-		BlasterHUD->CharacterOverlay->SecondaryWeaponIcon != nullptr &&
-		BlasterHUD->CharacterOverlay->Item1Name != nullptr &&
-		BlasterHUD->CharacterOverlay->Item1Icon != nullptr &&
-		BlasterHUD->CharacterOverlay->Item2Name != nullptr &&
-		BlasterHUD->CharacterOverlay->Item2Icon != nullptr);
+	if (BlasterHUD == nullptr || BlasterHUD->CharacterOverlay == nullptr)
+	{
+		return false;
+	}
+	return BlasterHUD->CharacterOverlay->IsHUDValid();
 }
 
 
 
 
+void ABlasterPlayerController::ResetHUD()
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->ResetHUD();
+}
+
 void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, float MaxHealth)
 {
 	if (!IsHUDValid())
 	{
-		bInitializeCharacterOverlay = true;
-		HUDHealth = Health;
+		bInitializeCharacterOverlay = true; // todo remove this ? seemingly useless
+		HUDHealth = Health; // probably remove these 2 calls as well. but check to be sure
 		HUDMaxHealth = MaxHealth;
 		return;
 	}

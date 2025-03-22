@@ -16,9 +16,12 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 	
 
 public:
+	void ResetHUD();
+	bool IsHUDValid();
+
+
 	UPROPERTY(EditDefaultsOnly)
 	FSlateBrush InvisibleImage;
-
 
 	UPROPERTY(meta = (BindWidget))
 	class UBlasterFillableBar* HealthBar;

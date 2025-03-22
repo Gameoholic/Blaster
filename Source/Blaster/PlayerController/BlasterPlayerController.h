@@ -15,7 +15,7 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
-
+	void ResetHUD();
 	void SetHUDHealth(float PreviousHealth, float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDKills(int32 Kills);
