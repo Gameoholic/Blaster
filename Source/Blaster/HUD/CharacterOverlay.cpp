@@ -7,6 +7,13 @@
 #include "Components/Image.h"
 
 
+void UCharacterOverlay::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	ResetHUD(); // HUD in editor is preview and contains testing values
+}
+
 void UCharacterOverlay::ResetHUD()
 {
 	CurrentHealthText->SetText(FText::FromString("100"));

@@ -15,7 +15,6 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
-	void ResetHUD();
 	void SetHUDHealth(float PreviousHealth, float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDKills(int32 Kills);
@@ -87,9 +86,6 @@ private:
 
 	//UFUNCTION()
 	//void OnRep_MatchState();
-
-	UPROPERTY()
-	class UCharacterOverlay* CharacterOverlay;
 
 	bool bInitializeCharacterOverlay = false;
 	float HUDHealth;

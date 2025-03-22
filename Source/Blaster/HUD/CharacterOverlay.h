@@ -16,7 +16,6 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 	
 
 public:
-	void ResetHUD();
 	bool IsHUDValid();
 
 
@@ -77,4 +76,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Item2Icon;
 
+protected:
+	virtual void NativeOnInitialized() override;
+
+private:
+	void ResetHUD();
 };

@@ -25,7 +25,6 @@ void ABlasterPlayerController::BeginPlay()
 	//ServerCheckMatchState();
 
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
-	ResetHUD();
 	//ServerCheckMatchState();
 }
 
@@ -75,20 +74,7 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 
 void ABlasterPlayerController::PollInit()
 {
-	if (CharacterOverlay == nullptr)
-	{
-		if (BlasterHUD && BlasterHUD->CharacterOverlay)
-		{
-			CharacterOverlay = BlasterHUD->CharacterOverlay;
-			if (CharacterOverlay)
-			{
-				// remove if commenting this out doesn't break anything
-				//SetHUDHealth(HUDHealth, HUDHealth, HUDMaxHealth);
-				//SetHUDScore(HUDScore);
-				//SetHUDDeaths(HUDDeaths);
-			}
-		}
-	}
+	
 }
 
 //void ABlasterPlayerController::ServerCheckMatchState_Implementation()
@@ -132,17 +118,6 @@ bool ABlasterPlayerController::IsHUDValid()
 	return BlasterHUD->CharacterOverlay->IsHUDValid();
 }
 
-
-
-
-void ABlasterPlayerController::ResetHUD()
-{
-	if (!IsHUDValid())
-	{
-		return;
-	}
-	BlasterHUD->CharacterOverlay->ResetHUD();
-}
 
 void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, float MaxHealth)
 {
