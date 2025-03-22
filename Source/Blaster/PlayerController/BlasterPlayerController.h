@@ -87,12 +87,6 @@ private:
 	//UFUNCTION()
 	//void OnRep_MatchState();
 
-	bool bInitializeCharacterOverlay = false;
-	float HUDHealth;
-	float HUDMaxHealth;
-	float HUDScore;
-	float HUDDeaths;
-
 	void TogglePauseMenu();
 
 	UPROPERTY(EditAnywhere, Category = HUD)

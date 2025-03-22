@@ -123,9 +123,6 @@ void ABlasterPlayerController::SetHUDHealth(float PreviousHealth, float Health, 
 {
 	if (!IsHUDValid())
 	{
-		bInitializeCharacterOverlay = true; // todo remove this ? seemingly useless
-		HUDHealth = Health; // probably remove these 2 calls as well. but check to be sure
-		HUDMaxHealth = MaxHealth;
 		return;
 	}
 
@@ -200,8 +197,6 @@ void ABlasterPlayerController::SetHUDScore(float Score)
 {
 	if (!IsHUDValid())
 	{
-		bInitializeCharacterOverlay = true;
-		HUDScore = Score;
 		return;
 	}
 	FString ScoreText = FString::Printf(TEXT("Score: %d"), FMath::CeilToInt(Score));
@@ -224,8 +219,6 @@ void ABlasterPlayerController::SetHUDDeaths(int32 Deaths)
 {
 	if (!IsHUDValid())
 	{
-		bInitializeCharacterOverlay = true;
-		HUDDeaths = Deaths;
 		return;
 	}
 	FString DeathsText = FString::Printf(TEXT("Deaths: %d"), Deaths);
