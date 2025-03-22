@@ -9,10 +9,20 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class BLASTER_API UItem : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void Init(FString _Name, FSlateBrush _Icon);
+
+protected:
+	// Call to activate the item's perks
+	void Activate();
+	// Call to unactivate the item's perks (on death, on removal of item)
+	void Deactivate();
 private:
 	UPROPERTY(EditDefaultsOnly)
 	FString Name;

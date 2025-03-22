@@ -1024,7 +1024,13 @@ void ABlasterCharacter::AddItem(UItem* Item)
 	Item1 == nullptr ? Item1 = Item : Item2 = Item;
 	if (BlasterPlayerController)
 	{
-		BlasterPlayerController->SetHUDItem1(Item1->GetName(), Item1->GetIcon());
-		BlasterPlayerController->SetHUDItem2(Item2->GetName(), Item2->GetIcon());
+		if (Item1 != nullptr)
+		{
+			BlasterPlayerController->SetHUDItem1(Item1->GetName(), Item1->GetIcon());
+		}
+		if (Item2 != nullptr)
+		{
+			BlasterPlayerController->SetHUDItem2(Item2->GetName(), Item2->GetIcon());
+		}
 	}
 }

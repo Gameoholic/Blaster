@@ -3,3 +3,8 @@
 
 #include "Item.h"
 
+void UItem::Init(FString _Name, FSlateBrush _Icon)
+{
+	Name = _Name;
+	Icon = _Icon;
+}

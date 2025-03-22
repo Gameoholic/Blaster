@@ -232,8 +232,8 @@ private:
 
 
 	 //ITEMS
-	UItem* Item1;
-	UItem* Item2;
+	UItem* Item1 = nullptr;
+	UItem* Item2 = nullptr;
 
 
 public:
