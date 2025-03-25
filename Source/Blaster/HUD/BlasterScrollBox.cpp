@@ -34,11 +34,11 @@ void UBlasterScrollBox::NativePreConstruct()
 
 	if (bAlwaysShowScrollbar)
 	{
-		ScrollWheel->SetVisibility(ESlateVisibility::Hidden);
+		ScrollWheel->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
-		ScrollWheel->SetVisibility(ESlateVisibility::Visible);
+		ScrollWheel->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
