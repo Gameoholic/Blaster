@@ -24,25 +24,49 @@ protected:
 	virtual void NativePreConstruct() override;
 
 public:
-	// ScrollBox construction parameters
+	/**
+	 * Construction parameters (modifies existing widgets)
+	 */
+	//
 	UPROPERTY(EditDefaultsOnly)
 	bool bTopToBottom = true;
 	UPROPERTY(EditDefaultsOnly)
 	float ScrollWheelSize;
 	
-	// Other parameters
+	/**
+	 * Other parameters
+	 */
+	//
 	UPROPERTY(EditDefaultsOnly)
 	bool bAlwaysShowScrollbar = false;
+	UPROPERTY(EditDefaultsOnly)
+	bool bReverseOrder = false;
 
-	// Bind widgets
+	/**
+	 * Bind widgets
+	 */
+	// 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* ScrollWheel;
 
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* ItemsBox;
 
-	// Methods to modify scrollbox after construction
+	/** 
+	 * Methods to modify scrollbox after construction
+	 */
+
+	// 
 	UFUNCTION(BlueprintCallable)
 	void AddChild(UWidget* WidgetToAdd);
+
+	UFUNCTION(BlueprintCallable)
+	void AddChildren(TArray<UWidget*> WidgetsToAdd);
+
+private:
+	// Rearranges children based on whether order is reversed or not
+	void RearrangeChildren();
+	// Adds child but without rearranging children
+	void InternalAddChild(UWidget* WidgetToAdd);
 
 };
