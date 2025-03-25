@@ -64,9 +64,13 @@ public:
 	void AddChildren(TArray<UWidget*> WidgetsToAdd);
 
 private:
-	// Rearranges children based on whether order is reversed or not
-	void RearrangeChildren();
-	// Adds child but without rearranging children
+	// Because Unreal Engine is stupid, we have to keep track of all children in the original, unreversed order if we want to reverse it and be able to add new children and reverse them as well. We recreate the array and reverse it every time a new child is added. No other way is possible currently.
+	TArray<UWidget*> OriginalChildren;
+
+	// Adds child to internal array without actually adding it to ItemsBox
 	void InternalAddChild(UWidget* WidgetToAdd);
+	// Adds children to ItemsBox and rearranges them based on whether order is reversed or not
+	void DisplayChildren();
+
 
 };

@@ -45,7 +45,7 @@ void UBlasterScrollBox::NativePreConstruct()
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)
 {
 	InternalAddChild(WidgetToAdd);
-	RearrangeChildren();
+	DisplayChildren();
 }
 
 void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
@@ -54,26 +54,31 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 	{
 		InternalAddChild(Widget);
 	}
-	RearrangeChildren();
+	DisplayChildren();
 }
 
 void UBlasterScrollBox::InternalAddChild(UWidget* WidgetToAdd)
 {
-	ItemsBox->AddChild(WidgetToAdd);
 	bTopToBottom ? WidgetToAdd->SetRenderTransformAngle(0) : WidgetToAdd->SetRenderTransformAngle(180); // Needs to match angle of ItemsBox
+	OriginalChildren.Add(WidgetToAdd);
 }
 
-void UBlasterScrollBox::RearrangeChildren()
+void UBlasterScrollBox::DisplayChildren()
 {
-	if (!bReverseOrder)
-	{
-		return;
-	}
-	TArray<UWidget*> Children = ItemsBox->GetAllChildren();
 	ItemsBox->ClearChildren();
-	for (int32 i = Children.Num() - 1; i >= 0; i--)
+	if (bReverseOrder)
 	{
-		InternalAddChild(Children[i]);
+		for (int32 i = OriginalChildren.Num() - 1; i >= 0; i--)
+		{
+			ItemsBox->AddChild(OriginalChildren[i]);
+		}
+	}
+	else
+	{
+		for (int32 i = 0; i < OriginalChildren.Num(); i++)
+		{
+			ItemsBox->AddChild(OriginalChildren[i]);
+		}
 	}
 }
 
