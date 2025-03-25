@@ -71,7 +71,7 @@ void UBlasterScrollBox::RearrangeChildren()
 	}
 	TArray<UWidget*> Children = ItemsBox->GetAllChildren();
 	ItemsBox->ClearChildren();
-	for (int32 i = Children.Num() - 1; i--; i >= 0)
+	for (int32 i = Children.Num() - 1; i >= 0; i--)
 	{
 		InternalAddChild(Children[i]);
 	}
