@@ -5,6 +5,8 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/Border.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/TextBlock.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -17,35 +19,79 @@ void UBlasterScrollBox::NativePreConstruct()
 		{
 			Cast<UHorizontalBoxSlot>(ItemsBox->Slot)->SetVerticalAlignment(EVerticalAlignment::VAlign_Top);
 			ItemsBox->SetRenderTransformAngle(0); // So the order will be top to bottom, with bottom ones clipping out
-			//AND ALL CHILDREN WILL BE 0 AS WELL
 		}
 		else
 		{
 			Cast<UHorizontalBoxSlot>(ItemsBox->Slot)->SetVerticalAlignment(EVerticalAlignment::VAlign_Bottom);
 			ItemsBox->SetRenderTransformAngle(180); // So the order will be bottom to top, with top ones clipping out
-			// AND ALL CHILDREN WILL BE 180 AS WELL
 		}
 	}
 
-	if (ScrollWheel)
+	if (ScrollWheelEmpty)
 	{
-		ScrollWheel->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelEmpty->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelEmptySlot = Cast<UVerticalBoxSlot>(ScrollWheelEmpty->Slot);
+	}
+	if (ScrollWheelFull)
+	{
+		ScrollWheelFull->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelFullSlot = Cast<UVerticalBoxSlot>(ScrollWheelFull->Slot);
 	}
 
 	if (bAlwaysShowScrollbar)
 	{
-		ScrollWheel->SetVisibility(ESlateVisibility::Visible);
+		ScrollWheelFull->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
-		ScrollWheel->SetVisibility(ESlateVisibility::Hidden);
+		ScrollWheelFull->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
+
+void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	//const FGeometry ScrollPanelGeometry = FindChildGeometry(MyGeometry, ItemsBox.ToSharedRef());
+	////ScrollPanelGeometry.GetLocalSize()
+	//const float ContentSize = GetScrollComponentFromVector(ScrollPanel->GetDesiredSize());
+
+	// If internal children were updated and scroll box needs to be updated as a result
+	if (bOnLastTickInternalChildrenUpdated == 1)
+	{
+		// Only update the scroll box if all newly created childrens' geometry is valid (usually not valid on the first tick of creation)
+		bool bAllItemsBoxChildrenGeometryValid = true;
+		//for (UWidget* ItemsBoxChild : ItemsBox->GetAllChildren())
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("UMM WAHT THE SIGMA %f VALID: %d"), ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize(), ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize().Y != 0.0f);
+		//	if (ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize().Y == 0.0f)
+		//	{
+		//		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("ONE OF THE CHILDREN INVALID, BREAKING"));
+		//		bAllItemsBoxChildrenGeometryValid = false;
+		//		break;
+		//	}
+		//}
+
+		if (bAllItemsBoxChildrenGeometryValid)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ALL CHILDREN VALID"));
+			UpdateScrollBox();
+			bOnLastTickInternalChildrenUpdated = -1;
+		}
+	}
+	if (bOnLastTickInternalChildrenUpdated == 0)
+	{
+		bOnLastTickInternalChildrenUpdated = 1;
+	}
+}
+
+// TODO ADD ANIMATIONS JUST LIKE BLASTERT FILLABLE BAR TO SCROLL WHEEL
+
 
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)
 {
 	InternalAddChild(WidgetToAdd);
-	DisplayChildren();
+	OnInternalChildrenChanged();
 }
 
 void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
@@ -54,32 +100,101 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 	{
 		InternalAddChild(Widget);
 	}
-	DisplayChildren();
+	OnInternalChildrenChanged();
+}
+
+void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
+{
+	ChildrenPosition += Direction * ScrollWheelChangeAmount;
+	if (bOnLastTickInternalChildrenUpdated != -1)
+	{
+		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
+		return;
+	}
+	UpdateScrollBox();
 }
 
 void UBlasterScrollBox::InternalAddChild(UWidget* WidgetToAdd)
 {
 	bTopToBottom ? WidgetToAdd->SetRenderTransformAngle(0) : WidgetToAdd->SetRenderTransformAngle(180); // Needs to match angle of ItemsBox
-	OriginalChildren.Add(WidgetToAdd);
+	InternalChildren.Add(WidgetToAdd);
 }
 
-void UBlasterScrollBox::DisplayChildren()
+void UBlasterScrollBox::OnInternalChildrenChanged()
+{
+	UpdateChildren();
+	// On next tick, the childrens' new positions will be calculated, children moved, scroll wheel updated, etc.
+	// We can't do it on the same tick immediately because the geometry for the children isn't generated yet after UpdateChildren()
+	bOnLastTickInternalChildrenUpdated = 0;
+}
+void UBlasterScrollBox::UpdateScrollBox()
+{
+	CalculatePositions();
+	MoveChildren();
+	UpdateScrollWheel();
+}
+
+void UBlasterScrollBox::UpdateChildren()
 {
 	ItemsBox->ClearChildren();
 	if (bReverseOrder)
 	{
-		for (int32 i = OriginalChildren.Num() - 1; i >= 0; i--)
+		for (int32 i = InternalChildren.Num() - 1; i >= 0; i--)
 		{
-			ItemsBox->AddChild(OriginalChildren[i]);
+			ItemsBox->AddChild(InternalChildren[i]);
 		}
 	}
 	else
 	{
-		for (int32 i = 0; i < OriginalChildren.Num(); i++)
+		for (int32 i = 0; i < InternalChildren.Num(); i++)
 		{
-			ItemsBox->AddChild(OriginalChildren[i]);
+			ItemsBox->AddChild(InternalChildren[i]);
 		}
 	}
+
+	for (UWidget* newchild : ItemsBox->GetAllChildren())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Needs prepass: %d"), newchild->TakeWidget()->NeedsPrepass());
+	}
 }
+
+void UBlasterScrollBox::CalculatePositions()
+{
+	for (UWidget* TestChild : ItemsBox->GetAllChildren())
+	{
+
+
+		
+		 FVector2f POS = TestChild->GetCachedGeometry().GetAbsolutePosition();
+		Cast<UTextBlock>(TestChild)->SetText(FText::FromString(FString::Printf(TEXT("test: %f AND %f"), POS.X, POS.Y)));
+		UE_LOG(LogTemp, Warning, TEXT("Child Size: %f %f valid: %d"), 
+			TestChild->GetCachedGeometry().GetAbsoluteSize().X, TestChild->GetCachedGeometry().GetAbsoluteSize().Y,
+			TestChild->GetCachedWidget().IsValid());
+
+
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("test: %f AND %f"), POS.X, POS.Y));
+		//UE_LOG(LogTemp, Warning, TEXT("POSITION OF CURRENT: %f and %f"), POS.X, POS.Y);
+	}
+	//UE::Slate::FDeprecateVector2DResult PositionOfFurthestChild = ItemsBox->GetAllChildren()[ItemsBox->GetAllChildren().Num() - 1]->GetCachedGeometry().GetAbsolutePosition();
+	//UE::Slate::FDeprecateVector2DResult PositionOfFurthestChild = ItemsBox->GetAllChildren()[ItemsBox->GetAllChildren().Num() - 1]->GetCachedGeometry().GetAbsolutePosition();
+
+	//UE_LOG(LogTemp, Warning, TEXT("POSITION OF FURTHEST: %f and %f"), PositionOfFurthestChild.X, PositionOfFurthestChild.Y);
+}
+
+
+
+void UBlasterScrollBox::MoveChildren()
+{
+	for (UWidget* Child : ItemsBox->GetAllChildren())
+	{
+		Child->SetRenderTranslation(FVector2D(0.0f, ChildrenPosition));
+	}
+}
+
+void UBlasterScrollBox::UpdateScrollWheel()
+{
+
+}
+
 
 
