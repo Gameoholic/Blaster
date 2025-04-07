@@ -7,6 +7,7 @@
 #include "Components/Border.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Components/TextBlock.h"
+#include "Components/ListView.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -55,7 +56,6 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	//const FGeometry ScrollPanelGeometry = FindChildGeometry(MyGeometry, ItemsBox.ToSharedRef());
 	////ScrollPanelGeometry.GetLocalSize()
 	//const float ContentSize = GetScrollComponentFromVector(ScrollPanel->GetDesiredSize());
-
 	// If internal children were updated and scroll box needs to be updated as a result
 	if (bOnLastTickInternalChildrenUpdated == 1)
 	{
@@ -136,12 +136,14 @@ void UBlasterScrollBox::UpdateScrollBox()
 
 void UBlasterScrollBox::UpdateChildren()
 {
+	//ListView->ClearListItems();
 	ItemsBox->ClearChildren();
 	if (bReverseOrder)
 	{
 		for (int32 i = InternalChildren.Num() - 1; i >= 0; i--)
 		{
 			ItemsBox->AddChild(InternalChildren[i]);
+			//ListView->AddItem(InternalChildren[i]);
 		}
 	}
 	else
@@ -149,19 +151,65 @@ void UBlasterScrollBox::UpdateChildren()
 		for (int32 i = 0; i < InternalChildren.Num(); i++)
 		{
 			ItemsBox->AddChild(InternalChildren[i]);
+			//ListView->AddItem(InternalChildren[i]);
 		}
 	}
 
-	for (UWidget* newchild : ItemsBox->GetAllChildren())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Needs prepass: %d"), newchild->TakeWidget()->NeedsPrepass());
-	}
+	//for (UWidget* newchild : ItemsBox->GetAllChildren())
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Needs prepass: %d"), newchild->TakeWidget()->NeedsPrepass());
+	//}
 }
 
 void UBlasterScrollBox::CalculatePositions()
 {
+
+
+	FVector2D ThisDesiredSize = FVector2D::ZeroVector;
+	for (int32 SlotIndex = 0; SlotIndex < ItemsBox->GetAllChildren().Num(); ++SlotIndex)
+	{
+		//const SScrollBox::FSlot& ThisSlot = Children[SlotIndex];
+		if (ItemsBox->GetAllChildren()[SlotIndex]->GetVisibility() != ESlateVisibility::Collapsed)
+		{
+			const FVector2D ChildDesiredSize = ItemsBox->GetAllChildren()[SlotIndex]->GetDesiredSize();
+
+			
+			ThisDesiredSize.X = FMath::Max(ChildDesiredSize.X + Cast<UVerticalBoxSlot>(ItemsBox->GetAllChildren()[SlotIndex]->Slot)->Padding.GetTotalSpaceAlong<Orient_Horizontal>(), ThisDesiredSize.X);
+			float test = ChildDesiredSize.Y + Cast<UVerticalBoxSlot>(ItemsBox->GetAllChildren()[SlotIndex]->Slot)->Padding.GetTotalSpaceAlong<Orient_Vertical>();
+			ThisDesiredSize.Y += test;
+			UE_LOG(LogTemp, Warning, TEXT("SEX Child sex: %f"), test);
+
+		
+			// add code for horizontal as well
+		
+		}
+	}
+
+	FVector2D::FReal ScrollPadding = true ? GetTickSpaceGeometry().GetLocalSize().Y : GetTickSpaceGeometry().GetLocalSize().X;
+	FVector2D::FReal& SizeSideToPad = true ? ThisDesiredSize.Y : ThisDesiredSize.X;
+	//SizeSideToPad += BackPadScrolling ? ScrollPadding : 0;
+	//SizeSideToPad += FrontPadScrolling ? ScrollPadding : 0;
+
+
+	UE_LOG(LogTemp, Warning, TEXT("SEX Child Size: X: %f Y: %f"), ThisDesiredSize.X, ThisDesiredSize.Y);
+
+	return;
+
+
+	return;
 	for (UWidget* TestChild : ItemsBox->GetAllChildren())
 	{
+
+
+
+
+	
+
+
+
+
+
+
 
 
 		

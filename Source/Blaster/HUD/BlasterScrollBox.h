@@ -10,6 +10,7 @@ class UWidget;
 class UBorder;
 class UVerticalBox;
 class UVerticalBoxSlot;
+class UListView;
 
 /**
  * 
@@ -96,6 +97,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* ItemsBox;
+
+	//UPROPERTY(meta = (BindWidget))
+	//UListView* ListView;
 
 	UVerticalBoxSlot* ScrollWheelFullSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelEmptySlot = nullptr;
