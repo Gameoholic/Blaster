@@ -202,11 +202,11 @@ void UBlasterScrollBox::CalculateItemSizes()
 
 	// Calculate all sizes. Round them because they're not 100% perfectly round
 	// If items box top to bottom:
-	ItemsBoxTotalSize = FMath::DivideAndRoundNearest((float)ItemsBox->GetDesiredSize().Y, 1.0f);
-	UnrenderedItemsAboveSize = FMath::DivideAndRoundNearest(ChildrenPosition, 1.0f);
-	RenderedItemsSize = FMath::DivideAndRoundNearest(ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale(), 1.0f); // Size needs to be converted to slate units.
-	RenderedItemsSize = FMath::DivideAndRoundNearest(bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1, 1.0f); // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
-	UnrenderedItemsBelowSize = FMath::DivideAndRoundNearest(ItemsBoxTotalSize - RenderedItemsSize - ChildrenPosition, 1.0f);
+	ItemsBoxTotalSize = FMath::RoundToFloat((float)ItemsBox->GetDesiredSize().Y);
+	UnrenderedItemsAboveSize = FMath::RoundToFloat(ChildrenPosition);
+	RenderedItemsSize = FMath::RoundToFloat(ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale()); // Size needs to be converted to slate units.
+	RenderedItemsSize = FMath::RoundToFloat(bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1); // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
+	UnrenderedItemsBelowSize = FMath::RoundToFloat(ItemsBoxTotalSize - RenderedItemsSize - ChildrenPosition);
 
 	// If bottom to top:
 	if (!bTopToBottom)
@@ -220,6 +220,7 @@ void UBlasterScrollBox::CalculateItemSizes()
 	// todo: run updatescrollbox() on viewport size change
 	//todo: support event drag
 	// Show/hide scrollbar if all items fit
+	UE_LOG(LogTemp, Warning, TEXT("RenderedItemsSize: %f, ItemsBoxTotalSize: %f"), RenderedItemsSize, ItemsBoxTotalSize);
 	if (!bAlwaysShowScrollbar && RenderedItemsSize == ItemsBoxTotalSize)
 	{
 		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
