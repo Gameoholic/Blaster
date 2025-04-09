@@ -44,14 +44,17 @@ public:
 	// By how much to move the scroll wheel
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	float ScrollWheelChangeAmount = 20.0f;
+	// If true, each time the scroll wheel is requested to change, will ignore the previous change instead of stacking. Useful for buttons, not useful for mouse scroll wheel input.
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	bool bOverrideScrollWheelChange = false;
 
 	// Whether to ignore the mouse scroll wheel input or not
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
 	bool bEnableMouseScrollWheel = true;
 	// Whether to clamp scroll wheel to 1/-1 (can go to 2/-2 if scroll wheel is fast)
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
 	bool bClampMouseScrollWheelValues = true;
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
 	bool bReverseMouseScrollWheelDirection = false;
 
 	// How long should the smooth scrolling transition last. Set to 0 to disable smooth scrolling
