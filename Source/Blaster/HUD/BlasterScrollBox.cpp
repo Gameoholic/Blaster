@@ -111,7 +111,7 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 
 void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
 {
-	ChildrenPosition += Direction * ScrollWheelChangeAmount;
+	ChildrenPosition -= Direction * ScrollWheelChangeAmount;
 	if (bOnLastTickInternalChildrenUpdated != -1)
 	{
 		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
@@ -186,11 +186,17 @@ void UBlasterScrollBox::CalculatePositions()
 		UnrenderedItemsBelowSize = AboveSize;
 	}
 
+	// Constrain children position if beyond bounds:
+
 	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
 		ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
-	if (UnrenderedItemsBelowSize <= 0.0f)
+	if (UnrenderedItemsBelowSize < 0.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("sex"));
+		ChildrenPosition += 50;
+	}
+	else if (UnrenderedItemsAboveSize < 0.0f)
+	{
+		ChildrenPosition -= 50;
 	}
 }
 

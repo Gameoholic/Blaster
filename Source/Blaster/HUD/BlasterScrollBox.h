@@ -83,7 +83,7 @@ private:
 
 	void SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart, float Size);
 
-	float ChildrenPosition = 0.0f; // Top to bottom. Negative means above, positive means below. In slate units.
+	float ChildrenPosition = 0.0f; // Children position according to top-to-bottom/bottom-to-top of items box, in slate units.
 
 	// The following variables are updated on UpdateScrollBox()
 	float UnrenderedItemsAboveSize = 0.0f; // The size of all items that are not rendered, above the viewport. In slate units.
