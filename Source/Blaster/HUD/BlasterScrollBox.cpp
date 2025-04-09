@@ -202,11 +202,11 @@ void UBlasterScrollBox::CalculateItemSizes()
 
 	// Calculate all sizes. Round them because they're not 100% perfectly round
 	// If items box top to bottom:
-	ItemsBoxTotalSize = FMath::RoundToFloat((float)ItemsBox->GetDesiredSize().Y);
-	UnrenderedItemsAboveSize = FMath::RoundToFloat(ChildrenPosition);
-	RenderedItemsSize = FMath::RoundToFloat(ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale()); // Size needs to be converted to slate units.
-	RenderedItemsSize = FMath::RoundToFloat(bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1); // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
-	UnrenderedItemsBelowSize = FMath::RoundToFloat(ItemsBoxTotalSize - RenderedItemsSize - ChildrenPosition);
+	ItemsBoxTotalSize = (float)ItemsBox->GetDesiredSize().Y;
+	UnrenderedItemsAboveSize = ChildrenPosition;
+	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale(); // Size needs to be converted to slate units.
+	RenderedItemsSize = bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1; // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
+	UnrenderedItemsBelowSize = ItemsBoxTotalSize - RenderedItemsSize - ChildrenPosition;
 
 	// If bottom to top:
 	if (!bTopToBottom)
@@ -217,11 +217,9 @@ void UBlasterScrollBox::CalculateItemSizes()
 		UnrenderedItemsBelowSize = AboveSize;
 	}
 
-	// todo: run updatescrollbox() on viewport size change
 	//todo: support event drag
-	// Show/hide scrollbar if all items fit
-	UE_LOG(LogTemp, Warning, TEXT("RenderedItemsSize: %f, ItemsBoxTotalSize: %f"), RenderedItemsSize, ItemsBoxTotalSize);
-	if (!bAlwaysShowScrollbar && RenderedItemsSize == ItemsBoxTotalSize)
+	// Show/hide scrollbar if all items fit (THIS IS BUGGY, see next comment)
+	if (!bAlwaysShowScrollbar && FMath::Abs(RenderedItemsSize - ItemsBoxTotalSize) <= 3.0f) // TEMPFIX: For some reason, even when all items are rendered on screen, these 2 variables sometimes have a 2-3 value difference in them. This is a bandaid fix, maybe fix in the future if problems arise
 	{
 		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
 	}
