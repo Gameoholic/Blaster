@@ -53,7 +53,7 @@ public:
 	bool bEnableMouseScrollWheel = true;
 	// Whether to clamp scroll wheel to 1/-1 (can go to 2/-2 if scroll wheel is fast)
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
-	bool bClampMouseScrollWheelValues = true;
+	bool bClampMouseScrollWheelValues = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
 	bool bReverseMouseScrollWheelDirection = false;
 

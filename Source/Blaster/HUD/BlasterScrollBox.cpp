@@ -46,15 +46,6 @@ void UBlasterScrollBox::NativePreConstruct()
 		ScrollWheelBottom->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
 		ScrollWheelBottomSlot = Cast<UVerticalBoxSlot>(ScrollWheelBottom->Slot);
 	}
-
-	if (bAlwaysShowScrollbar)
-	{
-		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
-	}
 }
 
 void UBlasterScrollBox::NativeOnInitialized()
@@ -159,6 +150,15 @@ void UBlasterScrollBox::OnInternalChildrenChanged()
 	// On next tick, the childrens' new positions will be calculated, children moved, scroll wheel updated, etc.
 	// We can't do it on the same tick immediately because the geometry for the children isn't generated yet after UpdateChildren()
 	bOnLastTickInternalChildrenUpdated = 0;
+
+	if (!bAlwaysShowScrollbar && InternalChildren.Num() == 0)
+	{
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 void UBlasterScrollBox::UpdateChildren()
