@@ -166,7 +166,7 @@ void UBlasterScrollBox::CalculatePositions()
 	//	ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
 
 	UE_LOG(LogTemp, Warning, TEXT("ChildreNsize: %f"), ChildrenPosition);
-	ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, 400.0f); //ItemsBoxTotalSize
+	ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize);
 
 	//todo: re-calculate everything above
 }
@@ -179,7 +179,7 @@ void UBlasterScrollBox::MoveChildren()
 	// ChildrenPosition is in pixels
 	for (UWidget* Child : ItemsBox->GetAllChildren())
 	{
-		Child->SetRenderTranslation(FVector2D(0.0f, -ChildrenPosition)); // in slate units
+		Child->SetRenderTranslation(FVector2D(0.0f, -ChildrenPosition)); // Children position is actually opposite of UI render position
 	}
 }
 

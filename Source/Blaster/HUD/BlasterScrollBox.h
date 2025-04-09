@@ -85,7 +85,7 @@ private:
 
 	float GetDPIScale();
 
-	float ChildrenPosition = 0.0f; // Children position according to top-to-bottom/bottom-to-top of items box, in slate units.
+	float ChildrenPosition = 0.0f; // Children position according to top-to-bottom/bottom-to-top of items box (increasing it means we're "scrolling" up/down the items box, decreasing returns it to original order), in slate units.
 
 	// The following variables are updated on UpdateScrollBox()
 	float UnrenderedItemsAboveSize = 0.0f; // The size of all items that are not rendered, above the viewport. In slate units.
