@@ -91,7 +91,7 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 
 void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
 {
-	ChildrenPosition -= Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
+	ChildrenPosition += Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
 	if (bOnLastTickInternalChildrenUpdated != -1)
 	{
 		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
@@ -147,10 +147,10 @@ void UBlasterScrollBox::CalculatePositions()
 	// Calculate all sizes
 	// If items box top to bottom:
 	ItemsBoxTotalSize = ItemsBox->GetDesiredSize().Y;
-	UnrenderedItemsAboveSize = -ChildrenPosition;
+	UnrenderedItemsAboveSize = ChildrenPosition;
 	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale(); // Size needs to be converted to slate units.
 	RenderedItemsSize = bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1; // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
-	UnrenderedItemsBelowSize = ItemsBoxTotalSize - RenderedItemsSize + ChildrenPosition;
+	UnrenderedItemsBelowSize = ItemsBoxTotalSize - RenderedItemsSize - ChildrenPosition;
 
 	// If bottom to top:
 	if (!bTopToBottom)
@@ -160,19 +160,15 @@ void UBlasterScrollBox::CalculatePositions()
 		UnrenderedItemsAboveSize = UnrenderedItemsBelowSize;
 		UnrenderedItemsBelowSize = AboveSize;
 	}
-
 	// Constrain children position if beyond bounds:
 
-	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
-		ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
-	if (UnrenderedItemsBelowSize < 0.0f)
-	{
-		ChildrenPosition += 50;
-	}
-	else if (UnrenderedItemsAboveSize < 0.0f)
-	{
-		ChildrenPosition -= 50;
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
+	//	ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
+
+	UE_LOG(LogTemp, Warning, TEXT("ChildreNsize: %f"), ChildrenPosition);
+	ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, 400.0f); //ItemsBoxTotalSize
+
+	//todo: re-calculate everything above
 }
 
 
@@ -183,7 +179,7 @@ void UBlasterScrollBox::MoveChildren()
 	// ChildrenPosition is in pixels
 	for (UWidget* Child : ItemsBox->GetAllChildren())
 	{
-		Child->SetRenderTranslation(FVector2D(0.0f, ChildrenPosition)); // in slate units
+		Child->SetRenderTranslation(FVector2D(0.0f, -ChildrenPosition)); // in slate units
 	}
 }
 
