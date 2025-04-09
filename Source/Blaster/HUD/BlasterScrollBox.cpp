@@ -150,15 +150,6 @@ void UBlasterScrollBox::OnInternalChildrenChanged()
 	// On next tick, the childrens' new positions will be calculated, children moved, scroll wheel updated, etc.
 	// We can't do it on the same tick immediately because the geometry for the children isn't generated yet after UpdateChildren()
 	bOnLastTickInternalChildrenUpdated = 0;
-
-	if (!bAlwaysShowScrollbar && InternalChildren.Num() == 0)
-	{
-		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
-	}
-	else
-	{
-		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
-	}
 }
 
 void UBlasterScrollBox::UpdateChildren()
@@ -206,6 +197,16 @@ void UBlasterScrollBox::CalculateItemSizes()
 		float AboveSize = UnrenderedItemsAboveSize; // temp variable for switching variables
 		UnrenderedItemsAboveSize = UnrenderedItemsBelowSize;
 		UnrenderedItemsBelowSize = AboveSize;
+	}
+
+	// Show/hide scrollbar if all items fit
+	if (!bAlwaysShowScrollbar && RenderedItemsSize == ItemsBoxTotalSize)
+	{
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
 	}
 
 	// Constrain children position if beyond bounds and recalculate positions if was clamped
