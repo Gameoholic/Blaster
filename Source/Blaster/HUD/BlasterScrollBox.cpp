@@ -59,31 +59,14 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	//const FGeometry ScrollPanelGeometry = FindChildGeometry(MyGeometry, ItemsBox.ToSharedRef());
-	////ScrollPanelGeometry.GetLocalSize()
-	//const float ContentSize = GetScrollComponentFromVector(ScrollPanel->GetDesiredSize());
-	// If internal children were updated and scroll box needs to be updated as a result
+	// If internal children were updated, a tick has passed and scroll box needs to be updated as a result
 	if (bOnLastTickInternalChildrenUpdated == 1)
 	{
-		// Only update the scroll box if all newly created childrens' geometry is valid (usually not valid on the first tick of creation)
 		bool bAllItemsBoxChildrenGeometryValid = true;
-		//for (UWidget* ItemsBoxChild : ItemsBox->GetAllChildren())
-		//{
-		//	UE_LOG(LogTemp, Warning, TEXT("UMM WAHT THE SIGMA %f VALID: %d"), ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize(), ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize().Y != 0.0f);
-		//	if (ItemsBoxChild->GetCachedGeometry().GetAbsoluteSize().Y == 0.0f)
-		//	{
-		//		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("ONE OF THE CHILDREN INVALID, BREAKING"));
-		//		bAllItemsBoxChildrenGeometryValid = false;
-		//		break;
-		//	}
-		//}
 
-		if (bAllItemsBoxChildrenGeometryValid)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ALL CHILDREN VALID"));
-			UpdateScrollBox();
-			bOnLastTickInternalChildrenUpdated = -1;
-		}
+		UE_LOG(LogTemp, Warning, TEXT("ALL CHILDREN VALID"));
+		UpdateScrollBox();
+		bOnLastTickInternalChildrenUpdated = -1;
 	}
 	if (bOnLastTickInternalChildrenUpdated == 0)
 	{
