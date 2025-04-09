@@ -29,10 +29,6 @@ protected:
 
 
 public:
-	/**
-	 * Construction parameters (modifies existing widgets)
-	 */
-	//
 	UPROPERTY(EditDefaultsOnly, Category = "Children")
 	bool bTopToBottom = true;
 	// Whether to reverse the order of the children
@@ -47,7 +43,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	float ScrollWheelChangeAmount = 20.0f;
 
-	// How long should the smooth scrolling transition last. Set to 0.0 to display smooth scrolling
+	// How long should the smooth scrolling transition last. Set to 0.0 to disable smooth scrolling
 	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
 	float SmoothScrollingChangeDuration = 0.0f;
 	// Exponential for easing of smooth scrolling
