@@ -19,18 +19,33 @@ void UBlasterScrollBox::NativePreConstruct()
 	// Change all widgets according to parameters
 	if (ItemsBox)
 	{
+		UHorizontalBoxSlot* ItemsBoxSlot = Cast<UHorizontalBoxSlot>(ItemsBox->Slot);
 		if (bTopToBottom)
 		{
-			Cast<UHorizontalBoxSlot>(ItemsBox->Slot)->SetVerticalAlignment(EVerticalAlignment::VAlign_Top);
+			if (ItemsBoxSlot)
+			{
+				ItemsBoxSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Top);
+			}
 			ItemsBox->SetRenderTransformAngle(0); // So the order will be top to bottom, with bottom ones clipping out
 		}
 		else
 		{
-			Cast<UHorizontalBoxSlot>(ItemsBox->Slot)->SetVerticalAlignment(EVerticalAlignment::VAlign_Bottom);
+			if (ItemsBoxSlot)
+			{
+				ItemsBoxSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Bottom);
+			}
 			ItemsBox->SetRenderTransformAngle(180); // So the order will be bottom to top, with top ones clipping out
 		}
 	}
 
+	if (ScrollWheelBox)
+	{
+		UHorizontalBoxSlot* ScrollWheelBoxSlot = Cast<UHorizontalBoxSlot>(ScrollWheelBox->Slot);
+		if (ScrollWheelBoxSlot)
+		{
+			ScrollWheelBoxSlot->SetPadding(ScrollBarPadding);
+		}
+	}
 	if (ScrollWheelTop)
 	{
 		ScrollWheelTop->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));

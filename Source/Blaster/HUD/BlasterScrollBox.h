@@ -47,7 +47,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	bool bOverrideScrollWheelChange = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
-	FSlateBrush ScrollBarAppearance;
+	FSlateBrush ScrollBarAppearance = FSlateBrush::FSlateBrush();
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	FMargin ScrollBarPadding = FMargin::FMargin(0.0f, 0.0f, 0.0f, 0.0f);
+
 
 	// Whether to ignore the mouse scroll wheel input or not
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
@@ -141,16 +144,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* ItemsBox;
 
-	//UPROPERTY(meta = (BindWidget))
-	//UListView* ListView;
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* ScrollWheelBox;
 
 	UVerticalBoxSlot* ScrollWheelTopSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelMiddleSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelBottomSlot = nullptr;
-
-	
-
-
-
-
 };
