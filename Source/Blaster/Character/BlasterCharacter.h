@@ -12,6 +12,8 @@
 #include "BlasterCharacter.generated.h"
 
 
+class UBlasterScrollBox;
+
 // Only temporary player stats should be stored here (persistent only when player isn't dead, resets when dead)
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
@@ -52,6 +54,9 @@ public:
 	// Adds the item to one of the 2 available item slots
 	UFUNCTION(BlueprintCallable)
 	void AddItem(class UItem* Item);
+
+	// Currently focused scroll box. Will be set automatically when focusing on a scroll box that's in the HUD.
+	UBlasterScrollBox* FocusedScrollBox = nullptr;
 protected:
 	virtual void BeginPlay() override;
 
@@ -69,6 +74,7 @@ protected:
 	void EmoteButtonPressed();
 	void EmoteButtonReleased();
 	void ChangeEmoteWheelPage(float MouseWheelDirection);
+	void ScrollBoxMouseWheel(float MouseWheelDirection);
 	void AimOffset(float DeltaTime);
 	void CalculateAO_Pitch();
 	void SimProxiesTurn();
@@ -97,7 +103,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = HUD)
 	TSubclassOf<class UUserWidget> EmoteWheelWidget;
 
-	class UEmoteWheel* EmoteWheel;
+	class UEmoteWheel* EmoteWheel = nullptr;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;

@@ -9,6 +9,8 @@
 #include "Components/TextBlock.h"
 #include "Components/ListView.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -55,6 +57,32 @@ void UBlasterScrollBox::NativePreConstruct()
 	}
 }
 
+void UBlasterScrollBox::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	ABlasterPlayerController* PlayerController = Cast<ABlasterPlayerController>(GetOwningPlayer());
+	if (!PlayerController)
+	{
+		return;
+	}
+	Character = Cast<ABlasterCharacter>(PlayerController->GetCharacter());
+	if (!Character)
+	{
+		return;
+	}
+	Character->FocusedScrollBox = this;
+}
+
+void UBlasterScrollBox::NativeDestruct()
+{
+	if (!Character)
+	{
+		return;
+	}
+	Character->FocusedScrollBox = nullptr;
+}
+
 void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -93,7 +121,20 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 	OnInternalChildrenChanged();
 }
 
-void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
+
+void UBlasterScrollBox::HandleMouseWheelScroll(float MouseWheelDirection)
+{
+	if (!bEnableMouseScrollWheel)
+	{
+		return;
+	}
+	float ScrollBarMoveDirection = MouseWheelDirection;
+	ScrollBarMoveDirection = bClampMouseScrollWheelValues ? FMath::Clamp(ScrollBarMoveDirection, -1.0f, 1.0f) : ScrollBarMoveDirection;
+	ScrollBarMoveDirection = bReverseMouseScrollWheelDirection ? -ScrollBarMoveDirection : ScrollBarMoveDirection;
+	MoveScrollBar(ScrollBarMoveDirection);
+}
+
+void UBlasterScrollBox::MoveScrollBar(float Direction)
 {
 	SmoothScrollingTargetChildrenPosition = ChildrenPosition + Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
 	SmoothScrollingChangeProgress = 0.0f;

@@ -11,9 +11,10 @@ class UBorder;
 class UVerticalBox;
 class UVerticalBoxSlot;
 class UListView;
+class ABlasterCharacter;
 
 /**
- * 
+ * IMPORTANT: When this widget is focused, you should call Init() otherwise certain functions won't work
  */
 UCLASS()
 class BLASTER_API UBlasterScrollBox : public UUserWidget
@@ -24,7 +25,8 @@ class BLASTER_API UBlasterScrollBox : public UUserWidget
 	
 protected:
 	virtual void NativePreConstruct() override;
-
+	virtual void NativeOnInitialized() override;
+	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 
@@ -43,7 +45,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	float ScrollWheelChangeAmount = 20.0f;
 
-	// How long should the smooth scrolling transition last. Set to 0.0 to disable smooth scrolling
+	// Whether to ignore the mouse scroll wheel input or not
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	bool bEnableMouseScrollWheel = true;
+	// Whether to clamp scroll wheel to 1/-1 (can go to 2/-2 if scroll wheel is fast)
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	bool bClampMouseScrollWheelValues = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel Behavior")
+	bool bReverseMouseScrollWheelDirection = false;
+
+	// How long should the smooth scrolling transition last. Set to 0 to disable smooth scrolling
 	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
 	float SmoothScrollingChangeDuration = 0.0f;
 	// Exponential for easing of smooth scrolling
@@ -54,17 +65,21 @@ public:
 	 * Methods to modify scrollbox post construction
 	 */
 
-	// 
 	UFUNCTION(BlueprintCallable)
 	void AddChild(UWidget* WidgetToAdd);
 
 	UFUNCTION(BlueprintCallable)
 	void AddChildren(TArray<UWidget*> WidgetsToAdd);
 
+	void HandleMouseWheelScroll(float MouseWheelDirection);
+
+	// Direction input can be given a value other than 1 or -1 to amplify the speed
 	UFUNCTION(BlueprintCallable)
-	void MoveScrollWheel(int32 Direction);
+	void MoveScrollBar(float Direction);
 
 private:
+	ABlasterCharacter* Character;
+
 	// Because Unreal Engine is stupid, we have to keep track of all children in the original, unreversed order if we want to reverse it and be able to add new children and reverse them as well. We recreate the array and reverse it every time a new child is added. No other way is possible currently.
 	TArray<UWidget*> InternalChildren;
 

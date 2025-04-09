@@ -30,6 +30,7 @@
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "Blaster/Items/Item.h"
+#include "Blaster/HUD/BlasterScrollBox.h"
 
 
 // Sets default values
@@ -210,6 +211,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Emote", IE_Pressed, this, &ABlasterCharacter::EmoteButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Released, this, &ABlasterCharacter::EmoteButtonReleased);
 	PlayerInputComponent->BindAxis("EmoteWheelPage", this, &ABlasterCharacter::ChangeEmoteWheelPage);
+	PlayerInputComponent->BindAxis("ScrollBoxMouseWheel", this, &ABlasterCharacter::ScrollBoxMouseWheel);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
@@ -477,6 +479,19 @@ void ABlasterCharacter::ChangeEmoteWheelPage(float MouseWheelDirection)
 	{
 		EmoteWheel->OnEmoteWheelPreviousPagePressed();
 	}
+}
+
+void ABlasterCharacter::ScrollBoxMouseWheel(float MouseWheelDirection)
+{
+	if (!FocusedScrollBox)
+	{
+		return;
+	}
+	if (MouseWheelDirection == 0.0f)
+	{
+		return;
+	}
+	FocusedScrollBox->HandleMouseWheelScroll(MouseWheelDirection);
 }
 
 
