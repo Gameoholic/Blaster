@@ -59,6 +59,13 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+	if (bOnLastTickInternalChildrenUpdated == -1 && SmoothScrollingChangeProgress < 1.0f)
+	{
+		SmoothScroll(InDeltaTime);
+		UpdateScrollBox();
+		return;
+	}
+
 	// If internal children were updated, a tick has passed and scroll box needs to be updated as a result
 	if (bOnLastTickInternalChildrenUpdated == 1)
 	{
@@ -70,9 +77,6 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		bOnLastTickInternalChildrenUpdated = 1;
 	}
 }
-
-// TODO ADD ANIMATIONS JUST LIKE BLASTERT FILLABLE BAR TO SCROLL WHEEL
-
 
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)
 {
@@ -91,7 +95,9 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 
 void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
 {
-	ChildrenPosition += Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
+	SmoothScrollingTargetChildrenPosition = ChildrenPosition + Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
+	SmoothScrollingChangeProgress = 0.0f;
+	return;
 	if (bOnLastTickInternalChildrenUpdated != -1)
 	{
 		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
@@ -169,12 +175,8 @@ void UBlasterScrollBox::CalculateItemSizes()
 	}
 }
 
-
-
-
 void UBlasterScrollBox::MoveChildren()
 {
-	// ChildrenPosition is in pixels
 	for (UWidget* Child : ItemsBox->GetAllChildren())
 	{
 		Child->SetRenderTranslation(FVector2D(0.0f, -ChildrenPosition)); // Children position is actually opposite of UI render position
@@ -183,6 +185,7 @@ void UBlasterScrollBox::MoveChildren()
 
 void UBlasterScrollBox::UpdateScrollWheel()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Smooth Scrolling: %f"), SmoothScrollingCurrentPercentage);
 	float ScrollWheelTopSize = UnrenderedItemsAboveSize / ItemsBoxTotalSize; // Percentage of the items box total size that's ABOVE the rendered area
 	float ScrollWheelMiddleSize = RenderedItemsSize / ItemsBoxTotalSize; // Percentage of the items box total size that's currently rendered in the viewport (in the middle)
 	float ScrollWheelBottomSize = UnrenderedItemsBelowSize / ItemsBoxTotalSize; // Percentage of the items box total size that's BELOW the rendered area
@@ -206,6 +209,20 @@ float UBlasterScrollBox::GetDPIScale()
 	int32 ViewportSizeX = FGenericPlatformMath::FloorToInt(ViewportSize.X); // There is some rounding but the effect on location accuracy is negligible
 	int32 ViewportSizeY = FGenericPlatformMath::FloorToInt(ViewportSize.Y);
 	return GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSizeX, ViewportSizeY));
+}
+
+void UBlasterScrollBox::SmoothScroll(float DeltaTime)
+{
+	SmoothScrollingChangeProgress += DeltaTime / SmoothScrollingChangeDuration;
+	SmoothScrollingChangeProgress = FMath::Clamp(SmoothScrollingChangeProgress, 0.0f, 1.0f);
+
+	ChildrenPosition = FMath::InterpEaseInOut(
+		ChildrenPosition,
+		SmoothScrollingTargetChildrenPosition,
+		SmoothScrollingChangeProgress,
+		SmoothScrollingChangeExponential
+	);
+	UpdateScrollBox();
 }
 
 

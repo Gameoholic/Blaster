@@ -36,7 +36,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	bool bTopToBottom = true;
 	UPROPERTY(EditDefaultsOnly)
-	float ScrollWheelSize;
+	float ScrollWheelSize = 50.0f;
 	
 	/**
 	 * Other parameters
@@ -77,7 +77,7 @@ private:
 	// When internal children array is changed
 	void OnInternalChildrenChanged();
 
-	void CalculatePositions();
+	void CalculateItemSizes();
 	void MoveChildren();
 	void UpdateScrollWheel();
 
@@ -93,6 +93,16 @@ private:
 	float UnrenderedItemsBelowSize = 0.0f; // The size of all items that are not rendered, below the viewport. In slate units.
 	float ItemsBoxTotalSize = 0.0f; // Total DESIRED size of the items box, including all items inside it, in slate units.
 
+	// Smooth scrolling
+	float SmoothScrollingTargetChildrenPosition = 0.0f;
+	// Exponential use for easing, parameter
+	float SmoothScrollingChangeExponential = 1.0f;
+	// Parameter
+	float SmoothScrollingChangeDuration = 1.0f;
+	// Between 0-1 how much of the transition have we done
+	float SmoothScrollingChangeProgress = 0.0f;
+	// This will be called per tick
+	void SmoothScroll(float DeltaTime);
 
 	/**
 	 * Bind widgets
