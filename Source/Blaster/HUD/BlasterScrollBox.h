@@ -78,6 +78,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddChildren(TArray<UWidget*> WidgetsToAdd);
 
+	UFUNCTION(BlueprintCallable)
+	void RemoveChildAt(int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveAllChildren();
+
 	void HandleMouseWheelScroll(float MouseWheelDirection);
 
 	// Direction input can be given a value other than 1 or -1 to amplify the speed
@@ -150,4 +156,12 @@ private:
 	UVerticalBoxSlot* ScrollWheelTopSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelMiddleSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelBottomSlot = nullptr;
+
+
+
+
+	void ArrangeChildrenRecursive(FArrangedChildren& Childs, FArrangedWidget& ParentWidget);
+
+	FVector2D GetWidgetSize(UWidget* wid);
 };
+

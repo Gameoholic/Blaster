@@ -11,6 +11,9 @@
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Layout/LayoutUtils.h"
+#include "Layout/ArrangedChildren.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -146,6 +149,18 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 	OnInternalChildrenChanged();
 }
 
+void UBlasterScrollBox::RemoveChildAt(int32 Index)
+{
+	InternalChildren.RemoveAt(Index);
+	OnInternalChildrenChanged();
+}
+
+void UBlasterScrollBox::RemoveAllChildren()
+{
+	InternalChildren.Empty();
+	OnInternalChildrenChanged();
+}
+
 
 void UBlasterScrollBox::HandleMouseWheelScroll(float MouseWheelDirection)
 {
@@ -251,6 +266,8 @@ void UBlasterScrollBox::CalculateItemSizes()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, ,test : %f, RenderedItemsSize: %f"), ItemsBoxTotalSize, test, RenderedItemsSize);
+	
+	
 	// Constrain children position if beyond bounds and recalculate positions if was clamped
 	if (ChildrenPosition != FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize))
 	{
@@ -317,3 +334,49 @@ void UBlasterScrollBox::SmoothScroll(float DeltaTime)
 
 
 
+
+
+void UBlasterScrollBox::ArrangeChildrenRecursive(FArrangedChildren& Childs, FArrangedWidget& ParentWidget)
+{
+	FArrangedChildren arrangedChilds(EVisibility::All);
+
+	ParentWidget.Widget->ArrangeChildren(ParentWidget.Geometry, arrangedChilds);
+	Childs.Append(arrangedChilds); // add arranged children to array
+
+	for (auto& arrangedChild : arrangedChilds.GetInternalArray())
+	{
+		ArrangeChildrenRecursive(Childs, arrangedChild); // walk through recursively
+	}
+}
+
+FVector2D UBlasterScrollBox::GetWidgetSize(UWidget* wid)
+{
+	FVector2D DesiredWidgetSize;
+	FArrangedChildren Childs(EVisibility::All);
+	auto thisWidget = wid->TakeWidget();
+	auto parent = wid->GetCachedWidget()->GetParentWidget();
+
+	// search for first parent with valid geometry
+	while (parent.IsValid() && parent->GetCachedGeometry().Size.SizeSquared() == 0)
+	{
+		parent = parent->GetParentWidget();
+	}
+
+	// calculate size for all children down form found parent
+	FArrangedWidget parentArrangedWidget(parent.ToSharedRef(), parent->GetCachedGeometry());
+
+	ArrangeChildrenRecursive(Childs, parentArrangedWidget);
+
+	// search for desired widget (thisWidget)
+	for (auto& child : Childs.GetInternalArray())
+	{
+		if (child.Widget == thisWidget)
+		{
+			// desired size found
+			DesiredWidgetSize = child.Geometry.Size;
+			break;
+		}
+	}
+
+	return DesiredWidgetSize;
+}
