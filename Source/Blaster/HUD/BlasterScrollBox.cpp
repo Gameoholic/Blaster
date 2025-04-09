@@ -186,13 +186,6 @@ void UBlasterScrollBox::CalculatePositions()
 		UnrenderedItemsBelowSize = AboveSize;
 	}
 
-
-	//// Bottom to top:
-	//ItemsBoxTotalSize = ItemsBox->GetDesiredSize().Y;
-	//UnrenderedItemsAboveSize = ItemsBoxTotalSize - RenderedItemsSize + ChildrenPosition;
-	////RenderedItemsSize = -1 * ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / DPIScale; // Size needs to be converted to slate units.
-	//UnrenderedItemsBelowSize = -ChildrenPosition;
-
 	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
 		ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
 	if (UnrenderedItemsBelowSize <= 0.0f)
