@@ -29,7 +29,6 @@ protected:
 	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Children")
 	bool bTopToBottom = true;
@@ -47,6 +46,8 @@ public:
 	// If true, each time the scroll wheel is requested to change, will ignore the previous change instead of stacking. Useful for buttons, not useful for mouse scroll wheel input.
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	bool bOverrideScrollWheelChange = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	FSlateBrush ScrollBarAppearance;
 
 	// Whether to ignore the mouse scroll wheel input or not
 	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")

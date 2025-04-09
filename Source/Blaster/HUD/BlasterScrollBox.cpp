@@ -40,6 +40,7 @@ void UBlasterScrollBox::NativePreConstruct()
 	{
 		ScrollWheelMiddle->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
 		ScrollWheelMiddleSlot = Cast<UVerticalBoxSlot>(ScrollWheelMiddle->Slot);
+		ScrollWheelMiddle->SetBrush(ScrollBarAppearance);
 	}
 	if (ScrollWheelBottom)
 	{
