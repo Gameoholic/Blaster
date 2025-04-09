@@ -33,23 +33,29 @@ public:
 	 * Construction parameters (modifies existing widgets)
 	 */
 	//
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Children")
 	bool bTopToBottom = true;
-	UPROPERTY(EditDefaultsOnly)
-	float ScrollWheelSize = 50.0f;
-	
-	/**
-	 * Other parameters
-	 */
-	//
-	UPROPERTY(EditDefaultsOnly)
-	bool bAlwaysShowScrollbar = false;
-	UPROPERTY(EditDefaultsOnly)
+	// Whether to reverse the order of the children
+	UPROPERTY(EditDefaultsOnly, Category = "Children")
 	bool bReverseOrder = false;
-	UPROPERTY(EditDefaultsOnly)
+	// Whether to always show scrollbar even if all children fit in the viewport
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	bool bAlwaysShowScrollbar = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	float ScrollWheelSize = 50.0f;
+	// By how much to move the scroll wheel
+	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
 	float ScrollWheelChangeAmount = 20.0f;
+
+	// How long should the smooth scrolling transition last. Set to 0.0 to display smooth scrolling
+	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
+	float SmoothScrollingChangeDuration = 0.0f;
+	// Exponential for easing of smooth scrolling
+	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
+	float SmoothScrollingChangeExponential = 1.0f;
+
 	/** 
-	 * Methods to modify scrollbox after construction
+	 * Methods to modify scrollbox post construction
 	 */
 
 	// 
@@ -95,10 +101,6 @@ private:
 
 	// Smooth scrolling
 	float SmoothScrollingTargetChildrenPosition = 0.0f;
-	// Exponential use for easing, parameter
-	float SmoothScrollingChangeExponential = 1.0f;
-	// Parameter
-	float SmoothScrollingChangeDuration = 1.0f;
 	// Between 0-1 how much of the transition have we done
 	float SmoothScrollingChangeProgress = 0.0f;
 	// This will be called per tick
