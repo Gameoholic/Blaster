@@ -212,6 +212,8 @@ void UBlasterScrollBox::CalculateItemSizes()
 	if (ChildrenPosition != FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize))
 	{
 		ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize);
+		SmoothScrollingTargetChildrenPosition = ChildrenPosition;
+		SmoothScrollingChangeProgress = 1.0f;
 		CalculateItemSizes();
 	}
 }
