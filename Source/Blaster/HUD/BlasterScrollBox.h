@@ -120,6 +120,7 @@ private:
 	// This will be called per tick
 	void SmoothScroll(float DeltaTime);
 
+	FVector2D LastTickViewportSize = FVector2D::ZeroVector;
 	/**
 	 * Bind widgets
 	 */

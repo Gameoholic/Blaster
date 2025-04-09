@@ -78,10 +78,28 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (bOnLastTickInternalChildrenUpdated == -1 && SmoothScrollingChangeProgress < 1.0f)
+	// Normal tick (internal children weren't updated recently in previous ticks):
+	if (bOnLastTickInternalChildrenUpdated == -1)
 	{
-		SmoothScroll(InDeltaTime);
-		UpdateScrollBox();
+		// Smooth scroll
+		if (SmoothScrollingChangeProgress < 1.0f)
+		{
+			SmoothScroll(InDeltaTime);
+			UpdateScrollBox();
+		}
+
+		// Update scroll box if viewport size changed
+		if (!GEngine)
+		{
+			return;
+		}
+		FVector2D ViewportSize;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		if (ViewportSize != LastTickViewportSize)
+		{
+			UpdateScrollBox();
+		}
+		LastTickViewportSize = ViewportSize;
 		return;
 	}
 
@@ -250,6 +268,10 @@ void UBlasterScrollBox::SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart
 
 float UBlasterScrollBox::GetDPIScale()
 {
+	if (!GEngine)
+	{
+		return -1.0f;
+	}
 	FVector2D ViewportSize;
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
 	int32 ViewportSizeX = FGenericPlatformMath::FloorToInt(ViewportSize.X); // There is some rounding but the effect on location accuracy is negligible
