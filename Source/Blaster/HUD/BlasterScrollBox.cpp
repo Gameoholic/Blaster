@@ -160,15 +160,18 @@ void UBlasterScrollBox::CalculatePositions()
 		UnrenderedItemsAboveSize = UnrenderedItemsBelowSize;
 		UnrenderedItemsBelowSize = AboveSize;
 	}
-	// Constrain children position if beyond bounds:
+
+	// Constrain children position if beyond bounds and recalculate positions if was clamped
+	if (ChildrenPosition != FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize))
+	{
+		ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize);
+		CalculatePositions();
+	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
 	//	ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
 
 	UE_LOG(LogTemp, Warning, TEXT("ChildreNsize: %f"), ChildrenPosition);
-	ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize);
-
-	//todo: re-calculate everything above
 }
 
 
