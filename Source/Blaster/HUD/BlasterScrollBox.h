@@ -83,6 +83,8 @@ private:
 
 	void SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart, float Size);
 
+	float GetDPIScale();
+
 	float ChildrenPosition = 0.0f; // Children position according to top-to-bottom/bottom-to-top of items box, in slate units.
 
 	// The following variables are updated on UpdateScrollBox()

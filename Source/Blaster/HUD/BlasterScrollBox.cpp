@@ -8,7 +8,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/ListView.h"
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"/*this is for accessing GetDPIScaleBasedOnSize()*/
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -62,9 +62,6 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	// If internal children were updated, a tick has passed and scroll box needs to be updated as a result
 	if (bOnLastTickInternalChildrenUpdated == 1)
 	{
-		bool bAllItemsBoxChildrenGeometryValid = true;
-
-		UE_LOG(LogTemp, Warning, TEXT("ALL CHILDREN VALID"));
 		UpdateScrollBox();
 		bOnLastTickInternalChildrenUpdated = -1;
 	}
@@ -94,7 +91,7 @@ void UBlasterScrollBox::AddChildren(TArray<UWidget*> WidgetsToAdd)
 
 void UBlasterScrollBox::MoveScrollWheel(int32 Direction)
 {
-	ChildrenPosition -= Direction * ScrollWheelChangeAmount;
+	ChildrenPosition -= Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
 	if (bOnLastTickInternalChildrenUpdated != -1)
 	{
 		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
@@ -146,17 +143,12 @@ void UBlasterScrollBox::UpdateScrollBox()
 void UBlasterScrollBox::CalculatePositions()
 {
 	// Calculate DPI scale for pixels->slate units conversion
-	FVector2D ViewportSize;
-	GEngine->GameViewport->GetViewportSize(ViewportSize);
-	int32 ViewportSizeX = FGenericPlatformMath::FloorToInt(ViewportSize.X); // There is some rounding but the effect on location accuracy is negligible
-	int32 ViewportSizeY = FGenericPlatformMath::FloorToInt(ViewportSize.Y);
-	float DPIScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSizeX, ViewportSizeY));
 
 	// Calculate all sizes
 	// If items box top to bottom:
 	ItemsBoxTotalSize = ItemsBox->GetDesiredSize().Y;
 	UnrenderedItemsAboveSize = -ChildrenPosition;
-	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / DPIScale; // Size needs to be converted to slate units.
+	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale(); // Size needs to be converted to slate units.
 	RenderedItemsSize = bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1; // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
 	UnrenderedItemsBelowSize = ItemsBoxTotalSize - RenderedItemsSize + ChildrenPosition;
 
@@ -211,6 +203,15 @@ void UBlasterScrollBox::SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart
 	FSlateChildSize SlotSize = FSlateChildSize(ESlateSizeRule::Fill);
 	SlotSize.Value = Size;
 	ScrollWheelPart->SetSize(SlotSize);
+}
+
+float UBlasterScrollBox::GetDPIScale()
+{
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+	int32 ViewportSizeX = FGenericPlatformMath::FloorToInt(ViewportSize.X); // There is some rounding but the effect on location accuracy is negligible
+	int32 ViewportSizeY = FGenericPlatformMath::FloorToInt(ViewportSize.Y);
+	return GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSizeX, ViewportSizeY));
 }
 
 
