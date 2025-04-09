@@ -219,6 +219,12 @@ void UBlasterScrollBox::CalculateItemSizes()
 	// Calculate all sizes. Round them because they're not 100% perfectly round
 	// If items box top to bottom:
 	ItemsBoxTotalSize = (float)ItemsBox->GetDesiredSize().Y;
+	float test = 0.0f;
+	for (int32 i = 0; i < ItemsBox->GetChildrenCount(); i++)
+	{
+		test += ItemsBox->GetChildAt(i)->GetDesiredSize().Y;
+		UE_LOG(LogTemp, Warning, TEXT("test for loop: %f"), ItemsBox->GetChildAt(i)->GetDesiredSize().Y);
+	}
 	UnrenderedItemsAboveSize = ChildrenPosition;
 	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / GetDPIScale(); // Size needs to be converted to slate units.
 	RenderedItemsSize = bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1; // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
@@ -244,6 +250,7 @@ void UBlasterScrollBox::CalculateItemSizes()
 		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, ,test : %f, RenderedItemsSize: %f"), ItemsBoxTotalSize, test, RenderedItemsSize);
 	// Constrain children position if beyond bounds and recalculate positions if was clamped
 	if (ChildrenPosition != FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize))
 	{
