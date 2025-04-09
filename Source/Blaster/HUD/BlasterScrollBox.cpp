@@ -145,13 +145,6 @@ void UBlasterScrollBox::MoveScrollBar(float Direction)
 		SmoothScrollingTargetChildrenPosition += Direction * ScrollWheelChangeAmount / GetDPIScale(); // Make scroll wheel change amount universal regardless of screen size by dividing by DPI Scale
 	}
 	SmoothScrollingChangeProgress = 0.0f;
-	return; // todo: remove the following
-	if (bOnLastTickInternalChildrenUpdated != -1)
-	{
-		// If children were JUST created, their geometry will be in invalid. Then we will update the scroll box on the next tick anyway, so don't update
-		return;
-	}
-	UpdateScrollBox();
 }
 
 void UBlasterScrollBox::InternalAddChild(UWidget* WidgetToAdd)
