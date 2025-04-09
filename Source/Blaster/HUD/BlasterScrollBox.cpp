@@ -135,12 +135,12 @@ void UBlasterScrollBox::UpdateChildren()
 
 void UBlasterScrollBox::UpdateScrollBox()
 {
-	CalculatePositions();
+	CalculateItemSizes();
 	MoveChildren();
 	UpdateScrollWheel();
 }
 
-void UBlasterScrollBox::CalculatePositions()
+void UBlasterScrollBox::CalculateItemSizes()
 {
 	// Calculate DPI scale for pixels->slate units conversion
 
@@ -165,13 +165,8 @@ void UBlasterScrollBox::CalculatePositions()
 	if (ChildrenPosition != FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize))
 	{
 		ChildrenPosition = FMath::Clamp(ChildrenPosition, 0.0f, ItemsBoxTotalSize - RenderedItemsSize);
-		CalculatePositions();
+		CalculateItemSizes();
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
-	//	ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
-
-	UE_LOG(LogTemp, Warning, TEXT("ChildreNsize: %f"), ChildrenPosition);
 }
 
 
