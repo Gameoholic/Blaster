@@ -81,19 +81,32 @@ private:
 	void MoveChildren();
 	void UpdateScrollWheel();
 
-	float ChildrenPosition;
+	void SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart, float Size);
+
+	float ChildrenPosition = 0.0f; // Top to bottom. Negative means above, positive means below. In slate units.
+
+	// The following variables are updated on UpdateScrollBox()
+	float UnrenderedItemsAboveSize = 0.0f; // The size of all items that are not rendered, above the viewport. In slate units.
+	float RenderedItemsSize = 0.0f; // The size of all items that are rendered in the viewport. In slate units. (size of the visible rendered items box)
+	float UnrenderedItemsBelowSize = 0.0f; // The size of all items that are not rendered, below the viewport. In slate units.
+	float ItemsBoxTotalSize = 0.0f; // Total DESIRED size of the items box, including all items inside it, in slate units.
+
 
 	/**
 	 * Bind widgets
 	 */
 	// 
-	// The empty/invisible part of the scroll wheel
+	// The empty/invisible TOP part of the scroll wheel
 	UPROPERTY(meta = (BindWidget))
-	UBorder* ScrollWheelEmpty;
+	UBorder* ScrollWheelTop;
 
 	// The full/colored part of the scroll wheel
 	UPROPERTY(meta = (BindWidget))
-	UBorder* ScrollWheelFull;
+	UBorder* ScrollWheelMiddle;
+
+	// The empty/invisible BOTTOM part of the scroll wheel
+	UPROPERTY(meta = (BindWidget))
+	UBorder* ScrollWheelBottom;
 
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* ItemsBox;
@@ -101,9 +114,11 @@ private:
 	//UPROPERTY(meta = (BindWidget))
 	//UListView* ListView;
 
-	UVerticalBoxSlot* ScrollWheelFullSlot = nullptr;
-	UVerticalBoxSlot* ScrollWheelEmptySlot = nullptr;
+	UVerticalBoxSlot* ScrollWheelTopSlot = nullptr;
+	UVerticalBoxSlot* ScrollWheelMiddleSlot = nullptr;
+	UVerticalBoxSlot* ScrollWheelBottomSlot = nullptr;
 
+	
 
 
 

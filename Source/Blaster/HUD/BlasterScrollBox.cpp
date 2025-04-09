@@ -8,6 +8,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/ListView.h"
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"/*this is for accessing GetDPIScaleBasedOnSize()*/
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -28,24 +29,29 @@ void UBlasterScrollBox::NativePreConstruct()
 		}
 	}
 
-	if (ScrollWheelEmpty)
+	if (ScrollWheelTop)
 	{
-		ScrollWheelEmpty->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
-		ScrollWheelEmptySlot = Cast<UVerticalBoxSlot>(ScrollWheelEmpty->Slot);
+		ScrollWheelTop->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelTopSlot = Cast<UVerticalBoxSlot>(ScrollWheelTop->Slot);
 	}
-	if (ScrollWheelFull)
+	if (ScrollWheelMiddle)
 	{
-		ScrollWheelFull->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
-		ScrollWheelFullSlot = Cast<UVerticalBoxSlot>(ScrollWheelFull->Slot);
+		ScrollWheelMiddle->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelMiddleSlot = Cast<UVerticalBoxSlot>(ScrollWheelMiddle->Slot);
+	}
+	if (ScrollWheelBottom)
+	{
+		ScrollWheelBottom->SetPadding(FMargin(ScrollWheelSize, 0.0f, 0.0f, 0.0f));
+		ScrollWheelBottomSlot = Cast<UVerticalBoxSlot>(ScrollWheelBottom->Slot);
 	}
 
 	if (bAlwaysShowScrollbar)
 	{
-		ScrollWheelFull->SetVisibility(ESlateVisibility::Visible);
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
-		ScrollWheelFull->SetVisibility(ESlateVisibility::Hidden);
+		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -127,23 +133,15 @@ void UBlasterScrollBox::OnInternalChildrenChanged()
 	// We can't do it on the same tick immediately because the geometry for the children isn't generated yet after UpdateChildren()
 	bOnLastTickInternalChildrenUpdated = 0;
 }
-void UBlasterScrollBox::UpdateScrollBox()
-{
-	CalculatePositions();
-	MoveChildren();
-	UpdateScrollWheel();
-}
 
 void UBlasterScrollBox::UpdateChildren()
 {
-	//ListView->ClearListItems();
 	ItemsBox->ClearChildren();
 	if (bReverseOrder)
 	{
 		for (int32 i = InternalChildren.Num() - 1; i >= 0; i--)
 		{
 			ItemsBox->AddChild(InternalChildren[i]);
-			//ListView->AddItem(InternalChildren[i]);
 		}
 	}
 	else
@@ -151,97 +149,86 @@ void UBlasterScrollBox::UpdateChildren()
 		for (int32 i = 0; i < InternalChildren.Num(); i++)
 		{
 			ItemsBox->AddChild(InternalChildren[i]);
-			//ListView->AddItem(InternalChildren[i]);
 		}
 	}
+}
 
-	//for (UWidget* newchild : ItemsBox->GetAllChildren())
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Needs prepass: %d"), newchild->TakeWidget()->NeedsPrepass());
-	//}
+void UBlasterScrollBox::UpdateScrollBox()
+{
+	CalculatePositions();
+	MoveChildren();
+	UpdateScrollWheel();
 }
 
 void UBlasterScrollBox::CalculatePositions()
 {
+	// Calculate DPI scale for pixels->slate units conversion
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+	int32 ViewportSizeX = FGenericPlatformMath::FloorToInt(ViewportSize.X); // There is some rounding but the effect on location accuracy is negligible
+	int32 ViewportSizeY = FGenericPlatformMath::FloorToInt(ViewportSize.Y);
+	float DPIScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSizeX, ViewportSizeY));
 
+	// Calculate all sizes
+	// If items box top to bottom:
+	ItemsBoxTotalSize = ItemsBox->GetDesiredSize().Y;
+	UnrenderedItemsAboveSize = -ChildrenPosition;
+	RenderedItemsSize = ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / DPIScale; // Size needs to be converted to slate units.
+	RenderedItemsSize = bTopToBottom ? RenderedItemsSize : RenderedItemsSize * -1; // If bottom to top, render transform angle is set to 180 at bottom to top, so cached geometry size will return negative 1.
+	UnrenderedItemsBelowSize = ItemsBoxTotalSize - RenderedItemsSize + ChildrenPosition;
 
-	FVector2D ThisDesiredSize = FVector2D::ZeroVector;
-	for (int32 SlotIndex = 0; SlotIndex < ItemsBox->GetAllChildren().Num(); ++SlotIndex)
+	// If bottom to top:
+	if (!bTopToBottom)
 	{
-		//const SScrollBox::FSlot& ThisSlot = Children[SlotIndex];
-		if (ItemsBox->GetAllChildren()[SlotIndex]->GetVisibility() != ESlateVisibility::Collapsed)
-		{
-			const FVector2D ChildDesiredSize = ItemsBox->GetAllChildren()[SlotIndex]->GetDesiredSize();
-
-			
-			ThisDesiredSize.X = FMath::Max(ChildDesiredSize.X + Cast<UVerticalBoxSlot>(ItemsBox->GetAllChildren()[SlotIndex]->Slot)->Padding.GetTotalSpaceAlong<Orient_Horizontal>(), ThisDesiredSize.X);
-			float test = ChildDesiredSize.Y + Cast<UVerticalBoxSlot>(ItemsBox->GetAllChildren()[SlotIndex]->Slot)->Padding.GetTotalSpaceAlong<Orient_Vertical>();
-			ThisDesiredSize.Y += test;
-			UE_LOG(LogTemp, Warning, TEXT("SEX Child sex: %f"), test);
-
-		
-			// add code for horizontal as well
-		
-		}
+		// Above and below will now be flipped, so we have to switch them:
+		float AboveSize = UnrenderedItemsAboveSize; // temp variable for switching variables
+		UnrenderedItemsAboveSize = UnrenderedItemsBelowSize;
+		UnrenderedItemsBelowSize = AboveSize;
 	}
 
-	FVector2D::FReal ScrollPadding = true ? GetTickSpaceGeometry().GetLocalSize().Y : GetTickSpaceGeometry().GetLocalSize().X;
-	FVector2D::FReal& SizeSideToPad = true ? ThisDesiredSize.Y : ThisDesiredSize.X;
-	//SizeSideToPad += BackPadScrolling ? ScrollPadding : 0;
-	//SizeSideToPad += FrontPadScrolling ? ScrollPadding : 0;
 
+	//// Bottom to top:
+	//ItemsBoxTotalSize = ItemsBox->GetDesiredSize().Y;
+	//UnrenderedItemsAboveSize = ItemsBoxTotalSize - RenderedItemsSize + ChildrenPosition;
+	////RenderedItemsSize = -1 * ItemsBox->GetCachedGeometry().GetAbsoluteSize().Y / DPIScale; // Size needs to be converted to slate units.
+	//UnrenderedItemsBelowSize = -ChildrenPosition;
 
-	UE_LOG(LogTemp, Warning, TEXT("SEX Child Size: X: %f Y: %f"), ThisDesiredSize.X, ThisDesiredSize.Y);
-
-	return;
-
-
-	return;
-	for (UWidget* TestChild : ItemsBox->GetAllChildren())
+	UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, UnredneredAbove: %f, Rendered: %f, UnrenderedBelow: %f"),
+		ItemsBoxTotalSize, UnrenderedItemsAboveSize, RenderedItemsSize, UnrenderedItemsBelowSize);
+	if (UnrenderedItemsBelowSize <= 0.0f)
 	{
-
-
-
-
-	
-
-
-
-
-
-
-
-
-		
-		 FVector2f POS = TestChild->GetCachedGeometry().GetAbsolutePosition();
-		Cast<UTextBlock>(TestChild)->SetText(FText::FromString(FString::Printf(TEXT("test: %f AND %f"), POS.X, POS.Y)));
-		UE_LOG(LogTemp, Warning, TEXT("Child Size: %f %f valid: %d"), 
-			TestChild->GetCachedGeometry().GetAbsoluteSize().X, TestChild->GetCachedGeometry().GetAbsoluteSize().Y,
-			TestChild->GetCachedWidget().IsValid());
-
-
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("test: %f AND %f"), POS.X, POS.Y));
-		//UE_LOG(LogTemp, Warning, TEXT("POSITION OF CURRENT: %f and %f"), POS.X, POS.Y);
+		UE_LOG(LogTemp, Warning, TEXT("sex"));
 	}
-	//UE::Slate::FDeprecateVector2DResult PositionOfFurthestChild = ItemsBox->GetAllChildren()[ItemsBox->GetAllChildren().Num() - 1]->GetCachedGeometry().GetAbsolutePosition();
-	//UE::Slate::FDeprecateVector2DResult PositionOfFurthestChild = ItemsBox->GetAllChildren()[ItemsBox->GetAllChildren().Num() - 1]->GetCachedGeometry().GetAbsolutePosition();
-
-	//UE_LOG(LogTemp, Warning, TEXT("POSITION OF FURTHEST: %f and %f"), PositionOfFurthestChild.X, PositionOfFurthestChild.Y);
 }
+
 
 
 
 void UBlasterScrollBox::MoveChildren()
 {
+	// ChildrenPosition is in pixels
 	for (UWidget* Child : ItemsBox->GetAllChildren())
 	{
-		Child->SetRenderTranslation(FVector2D(0.0f, ChildrenPosition));
+		Child->SetRenderTranslation(FVector2D(0.0f, ChildrenPosition)); // in slate units
 	}
 }
 
 void UBlasterScrollBox::UpdateScrollWheel()
 {
+	float ScrollWheelTopSize = UnrenderedItemsAboveSize / ItemsBoxTotalSize; // Percentage of the items box total size that's ABOVE the rendered area
+	float ScrollWheelMiddleSize = RenderedItemsSize / ItemsBoxTotalSize; // Percentage of the items box total size that's currently rendered in the viewport (in the middle)
+	float ScrollWheelBottomSize = UnrenderedItemsBelowSize / ItemsBoxTotalSize; // Percentage of the items box total size that's BELOW the rendered area
 
+	SetScrollWheelPartSize(ScrollWheelTopSlot, ScrollWheelTopSize);
+	SetScrollWheelPartSize(ScrollWheelMiddleSlot, ScrollWheelMiddleSize);
+	SetScrollWheelPartSize(ScrollWheelBottomSlot, ScrollWheelBottomSize);
+}
+
+void UBlasterScrollBox::SetScrollWheelPartSize(UVerticalBoxSlot* ScrollWheelPart, float Size)
+{
+	FSlateChildSize SlotSize = FSlateChildSize(ESlateSizeRule::Fill);
+	SlotSize.Value = Size;
+	ScrollWheelPart->SetSize(SlotSize);
 }
 
 
