@@ -187,6 +187,7 @@ void UBlasterScrollBox::HandleMouseWheelScroll(float MouseWheelDirection)
 	float ScrollBarMoveDirection = MouseWheelDirection;
 	ScrollBarMoveDirection = bClampMouseScrollWheelValues ? FMath::Clamp(ScrollBarMoveDirection, -1.0f, 1.0f) : ScrollBarMoveDirection;
 	ScrollBarMoveDirection = bReverseMouseScrollWheelDirection ? -ScrollBarMoveDirection : ScrollBarMoveDirection;
+	ScrollBarMoveDirection = bTopToBottom ? -ScrollBarMoveDirection : ScrollBarMoveDirection;
 	MoveScrollBar(ScrollBarMoveDirection);
 }
 
@@ -203,6 +204,18 @@ void UBlasterScrollBox::MoveScrollBar(float Direction)
 	SmoothScrollingChangeProgress = 0.0f;
 }
 
+void UBlasterScrollBox::RequestUpdateScrollBox(bool bImmediate)
+{
+	if (bImmediate)
+	{
+		UpdateScrollBox();
+	}
+	else
+	{
+		bOnLastTickInternalChildrenUpdated = 0;
+	}
+}
+
 void UBlasterScrollBox::InternalAddChild(UWidget* WidgetToAdd)
 {
 	bTopToBottom ? WidgetToAdd->SetRenderTransformAngle(0) : WidgetToAdd->SetRenderTransformAngle(180); // Needs to match angle of ItemsBox
@@ -214,7 +227,7 @@ void UBlasterScrollBox::OnInternalChildrenChanged()
 	UpdateChildren();
 	// On next tick, the childrens' new positions will be calculated, children moved, scroll wheel updated, etc.
 	// We can't do it on the same tick immediately because the geometry for the children isn't generated yet after UpdateChildren()
-	bOnLastTickInternalChildrenUpdated = 0;
+	RequestUpdateScrollBox(false);
 }
 
 void UBlasterScrollBox::UpdateChildren()

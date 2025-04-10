@@ -96,6 +96,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveScrollBar(float Direction);
 
+	// Will update the entire scroll box (the childrens' new positions will be calculated, children moved, scroll wheel updated, etc.) immediately, unless set to not immediate. In that case, it will happen on the next tick.
+	UFUNCTION(BlueprintCallable)
+	void RequestUpdateScrollBox(bool bImmediate);
+
 private:
 	ABlasterCharacter* Character;
 
