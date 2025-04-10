@@ -148,6 +148,10 @@ void UBlasterScrollBox::OnUnfocus()
 
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)
 {
+	if (WidgetToAdd == nullptr)
+	{
+		return;
+	}
 	InternalAddChild(WidgetToAdd);
 	OnInternalChildrenChanged();
 }
