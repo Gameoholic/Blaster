@@ -2,9 +2,12 @@
 
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Chat.generated.h"
+
+class UBlasterScrollBox;
 
 /**
  * 
@@ -14,4 +17,12 @@ class BLASTER_API UChat : public UUserWidget
 {
 	GENERATED_BODY()
 	
+
+public:
+	/**
+	 * Bind widgets
+	 */
+
+	UPROPERTY(meta = (BindWidget))
+	UBlasterScrollBox* MessagesScrollBox;
 };

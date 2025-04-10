@@ -483,7 +483,7 @@ void ABlasterCharacter::ChangeEmoteWheelPage(float MouseWheelDirection)
 
 void ABlasterCharacter::ScrollBoxMouseWheel(float MouseWheelDirection)
 {
-	if (!FocusedScrollBox)
+	if (!FocusedBlasterScrollBox)
 	{
 		return;
 	}
@@ -491,7 +491,7 @@ void ABlasterCharacter::ScrollBoxMouseWheel(float MouseWheelDirection)
 	{
 		return;
 	}
-	FocusedScrollBox->HandleMouseWheelScroll(MouseWheelDirection);
+	FocusedBlasterScrollBox->HandleMouseWheelScroll(MouseWheelDirection);
 }
 
 
@@ -1047,5 +1047,34 @@ void ABlasterCharacter::AddItem(UItem* Item)
 		{
 			BlasterPlayerController->SetHUDItem2(Item2->GetName(), Item2->GetIcon());
 		}
+	}
+}
+
+void ABlasterCharacter::RequestBlasterScrollBoxFocus(UBlasterScrollBox* ScrollBox, bool bFocus)
+{
+	// If the currently focused scroll box is not the one that requested focus, ignore the request (happens when it destructs but is not focused)
+	if (FocusedBlasterScrollBox != nullptr && ScrollBox != FocusedBlasterScrollBox)
+	{
+		return;
+	}
+	// If the scrollbox is already focused, ignore the request (because the request happens every tick when the scrollbox is being hovered)
+	if (FocusedBlasterScrollBox == ScrollBox && bFocus)
+	{
+		return;
+	}
+
+	// Focus / unfocus
+	if (FocusedBlasterScrollBox != nullptr)
+	{
+		FocusedBlasterScrollBox->OnUnfocus();
+	}
+	if (bFocus)
+	{
+		FocusedBlasterScrollBox = ScrollBox;
+		FocusedBlasterScrollBox->OnFocus();
+	}
+	else
+	{
+		FocusedBlasterScrollBox = nullptr;
 	}
 }

@@ -69,6 +69,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
 	float SmoothScrollingChangeExponential = 1.0f;
 
+	// Called by BlasterCharacter after focus has been requested by this scrollbox, and has been granted. DO NOT assume focus was granted just because scroll box was hovered, only rely on this method.
+	void OnFocus();
+	// Called by BlasterCharacter after focus has been removed for this scrollbox.
+	void OnUnfocus();
+
 	/** 
 	 * Methods to modify scrollbox post construction
 	 */

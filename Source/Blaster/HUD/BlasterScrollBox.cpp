@@ -15,6 +15,7 @@
 #include "Layout/LayoutUtils.h"
 #include "Layout/ArrangedChildren.h"
 #include "Components/TextBlock.h"
+#include "Components/HorizontalBox.h"
 
 void UBlasterScrollBox::NativePreConstruct()
 {
@@ -82,16 +83,14 @@ void UBlasterScrollBox::NativeOnInitialized()
 	{
 		return;
 	}
-	Character->FocusedScrollBox = this;
 }
 
 void UBlasterScrollBox::NativeDestruct()
 {
-	if (!Character)
+	if (Character)
 	{
-		return;
+		Character->RequestBlasterScrollBoxFocus(this, false);
 	}
-	Character->FocusedScrollBox = nullptr;
 }
 
 void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -120,7 +119,6 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			UpdateScrollBox();
 		}
 		LastTickViewportSize = ViewportSize;
-		return;
 	}
 
 	// If internal children were updated, a tick has passed and scroll box needs to be updated as a result
@@ -133,6 +131,22 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	{
 		bOnLastTickInternalChildrenUpdated = 1;
 	}
+
+	if (Character)
+	{
+		Character->RequestBlasterScrollBoxFocus(this, BlasterScrollBox->IsHovered());
+	}
+}
+
+void UBlasterScrollBox::OnFocus()
+{
+	UE_LOG(LogTemp, Warning ,TEXT("ONFOCUS"));
+}
+
+void UBlasterScrollBox::OnUnfocus()
+{
+	UE_LOG(LogTemp, Warning, TEXT("on unfocus"));
+
 }
 
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)

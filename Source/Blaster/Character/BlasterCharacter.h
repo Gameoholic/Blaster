@@ -55,8 +55,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddItem(class UItem* Item);
 
-	// Currently focused scroll box. Will be set automatically when focusing on a scroll box that's in the HUD.
-	UBlasterScrollBox* FocusedScrollBox = nullptr;
+	void RequestBlasterScrollBoxFocus(UBlasterScrollBox* ScrollBox, bool bFocus);
 protected:
 	virtual void BeginPlay() override;
 
@@ -241,6 +240,9 @@ private:
 	UItem* Item1 = nullptr;
 	UItem* Item2 = nullptr;
 
+
+	// Currently focused scroll box. Will be set automatically when hovering on a scroll box that's in the HUD.
+	UBlasterScrollBox* FocusedBlasterScrollBox = nullptr;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
