@@ -73,6 +73,8 @@ public:
 	void OnFocus();
 	// Called by BlasterCharacter after focus has been removed for this scrollbox.
 	void OnUnfocus();
+	// Called by BlasterCharacter if this scrollbox is focused and mouse scroll wheel had input
+	void HandleMouseWheelScroll(float MouseWheelDirection);
 
 	/** 
 	 * Methods to modify scrollbox post construction
@@ -89,9 +91,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveAllChildren();
-
-	UFUNCTION(BlueprintCallable)
-	void HandleMouseWheelScroll(float MouseWheelDirection);
 
 	// Direction input can be given a value other than 1 or -1 to amplify the speed
 	UFUNCTION(BlueprintCallable)

@@ -140,13 +140,10 @@ void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 void UBlasterScrollBox::OnFocus()
 {
-	UE_LOG(LogTemp, Warning ,TEXT("ONFOCUS"));
 }
 
 void UBlasterScrollBox::OnUnfocus()
 {
-	UE_LOG(LogTemp, Warning, TEXT("on unfocus"));
-
 }
 
 void UBlasterScrollBox::AddChild(UWidget* WidgetToAdd)
