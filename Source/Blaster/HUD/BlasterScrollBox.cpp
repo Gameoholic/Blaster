@@ -282,7 +282,6 @@ void UBlasterScrollBox::MoveChildren()
 
 void UBlasterScrollBox::UpdateScrollWheel()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Smooth Scrolling: %f"), SmoothScrollingCurrentPercentage);
 	float ScrollWheelTopSize = UnrenderedItemsAboveSize / ItemsBoxTotalSize; // Percentage of the items box total size that's ABOVE the rendered area
 	float ScrollWheelMiddleSize = RenderedItemsSize / ItemsBoxTotalSize; // Percentage of the items box total size that's currently rendered in the viewport (in the middle)
 	float ScrollWheelBottomSize = UnrenderedItemsBelowSize / ItemsBoxTotalSize; // Percentage of the items box total size that's BELOW the rendered area
@@ -328,49 +327,3 @@ void UBlasterScrollBox::SmoothScroll(float DeltaTime)
 
 
 
-
-
-void UBlasterScrollBox::ArrangeChildrenRecursive(FArrangedChildren& Childs, FArrangedWidget& ParentWidget)
-{
-	FArrangedChildren arrangedChilds(EVisibility::All);
-
-	ParentWidget.Widget->ArrangeChildren(ParentWidget.Geometry, arrangedChilds);
-	Childs.Append(arrangedChilds); // add arranged children to array
-
-	for (auto& arrangedChild : arrangedChilds.GetInternalArray())
-	{
-		ArrangeChildrenRecursive(Childs, arrangedChild); // walk through recursively
-	}
-}
-
-FVector2D UBlasterScrollBox::GetWidgetSize(UWidget* wid)
-{
-	FVector2D DesiredWidgetSize;
-	FArrangedChildren Childs(EVisibility::All);
-	auto thisWidget = wid->TakeWidget();
-	auto parent = wid->GetCachedWidget()->GetParentWidget();
-
-	// search for first parent with valid geometry
-	while (parent.IsValid() && parent->GetCachedGeometry().Size.SizeSquared() == 0)
-	{
-		parent = parent->GetParentWidget();
-	}
-
-	// calculate size for all children down form found parent
-	FArrangedWidget parentArrangedWidget(parent.ToSharedRef(), parent->GetCachedGeometry());
-
-	ArrangeChildrenRecursive(Childs, parentArrangedWidget);
-
-	// search for desired widget (thisWidget)
-	for (auto& child : Childs.GetInternalArray())
-	{
-		if (child.Widget == thisWidget)
-		{
-			// desired size found
-			DesiredWidgetSize = child.Geometry.Size;
-			break;
-		}
-	}
-
-	return DesiredWidgetSize;
-}

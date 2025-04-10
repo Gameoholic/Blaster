@@ -9,6 +9,7 @@
 class UWidget;
 class UBorder;
 class UVerticalBox;
+class UHorizontalBox;
 class UVerticalBoxSlot;
 class UListView;
 class ABlasterCharacter;
@@ -84,6 +85,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveAllChildren();
 
+	UFUNCTION(BlueprintCallable)
 	void HandleMouseWheelScroll(float MouseWheelDirection);
 
 	// Direction input can be given a value other than 1 or -1 to amplify the speed
@@ -134,7 +136,10 @@ private:
 	/**
 	 * Bind widgets
 	 */
-	// 
+	
+	// Root widget
+	UPROPERTY(meta = (BindWidget))
+	UHorizontalBox* BlasterScrollBox;
 	// The empty/invisible TOP part of the scroll wheel
 	UPROPERTY(meta = (BindWidget))
 	UBorder* ScrollWheelTop;
@@ -156,12 +161,5 @@ private:
 	UVerticalBoxSlot* ScrollWheelTopSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelMiddleSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelBottomSlot = nullptr;
-
-
-
-
-	void ArrangeChildrenRecursive(FArrangedChildren& Childs, FArrangedWidget& ParentWidget);
-
-	FVector2D GetWidgetSize(UWidget* wid);
 };
 
