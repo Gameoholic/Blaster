@@ -25,13 +25,18 @@ void UChat::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
 	{
 		*(&Message.Value()) += InDeltaTime;
-		Message.Key()->SetOpacity(FMath::InterpEaseInOut(
-			1.0f,
-			0.0f,
-			Message.Value() / NewMessagesDuration,
-			NewMessagesTransitionExponential
-		));
-		if (Message.Value() >= NewMessagesDuration)
+		// Only change opacity if chat is hidden
+		if (!bShown)
+		{
+			Message.Key()->SetOpacity(FMath::InterpEaseInOut(
+				1.0f,
+				0.0f,
+				FMath::Max(Message.Value() - NewMessagesGracePeriodDuration, 0.0f) / NewMessagesTransitionDuration,
+				NewMessagesTransitionExponential
+			));
+		}
+		// Remove from list if completely disappeared
+		if (Message.Value() - NewMessagesGracePeriodDuration >= NewMessagesTransitionDuration)
 		{
 			Message.RemoveCurrent();
 		}
@@ -54,6 +59,12 @@ void UChat::ToggleChat(bool bShowChat)
 		GetOwningPlayer()->SetInputMode(InputModeData);
 		GetOwningPlayer()->SetShowMouseCursor(true);
 		MessageInputBox->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
+
+		// Show all messages
+		for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
+		{
+			Message.Key()->SetOpacity(1.0f);
+		}
 	}
 	else
 	{
@@ -62,6 +73,12 @@ void UChat::ToggleChat(bool bShowChat)
 		GetOwningPlayer()->SetShowMouseCursor(false);
 
 		MessageInputBox->OnTextCommitted.RemoveAll(this);
+
+		// Hide all messages
+		for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
+		{
+			Message.Key()->SetOpacity(0.0f);
+		}
 	}
 }
 
@@ -112,6 +129,6 @@ void UChat::DisplayMessage(FName Message)
 	MessagesScrollBox->AddChild(TextBlock);
 	// The child that's now in the scrollbox is different from the one we added
 
-	NewMessages.Add(TextBlock, 5.0f);
+	NewMessages.Add(TextBlock, 0.0f);
 }
 

@@ -38,9 +38,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UEditableText* MessageInputBox;
 
-	// How long should the opacity transition for new messages last.
+	// How long should the grace period for new messages be before they start disappearing
 	UPROPERTY(EditAnywhere, Category = "New Messages")
-	float NewMessagesDuration = 5.0f;
+	float NewMessagesGracePeriodDuration = 3.0f;
+	// How long should the opacity transition for new messages last
+	UPROPERTY(EditAnywhere, Category = "New Messages")
+	float NewMessagesTransitionDuration = 1.0f;
 	// Exponential for easing of opacity transition
 	UPROPERTY(EditAnywhere, Category = "New Messages")
 	float NewMessagesTransitionExponential = 1.0f;
