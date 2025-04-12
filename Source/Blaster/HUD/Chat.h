@@ -9,6 +9,7 @@
 
 class UBlasterScrollBox;
 class UMultiLineEditableText;
+class UEditableText;
 
 /**
  * 
@@ -20,8 +21,8 @@ class BLASTER_API UChat : public UUserWidget
 	
 
 public:
+	void ToggleChat();
 	void ToggleChat(bool bShowChat);
-
 
 	/**
 	 * Bind widgets
@@ -31,6 +32,14 @@ public:
 	UBlasterScrollBox* MessagesScrollBox;
 
 	UPROPERTY(meta = (BindWidget))
-	UMultiLineEditableText* MessageInputBox;
+	UEditableText* MessageInputBox;
 
+private:
+	UFUNCTION()
+	void OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit::Type CommitMethod);
+
+	void SendMessage();
+
+
+	bool bShown = false;
 };

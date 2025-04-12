@@ -16,7 +16,7 @@
 #include "Blaster/HUD/BlasterFillableBar.h"
 #include "Components/Image.h"
 #include "Blaster/HUD/Chat.h"
-#include "Components/MultiLineEditableText.h"
+#include "Components/EditableText.h"
 
 
 
@@ -227,22 +227,13 @@ void ABlasterPlayerController::SetHUDDeaths(int32 Deaths)
 	BlasterHUD->CharacterOverlay->DeathsText->SetText(FText::FromString(DeathsText));
 }
 
-void ABlasterPlayerController::ToggleChat(bool bShowChat)
+void ABlasterPlayerController::ToggleChat()
 {
 	if (!IsHUDValid())
 	{
 		return;
 	}
-	BlasterHUD->CharacterOverlay->Chat->ToggleChat(bShowChat);
-}
-
-UWidget* ABlasterPlayerController::GetChatInputBoxWidget()
-{
-	if (!IsHUDValid())
-	{
-		return nullptr;
-	}
-	return BlasterHUD->CharacterOverlay->Chat->MessageInputBox;
+	BlasterHUD->CharacterOverlay->Chat->ToggleChat();
 }
 
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)

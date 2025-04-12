@@ -26,8 +26,7 @@ public:
 	void SetHUDSecondaryWeapon(FString WeaponName, FSlateBrush WeaponIcon);
 	void SetHUDItem1(FString ItemName, FSlateBrush ItemIcon);
 	void SetHUDItem2(FString ItemName, FSlateBrush ItemIcon);
-	void ToggleChat(bool bShowChat);
-	UWidget* GetChatInputBoxWidget();
+	void ToggleChat();
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

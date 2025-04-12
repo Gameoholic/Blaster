@@ -502,22 +502,7 @@ void ABlasterCharacter::ChatButtonPressed()
 	{
 		return;
 	}
-	bChatShown = !bChatShown;
-	BlasterPlayerController->ToggleChat(bChatShown);
-	if (bChatShown)
-	{
-		FInputModeGameAndUI InputModeData;
-		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputModeData.SetWidgetToFocus(BlasterPlayerController->GetChatInputBoxWidget()->TakeWidget());
-		BlasterPlayerController->SetInputMode(InputModeData);
-		BlasterPlayerController->SetShowMouseCursor(true);
-	}
-	else
-	{
-		FInputModeGameOnly InputModeData;
-		BlasterPlayerController->SetInputMode(InputModeData);
-		BlasterPlayerController->SetShowMouseCursor(false);
-	}
+	BlasterPlayerController->ToggleChat();
 }
 
 

@@ -241,8 +241,6 @@ private:
 	UItem* Item1 = nullptr;
 	UItem* Item2 = nullptr;
 
-	bool bChatShown = false;
-
 	// Currently focused scroll box. Will be set automatically when hovering on a scroll box that's in the HUD.
 	UBlasterScrollBox* FocusedBlasterScrollBox = nullptr;
 
