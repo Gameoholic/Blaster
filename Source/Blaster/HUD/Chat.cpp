@@ -61,9 +61,9 @@ void UChat::ToggleChat(bool bShowChat)
 		MessageInputBox->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
 
 		// Show all messages
-		for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
+		for (UWidget* Message : MessagesScrollBox->GetChildren())
 		{
-			Message.Key()->SetOpacity(1.0f);
+			Cast<UTextBlock>(Message)->SetOpacity(1.0f);
 		}
 	}
 	else
@@ -75,9 +75,9 @@ void UChat::ToggleChat(bool bShowChat)
 		MessageInputBox->OnTextCommitted.RemoveAll(this);
 
 		// Hide all messages
-		for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
+		for (UWidget* Message : MessagesScrollBox->GetChildren())
 		{
-			Message.Key()->SetOpacity(0.0f);
+			Cast<UTextBlock>(Message)->SetOpacity(0.0f);
 		}
 	}
 }
@@ -92,7 +92,7 @@ void UChat::OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit
 		return;
 	}
 
-	if (CommitMethod == ETextCommit::Type::OnEnter)
+	if (CommitMethod == ETextCommit::Type::OnEnter && Text.ToString().Len() > 0)
 	{
 		SendMessage();
 	}
