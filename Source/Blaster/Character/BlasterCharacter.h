@@ -56,6 +56,9 @@ public:
 	void AddItem(class UItem* Item);
 
 	void RequestBlasterScrollBoxFocus(UBlasterScrollBox* ScrollBox, bool bFocus);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendPlayerChatMessage(FName Message);
 protected:
 	virtual void BeginPlay() override;
 

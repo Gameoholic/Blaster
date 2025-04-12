@@ -98,6 +98,8 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.0f;
 }
 
+
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -506,6 +508,19 @@ void ABlasterCharacter::ChatButtonPressed()
 }
 
 
+// RPC that runs on server
+void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message)
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
+		BlasterPlayer->ClientSendMessage(Message);
+	}
+}
 
 
 void ABlasterCharacter::AimOffset(float DeltaTime)

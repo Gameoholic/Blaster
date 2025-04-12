@@ -37,6 +37,11 @@ void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	//DOREPLIFETIME(ABlasterPlayerController, MatchState);
 }
 
+void ABlasterPlayerController::ClientSendMessage_Implementation(FName Message)
+{
+	SendChatMessage(Message);
+}
+
 void ABlasterPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -234,6 +239,15 @@ void ABlasterPlayerController::ToggleChat()
 		return;
 	}
 	BlasterHUD->CharacterOverlay->Chat->ToggleChat();
+}
+
+void ABlasterPlayerController::SendChatMessage(FName Message)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->Chat->ReceiveMessage(Message);
 }
 
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)

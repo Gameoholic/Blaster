@@ -4,7 +4,39 @@
 #include "Chat.h"
 #include "Components/MultiLineEditableText.h"
 #include "Components/EditableText.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/HUD/BlasterScrollBox.h"
+#include "Components/TextBlock.h"
+#include "Blueprint/WidgetTree.h"
+#include "Blaster/HUD/BlasterTextBlock.h"
 
+void UChat::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	Character = Cast<ABlasterCharacter>(GetOwningPlayer()->GetCharacter());
+}
+
+void UChat::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// Adjust opacity for new messages
+	for (TMap<UTextBlock*, float>::TIterator Message = NewMessages.CreateIterator(); Message; ++Message)
+	{
+		*(&Message.Value()) += InDeltaTime;
+		Message.Key()->SetOpacity(FMath::InterpEaseInOut(
+			1.0f,
+			0.0f,
+			Message.Value() / NewMessagesDuration,
+			NewMessagesTransitionExponential
+		));
+		if (Message.Value() >= NewMessagesDuration)
+		{
+			Message.RemoveCurrent();
+		}
+	}
+}
 
 void UChat::ToggleChat()
 {
@@ -13,7 +45,6 @@ void UChat::ToggleChat()
 
 void UChat::ToggleChat(bool bShowChat)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Toggling chat."));
 	bShown = bShowChat;
 	if (bShown)
 	{
@@ -22,8 +53,6 @@ void UChat::ToggleChat(bool bShowChat)
 		InputModeData.SetWidgetToFocus(MessageInputBox->TakeWidget());
 		GetOwningPlayer()->SetInputMode(InputModeData);
 		GetOwningPlayer()->SetShowMouseCursor(true);
-
-
 		MessageInputBox->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
 	}
 	else
@@ -36,10 +65,6 @@ void UChat::ToggleChat(bool bShowChat)
 	}
 }
 
-void UChat::SendMessage()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Sending message."));
-}
 
 
 void UChat::OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit::Type CommitMethod)
@@ -54,21 +79,39 @@ void UChat::OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit
 	{
 		SendMessage();
 	}
-	else
+	ToggleChat(false);
+}
+
+void UChat::ReceiveMessage(FName Message)
+{
+	if (!WidgetTree)
 	{
-		ToggleChat(false);
+		return;
 	}
 
-
-	//enum Type : int
-	//{
-	//	/** Losing focus or similar event caused implicit commit */
-	//	Default, // 0
-	//	/** User committed via the enter key */
-	//	OnEnter, // 1
-	//	/** User committed via tabbing away or moving focus explicitly away */
-	//	OnUserMovedFocus, // 2
-	//	/** Keyboard focus was explicitly cleared via the escape key or other similar action */
-	//	OnCleared // 3
-	//};
+	DisplayMessage(Message);
 }
+
+void UChat::SendMessage()
+{
+	FName Message = FName(MessageInputBox->GetText().ToString());
+	MessageInputBox->SetText(FText());
+	if (Character != nullptr)
+	{
+		Character->ServerSendPlayerChatMessage(Message); // This will trigger ReceiveMessage()
+	}
+}
+
+void UChat::DisplayMessage(FName Message)
+{
+	UBlasterTextBlock* TextBlock = WidgetTree->ConstructWidget<UBlasterTextBlock>(UBlasterTextBlock::StaticClass());
+	TextBlock->SetText(FText::FromName(Message));
+	TextBlock->SetAutoWrapText(true);
+	TextBlock->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+
+	MessagesScrollBox->AddChild(TextBlock);
+	// The child that's now in the scrollbox is different from the one we added
+
+	NewMessages.Add(TextBlock, 5.0f);
+}
+

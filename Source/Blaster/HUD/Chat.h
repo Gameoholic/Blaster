@@ -10,6 +10,8 @@
 class UBlasterScrollBox;
 class UMultiLineEditableText;
 class UEditableText;
+class ABlasterCharacter;
+class UTextBlock;
 
 /**
  * 
@@ -21,8 +23,10 @@ class BLASTER_API UChat : public UUserWidget
 	
 
 public:
+	// Called from blasterplayer
 	void ToggleChat();
-	void ToggleChat(bool bShowChat);
+	// Called from blasterplayer
+	void ReceiveMessage(FName Message);
 
 	/**
 	 * Bind widgets
@@ -34,12 +38,27 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UEditableText* MessageInputBox;
 
+	// How long should the opacity transition for new messages last.
+	UPROPERTY(EditDefaultsOnly, Category = "New Messages")
+	float NewMessagesDuration = 5.0f;
+	// Exponential for easing of opacity transition
+	UPROPERTY(EditDefaultsOnly, Category = "New Messages")
+	float NewMessagesTransitionExponential = 1.0f;
+protected:
+	virtual void NativeOnInitialized() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 private:
+	void ToggleChat(bool bShowChat);
+	ABlasterCharacter* Character;
+
+	bool bShown = false;
+
 	UFUNCTION()
 	void OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit::Type CommitMethod);
 
 	void SendMessage();
+	void DisplayMessage(FName Message);
 
-
-	bool bShown = false;
+	// New messages will have a timer of how long they've existed (opacity changes)
+	TMap<UTextBlock*, float> NewMessages;
 };

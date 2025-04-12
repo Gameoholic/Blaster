@@ -27,6 +27,7 @@ public:
 	void SetHUDItem1(FString ItemName, FSlateBrush ItemIcon);
 	void SetHUDItem2(FString ItemName, FSlateBrush ItemIcon);
 	void ToggleChat();
+	void SendChatMessage(FName Message);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 
@@ -34,6 +35,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION(Client, Reliable)
+	void ClientSendMessage(FName Message);
 
 	//virtual float GetServerTime(); // Synced with server world clock
 

@@ -92,6 +92,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveAllChildren();
 
+	UFUNCTION(BlueprintCallable)
+	TArray<UWidget*> GetChildren();
+
 	// Direction input can be given a value other than 1 or -1 to amplify the speed
 	UFUNCTION(BlueprintCallable)
 	void MoveScrollBar(float Direction);

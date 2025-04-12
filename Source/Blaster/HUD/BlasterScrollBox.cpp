@@ -177,6 +177,11 @@ void UBlasterScrollBox::RemoveAllChildren()
 	OnInternalChildrenChanged();
 }
 
+TArray<UWidget*> UBlasterScrollBox::GetChildren()
+{
+	return InternalChildren;
+}
+
 
 void UBlasterScrollBox::HandleMouseWheelScroll(float MouseWheelDirection)
 {
