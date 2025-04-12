@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterOverlay.generated.h"
 
+class UChat;
+
 /**
  * 
  */
@@ -75,6 +77,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Item2Icon;
+
+	UPROPERTY(meta = (BindWidget))
+	UChat* Chat;
 
 protected:
 	virtual void NativeOnInitialized() override;

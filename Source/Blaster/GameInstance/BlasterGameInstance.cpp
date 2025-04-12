@@ -65,4 +65,14 @@ UMultiplayerSessionsSubsystem* UBlasterGameInstance::GetMultiplayerSubsystem()
 	return MultiplayerSubsystem;
 }
 
+void UBlasterGameInstance::ClearChat()
+{
+	ChatMessages.Empty();
+}
+
+void UBlasterGameInstance::AddChatMessage(FString Message)
+{
+	ChatMessages.Add(FName(Message));
+}
+
 

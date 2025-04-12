@@ -52,5 +52,6 @@ bool UCharacterOverlay::IsHUDValid()
 		Item1Name != nullptr &&
 		Item1Icon != nullptr &&
 		Item2Name != nullptr &&
-		Item2Icon != nullptr);
+		Item2Icon != nullptr &&
+		Chat != nullptr);
 }

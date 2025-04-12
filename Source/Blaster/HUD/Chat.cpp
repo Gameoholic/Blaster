@@ -3,3 +3,7 @@
 
 #include "Chat.h"
 
+void UChat::ToggleChat(bool bShowChat)
+{
+	UE_LOG(LogTemp, Warning, TEXT("CHAT SHOWN : %d"), bShowChat);
+}

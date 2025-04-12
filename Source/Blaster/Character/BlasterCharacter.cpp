@@ -31,6 +31,7 @@
 #include "Components/AudioComponent.h"
 #include "Blaster/Items/Item.h"
 #include "Blaster/HUD/BlasterScrollBox.h"
+#include "Blaster/HUD/Chat.h"
 
 
 // Sets default values
@@ -210,6 +211,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Pressed, this, &ABlasterCharacter::EmoteButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Released, this, &ABlasterCharacter::EmoteButtonReleased);
+	PlayerInputComponent->BindAction("Chat", IE_Pressed, this, &ABlasterCharacter::ChatButtonPressed);
 	PlayerInputComponent->BindAxis("EmoteWheelPage", this, &ABlasterCharacter::ChangeEmoteWheelPage);
 	PlayerInputComponent->BindAxis("ScrollBoxMouseWheel", this, &ABlasterCharacter::ScrollBoxMouseWheel);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
@@ -493,6 +495,32 @@ void ABlasterCharacter::ScrollBoxMouseWheel(float MouseWheelDirection)
 	}
 	FocusedBlasterScrollBox->HandleMouseWheelScroll(MouseWheelDirection);
 }
+
+void ABlasterCharacter::ChatButtonPressed()
+{
+	if (!BlasterPlayerController)
+	{
+		return;
+	}
+	bChatShown = !bChatShown;
+	BlasterPlayerController->ToggleChat(bChatShown);
+	if (bChatShown)
+	{
+		FInputModeGameAndUI InputModeData;
+		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputModeData.SetWidgetToFocus(BlasterPlayerController->GetChatInputBoxWidget()->TakeWidget());
+		BlasterPlayerController->SetInputMode(InputModeData);
+		BlasterPlayerController->SetShowMouseCursor(true);
+	}
+	else
+	{
+		FInputModeGameOnly InputModeData;
+		BlasterPlayerController->SetInputMode(InputModeData);
+		BlasterPlayerController->SetShowMouseCursor(false);
+	}
+}
+
+
 
 
 void ABlasterCharacter::AimOffset(float DeltaTime)

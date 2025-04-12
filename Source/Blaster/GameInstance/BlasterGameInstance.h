@@ -24,7 +24,6 @@ public:
 	UPROPERTY(Category = "Emotes", EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<FEmoteType> Emotes = { };
 
-
 	/** Amount of dynamic platforms in the current level that do not have an ID set yet. */
 	int32 NoIdDynamicPlatforms = 0;
 
@@ -37,7 +36,13 @@ public:
 
 	UMultiplayerSessionsSubsystem* GetMultiplayerSubsystem();
 
+	void ClearChat();
+	void AddChatMessage(FString Message);
 private:
 	UMultiplayerSessionsSubsystem* MultiplayerSubsystem = nullptr;
+	TArray<FName> ChatMessages; // FName has 8 bytes so we save data
 
+
+public:
+	FORCEINLINE TArray<FName> GetChatMessages() { return ChatMessages; };
 };

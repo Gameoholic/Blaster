@@ -8,6 +8,7 @@
 #include "Chat.generated.h"
 
 class UBlasterScrollBox;
+class UMultiLineEditableText;
 
 /**
  * 
@@ -19,10 +20,17 @@ class BLASTER_API UChat : public UUserWidget
 	
 
 public:
+	void ToggleChat(bool bShowChat);
+
+
 	/**
 	 * Bind widgets
 	 */
 
 	UPROPERTY(meta = (BindWidget))
 	UBlasterScrollBox* MessagesScrollBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UMultiLineEditableText* MessageInputBox;
+
 };
