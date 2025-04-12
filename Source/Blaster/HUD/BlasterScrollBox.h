@@ -31,42 +31,42 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Children")
+	UPROPERTY(EditAnywhere, Category = "Children")
 	bool bTopToBottom = true;
 	// Whether to reverse the order of the children
-	UPROPERTY(EditDefaultsOnly, Category = "Children")
+	UPROPERTY(EditAnywhere, Category = "Children")
 	bool bReverseOrder = false;
 	// Whether to always show scrollbar even if all children fit in the viewport
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	bool bAlwaysShowScrollbar = false;
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	float ScrollWheelSize = 50.0f;
 	// By how much to move the scroll wheel
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	float ScrollWheelChangeAmount = 20.0f;
 	// If true, each time the scroll wheel is requested to change, will ignore the previous change instead of stacking. Useful for buttons, not useful for mouse scroll wheel input.
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	bool bOverrideScrollWheelChange = false;
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	FSlateBrush ScrollBarAppearance = FSlateBrush::FSlateBrush();
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Bar")
+	UPROPERTY(EditAnywhere, Category = "Scroll Bar")
 	FMargin ScrollBarPadding = FMargin::FMargin(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 	// Whether to ignore the mouse scroll wheel input or not
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
+	UPROPERTY(EditAnywhere, Category = "Scroll Wheel")
 	bool bEnableMouseScrollWheel = true;
 	// Whether to clamp scroll wheel to 1/-1 (can go to 2/-2 if scroll wheel is fast)
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
+	UPROPERTY(EditAnywhere, Category = "Scroll Wheel")
 	bool bClampMouseScrollWheelValues = false;
-	UPROPERTY(EditDefaultsOnly, Category = "Scroll Wheel")
+	UPROPERTY(EditAnywhere, Category = "Scroll Wheel")
 	bool bReverseMouseScrollWheelDirection = false;
 
 	// How long should the smooth scrolling transition last. Set to 0 to disable smooth scrolling
-	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
+	UPROPERTY(EditAnywhere, Category = "Smooth Scrolling")
 	float SmoothScrollingChangeDuration = 0.0f;
 	// Exponential for easing of smooth scrolling
-	UPROPERTY(EditDefaultsOnly, Category = "Smooth Scrolling")
+	UPROPERTY(EditAnywhere, Category = "Smooth Scrolling")
 	float SmoothScrollingChangeExponential = 1.0f;
 
 	// Called by BlasterCharacter after focus has been requested by this scrollbox, and has been granted. DO NOT assume focus was granted just because scroll box was hovered, only rely on this method.

@@ -39,10 +39,10 @@ public:
 	UEditableText* MessageInputBox;
 
 	// How long should the opacity transition for new messages last.
-	UPROPERTY(EditDefaultsOnly, Category = "New Messages")
+	UPROPERTY(EditAnywhere, Category = "New Messages")
 	float NewMessagesDuration = 5.0f;
 	// Exponential for easing of opacity transition
-	UPROPERTY(EditDefaultsOnly, Category = "New Messages")
+	UPROPERTY(EditAnywhere, Category = "New Messages")
 	float NewMessagesTransitionExponential = 1.0f;
 protected:
 	virtual void NativeOnInitialized() override;
