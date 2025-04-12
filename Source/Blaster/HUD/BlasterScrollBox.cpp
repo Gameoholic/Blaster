@@ -221,6 +221,11 @@ void UBlasterScrollBox::RequestUpdateScrollBox(bool bImmediate)
 	}
 }
 
+void UBlasterScrollBox::ForceHideScrollBar(bool bHide)
+{
+	bForceHideScrollBar = bHide;
+}
+
 void UBlasterScrollBox::InternalAddChild(UWidget* WidgetToAdd)
 {
 	bTopToBottom ? WidgetToAdd->SetRenderTransformAngle(0) : WidgetToAdd->SetRenderTransformAngle(180); // Needs to match angle of ItemsBox
@@ -283,7 +288,7 @@ void UBlasterScrollBox::CalculateItemSizes()
 	}
 
 	// Show/hide scrollbar if all items fit (THIS IS BUGGY, see next comment)
-	if (!bAlwaysShowScrollbar && FMath::Abs(RenderedItemsSize - ItemsBoxTotalSize) <= 3.0f) // TEMPFIX: For some reason, even when all items are rendered on screen, these 2 variables sometimes have a 2-3 value difference in them. This is a bandaid fix, maybe fix in the future if problems arise
+	if (bForceHideScrollBar || (!bAlwaysShowScrollbar && FMath::Abs(RenderedItemsSize - ItemsBoxTotalSize) <= 3.0f)) // TEMPFIX: For some reason, even when all items are rendered on screen, these 2 variables sometimes have a 2-3 value difference in them. This is a bandaid fix, maybe fix in the future if problems arise
 	{
 		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Hidden);
 	}

@@ -103,6 +103,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RequestUpdateScrollBox(bool bImmediate);
 
+	// If forced to hide scroll bar, will not show it at all even if needed
+	UFUNCTION(BlueprintCallable)
+	void ForceHideScrollBar(bool bHide);
+
 private:
 	ABlasterCharacter* Character;
 
@@ -172,5 +176,7 @@ private:
 	UVerticalBoxSlot* ScrollWheelTopSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelMiddleSlot = nullptr;
 	UVerticalBoxSlot* ScrollWheelBottomSlot = nullptr;
+
+	bool bForceHideScrollBar = false;
 };
 

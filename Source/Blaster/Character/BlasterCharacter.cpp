@@ -509,16 +509,19 @@ void ABlasterCharacter::ChatButtonPressed()
 
 
 // RPC that runs on server
-void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message)
+void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message, FName SendingPlayerName)
 {
 	if (!GetWorld())
 	{
 		return;
 	}
+	FString NewMessage = SendingPlayerName.ToString();
+	NewMessage.Append(": ");
+	NewMessage.Append(Message.ToString());
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
-		BlasterPlayer->ClientSendMessage(Message);
+		BlasterPlayer->ClientSendMessage(FName(NewMessage));
 	}
 }
 

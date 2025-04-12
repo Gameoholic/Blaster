@@ -53,18 +53,22 @@ void UChat::ToggleChat(bool bShowChat)
 	bShown = bShowChat;
 	if (bShown)
 	{
-		FInputModeUIOnly InputModeData;
+		FInputModeGameAndUI InputModeData;
 		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputModeData.SetWidgetToFocus(MessageInputBox->TakeWidget());
 		GetOwningPlayer()->SetInputMode(InputModeData);
 		GetOwningPlayer()->SetShowMouseCursor(true);
 		MessageInputBox->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
 
-		// Show all messages
+		// Show all messages & inputbox
 		for (UWidget* Message : MessagesScrollBox->GetChildren())
 		{
 			Cast<UTextBlock>(Message)->SetOpacity(1.0f);
 		}
+		MessageInputBox->SetVisibility(ESlateVisibility::Visible);
+
+		MessagesScrollBox->ForceHideScrollBar(false);
+		MessagesScrollBox->RequestUpdateScrollBox(true);
 	}
 	else
 	{
@@ -74,11 +78,17 @@ void UChat::ToggleChat(bool bShowChat)
 
 		MessageInputBox->OnTextCommitted.RemoveAll(this);
 
-		// Hide all messages
+		// Hide all messages & inputbox
 		for (UWidget* Message : MessagesScrollBox->GetChildren())
 		{
 			Cast<UTextBlock>(Message)->SetOpacity(0.0f);
 		}
+		MessageInputBox->SetVisibility(ESlateVisibility::Hidden);
+
+
+		MessagesScrollBox->ForceHideScrollBar(true);
+		MessagesScrollBox->RequestUpdateScrollBox(true);
+
 	}
 }
 
@@ -115,7 +125,7 @@ void UChat::SendMessage()
 	MessageInputBox->SetText(FText());
 	if (Character != nullptr)
 	{
-		Character->ServerSendPlayerChatMessage(Message); // This will trigger ReceiveMessage()
+		Character->ServerSendPlayerChatMessage(Message, FName(Character->GetName())); // This will trigger ReceiveMessage()
 	}
 }
 
