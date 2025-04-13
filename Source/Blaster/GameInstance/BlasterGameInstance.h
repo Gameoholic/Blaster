@@ -37,10 +37,13 @@ public:
 	UMultiplayerSessionsSubsystem* GetMultiplayerSubsystem();
 
 	void ClearChat();
-	void AddChatMessage(FString Message);
+	void AddChatMessage(FName Message);
+
+
+	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 private:
 	UMultiplayerSessionsSubsystem* MultiplayerSubsystem = nullptr;
-	TArray<FName> ChatMessages; // FName has 8 bytes so we save data
+	TArray<FName> ChatMessages = TArray<FName>();
 
 
 public:

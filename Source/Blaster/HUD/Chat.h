@@ -28,6 +28,8 @@ public:
 	void ToggleChat();
 	// Called from blasterplayer
 	void ReceiveMessage(FName Message);
+	// Called from blasterplayercontroller. Adds the messages without trigerring an opacity transition or displaying
+	void AddMessagesSilently(TArray<FName> Messages);
 
 	/**
 	 * Bind widgets
@@ -67,7 +69,8 @@ private:
 	void OnMultiLineEditableTextCommittedEvent(const FText& Text, ETextCommit::Type CommitMethod);
 
 	void SendMessage();
-	void DisplayMessage(FName Message);
+	// If set to silent, will not display the message immediately and trigger an opacity transition
+	void DisplayMessage(FName Message, bool bSilent);
 
 	// New messages will have a timer of how long they've existed (opacity changes)
 	TMap<UTextBlock*, float> NewMessages;

@@ -82,6 +82,8 @@ private:
 	bool IsHUDValid();
 	class ABlasterHUD* BlasterHUD = nullptr;
 
+	bool bChatMessagesLoadedFromGameInstance = false;
+
 	//float LevelStartingTime = 0.0f;
 	//float MatchTime = 0.0f;
 	//float WarmupTime = 0.0f;

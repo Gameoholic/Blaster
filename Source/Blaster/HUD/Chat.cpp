@@ -11,11 +11,16 @@
 #include "Blueprint/WidgetTree.h"
 #include "Blaster/HUD/BlasterTextBlock.h"
 #include "Components/Border.h"
+#include "GameFramework/PlayerState.h"
 
 void UChat::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	Character = Cast<ABlasterCharacter>(GetOwningPlayer()->GetCharacter());
+
+	// Chat should be hidden by default: (don't call ToggleChat(false) it has a lot of extra stuff we don't need and will crash if called this early)
+	MessageInputBox->SetVisibility(ESlateVisibility::Hidden);
+	MessagesScrollBox->ForceHideScrollBar(true);
 }
 
 void UChat::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -118,7 +123,19 @@ void UChat::ReceiveMessage(FName Message)
 		return;
 	}
 
-	DisplayMessage(Message);
+	DisplayMessage(Message, false);
+	if (Character)
+	{
+		Character->OnChatMessageReceived(Message);
+	}
+}
+
+void UChat::AddMessagesSilently(TArray<FName> Messages)
+{
+	for (FName Message : Messages)
+	{
+		DisplayMessage(Message, true);
+	}
 }
 
 void UChat::SendMessage()
@@ -127,11 +144,11 @@ void UChat::SendMessage()
 	MessageInputText->SetText(FText());
 	if (Character != nullptr)
 	{
-		Character->ServerSendPlayerChatMessage(Message, FName(Character->GetName())); // This will trigger ReceiveMessage()
+		Character->ServerSendPlayerChatMessage(Message, FName(Character->GetPlayerState()->GetPlayerName())); // This will trigger ReceiveMessage()
 	}
 }
 
-void UChat::DisplayMessage(FName Message)
+void UChat::DisplayMessage(FName Message, bool bSilent)
 {
 	UBlasterTextBlock* TextBlock = WidgetTree->ConstructWidget<UBlasterTextBlock>(UBlasterTextBlock::StaticClass());
 	TextBlock->SetText(FText::FromName(Message));
@@ -142,6 +159,9 @@ void UChat::DisplayMessage(FName Message)
 	MessagesScrollBox->AddChild(TextBlock);
 	// The child that's now in the scrollbox is different from the one we added
 
-	NewMessages.Add(TextBlock, 0.0f);
+	if (!bSilent)
+	{
+		NewMessages.Add(TextBlock, 0.0f);
+	}
 }
 

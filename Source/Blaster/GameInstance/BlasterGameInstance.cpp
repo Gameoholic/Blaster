@@ -65,14 +65,34 @@ UMultiplayerSessionsSubsystem* UBlasterGameInstance::GetMultiplayerSubsystem()
 	return MultiplayerSubsystem;
 }
 
+
+void UBlasterGameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+{
+	Super::OnWorldChanged(OldWorld, NewWorld);
+
+	// If the old level we transitioned from was the startup map, clear the chat
+	if (OldWorld)
+	{
+		const TCHAR* MapNameHeader = *FString("UEDPIE_0_");
+		FString OldLevelName = *OldWorld->GetMapName();
+		OldLevelName.RemoveFromStart(OldWorld->StreamingLevelsPrefix);
+		if (OldLevelName == FString("GameStartupMap"))
+		{
+			ClearChat();
+		}
+	}
+}
+
+
 void UBlasterGameInstance::ClearChat()
 {
 	ChatMessages.Empty();
 }
 
-void UBlasterGameInstance::AddChatMessage(FString Message)
+void UBlasterGameInstance::AddChatMessage(FName Message)
 {
-	ChatMessages.Add(FName(Message));
+	ChatMessages.Add(Message);
 }
+
 
 

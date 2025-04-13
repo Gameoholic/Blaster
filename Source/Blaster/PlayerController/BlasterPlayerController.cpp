@@ -17,6 +17,7 @@
 #include "Components/Image.h"
 #include "Blaster/HUD/Chat.h"
 #include "Components/EditableText.h"
+#include "Blaster/GameInstance/BlasterGameInstance.h"
 
 
 
@@ -81,7 +82,16 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 
 void ABlasterPlayerController::PollInit()
 {
-	
+	// Load chat messages
+	if (!bChatMessagesLoadedFromGameInstance && IsHUDValid())
+	{
+		UBlasterGameInstance* GameInstance = Cast<UBlasterGameInstance>(GetGameInstance());
+		if (GameInstance)
+		{
+			BlasterHUD->CharacterOverlay->Chat->AddMessagesSilently(GameInstance->GetChatMessages());
+			bChatMessagesLoadedFromGameInstance = true;
+		}
+	}
 }
 
 //void ABlasterPlayerController::ServerCheckMatchState_Implementation()

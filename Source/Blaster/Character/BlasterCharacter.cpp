@@ -99,7 +99,6 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 }
 
 
-
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -525,6 +524,14 @@ void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message
 	}
 }
 
+void ABlasterCharacter::OnChatMessageReceived(FName Message)
+{
+	BlasterGameInstance = BlasterGameInstance == nullptr ? Cast<UBlasterGameInstance>(GetGameInstance()) : BlasterGameInstance;
+	if (BlasterGameInstance)
+	{
+		BlasterGameInstance->AddChatMessage(Message);
+	}
+}
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {

@@ -57,9 +57,12 @@ public:
 
 	void RequestBlasterScrollBoxFocus(UBlasterScrollBox* ScrollBox, bool bFocus);
 
-	// RPC on server - Send a chat message from a player
+	// RPC on server - Send a chat message from a player (not system message)
 	UFUNCTION(Server, Reliable)
 	void ServerSendPlayerChatMessage(FName Message, FName SendingPlayerName);
+
+	// On ANY chat message received
+	void OnChatMessageReceived(FName Message);
 protected:
 	virtual void BeginPlay() override;
 
