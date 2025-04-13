@@ -12,6 +12,7 @@ class UMultiLineEditableText;
 class UEditableText;
 class ABlasterCharacter;
 class UTextBlock;
+class UBorder;
 
 /**
  * 
@@ -36,7 +37,10 @@ public:
 	UBlasterScrollBox* MessagesScrollBox;
 
 	UPROPERTY(meta = (BindWidget))
-	UEditableText* MessageInputBox;
+	UEditableText* MessageInputText;
+
+	UPROPERTY(meta = (BindWidget))
+	UBorder* MessageInputBox;
 
 	// How long should the grace period for new messages be before they start disappearing
 	UPROPERTY(EditAnywhere, Category = "New Messages")
@@ -47,6 +51,9 @@ public:
 	// Exponential for easing of opacity transition
 	UPROPERTY(EditAnywhere, Category = "New Messages")
 	float NewMessagesTransitionExponential = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Messages")
+	FSlateFontInfo MessageFont;
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

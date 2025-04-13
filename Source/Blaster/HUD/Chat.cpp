@@ -10,6 +10,7 @@
 #include "Components/TextBlock.h"
 #include "Blueprint/WidgetTree.h"
 #include "Blaster/HUD/BlasterTextBlock.h"
+#include "Components/Border.h"
 
 void UChat::NativeOnInitialized()
 {
@@ -55,10 +56,10 @@ void UChat::ToggleChat(bool bShowChat)
 	{
 		FInputModeGameAndUI InputModeData;
 		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputModeData.SetWidgetToFocus(MessageInputBox->TakeWidget());
+		InputModeData.SetWidgetToFocus(MessageInputText->TakeWidget());
 		GetOwningPlayer()->SetInputMode(InputModeData);
 		GetOwningPlayer()->SetShowMouseCursor(true);
-		MessageInputBox->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
+		MessageInputText->OnTextCommitted.AddDynamic(this, &UChat::OnMultiLineEditableTextCommittedEvent);
 
 		// Show all messages & inputbox
 		for (UWidget* Message : MessagesScrollBox->GetChildren())
@@ -76,7 +77,7 @@ void UChat::ToggleChat(bool bShowChat)
 		GetOwningPlayer()->SetInputMode(InputModeData);
 		GetOwningPlayer()->SetShowMouseCursor(false);
 
-		MessageInputBox->OnTextCommitted.RemoveAll(this);
+		MessageInputText->OnTextCommitted.RemoveAll(this);
 
 		// Hide all messages & inputbox
 		for (UWidget* Message : MessagesScrollBox->GetChildren())
@@ -121,8 +122,8 @@ void UChat::ReceiveMessage(FName Message)
 
 void UChat::SendMessage()
 {
-	FName Message = FName(MessageInputBox->GetText().ToString());
-	MessageInputBox->SetText(FText());
+	FName Message = FName(MessageInputText->GetText().ToString());
+	MessageInputText->SetText(FText());
 	if (Character != nullptr)
 	{
 		Character->ServerSendPlayerChatMessage(Message, FName(Character->GetName())); // This will trigger ReceiveMessage()
@@ -135,6 +136,7 @@ void UChat::DisplayMessage(FName Message)
 	TextBlock->SetText(FText::FromName(Message));
 	TextBlock->SetAutoWrapText(true);
 	TextBlock->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+	TextBlock->SetFont(MessageFont);
 
 	MessagesScrollBox->AddChild(TextBlock);
 	// The child that's now in the scrollbox is different from the one we added
