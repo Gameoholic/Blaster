@@ -52,6 +52,8 @@ void UChat::ToggleChat()
 void UChat::ToggleChat(bool bShowChat)
 {
 	bShown = bShowChat;
+
+	MessagesScrollBox->SnapScrollBar(true);
 	if (bShown)
 	{
 		FInputModeGameAndUI InputModeData;
@@ -89,7 +91,6 @@ void UChat::ToggleChat(bool bShowChat)
 
 		MessagesScrollBox->ForceHideScrollBar(true);
 		MessagesScrollBox->RequestUpdateScrollBox(true);
-
 	}
 }
 

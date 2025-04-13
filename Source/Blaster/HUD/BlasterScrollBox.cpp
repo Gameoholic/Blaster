@@ -209,6 +209,11 @@ void UBlasterScrollBox::MoveScrollBar(float Direction)
 	SmoothScrollingChangeProgress = 0.0f;
 }
 
+void UBlasterScrollBox::SnapScrollBar(bool bBottom)
+{
+	MoveScrollBar((bBottom ? -1 : 1) * 999999);
+}
+
 void UBlasterScrollBox::RequestUpdateScrollBox(bool bImmediate)
 {
 	if (bImmediate)
