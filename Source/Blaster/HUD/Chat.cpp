@@ -21,11 +21,6 @@ void UChat::NativeOnInitialized()
 	// Chat should be hidden by default: (don't call ToggleChat(false) it has a lot of extra stuff we don't need and will crash if called this early)
 	MessageInputBox->SetVisibility(ESlateVisibility::Hidden);
 	MessagesScrollBox->ForceHideScrollBar(true);
-	// Messages might already exist, hide them too
-	for (UWidget* Message : MessagesScrollBox->GetChildren())
-	{
-		Cast<UTextBlock>(Message)->SetOpacity(0.0f);
-	}
 }
 
 void UChat::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -163,7 +158,11 @@ void UChat::DisplayMessage(FName Message, bool bSilent)
 	MessagesScrollBox->AddChild(TextBlock);
 	// The child that's now in the scrollbox is different from the one we added
 
-	if (!bSilent)
+	if (bSilent)
+	{
+		TextBlock->SetOpacity(0.0f);
+	}
+	else
 	{
 		NewMessages.Add(TextBlock, 0.0f);
 	}

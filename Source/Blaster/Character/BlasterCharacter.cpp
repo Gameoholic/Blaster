@@ -32,6 +32,7 @@
 #include "Blaster/Items/Item.h"
 #include "Blaster/HUD/BlasterScrollBox.h"
 #include "Blaster/HUD/Chat.h"
+#include "Blaster/Shop/ShopVolume.h"
 
 
 // Sets default values
@@ -107,6 +108,8 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+		GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentBeginOverlap);
+		GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentEndOverlap);
 	}
 
 	if (!HasAuthority() && IsLocallyControlled())
@@ -885,6 +888,30 @@ void ABlasterCharacter::ClientReceiveDynamicPlatformStates_Implementation(const 
 	//		}
 	//	}
 	//}
+}
+
+void ABlasterCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA<AShopVolume>())
+	{
+		OnEnterShopVolume();
+	}
+}
+
+void ABlasterCharacter::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor->IsA<AShopVolume>())
+	{
+		OnLeaveShopVolume();
+	}
+}
+
+void ABlasterCharacter::OnEnterShopVolume()
+{
+}
+
+void ABlasterCharacter::OnLeaveShopVolume()
+{
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)

@@ -251,6 +251,15 @@ private:
 	// Currently focused scroll box. Will be set automatically when hovering on a scroll box that's in the HUD.
 	UBlasterScrollBox* FocusedBlasterScrollBox = nullptr;
 
+
+	// SHOP
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void OnEnterShopVolume();
+	void OnLeaveShopVolume();
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	//replication only happens when the variable changes, not every tick.
