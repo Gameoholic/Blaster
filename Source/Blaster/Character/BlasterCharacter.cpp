@@ -216,6 +216,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Emote", IE_Pressed, this, &ABlasterCharacter::EmoteButtonPressed);
 	PlayerInputComponent->BindAction("Emote", IE_Released, this, &ABlasterCharacter::EmoteButtonReleased);
 	PlayerInputComponent->BindAction("Chat", IE_Pressed, this, &ABlasterCharacter::ChatButtonPressed);
+	PlayerInputComponent->BindAction("Shop", IE_Pressed, this, &ABlasterCharacter::ShopButtonPressed);
 	PlayerInputComponent->BindAxis("EmoteWheelPage", this, &ABlasterCharacter::ChangeEmoteWheelPage);
 	PlayerInputComponent->BindAxis("ScrollBoxMouseWheel", this, &ABlasterCharacter::ScrollBoxMouseWheel);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
@@ -507,6 +508,15 @@ void ABlasterCharacter::ChatButtonPressed()
 		return;
 	}
 	BlasterPlayerController->ToggleChat();
+}
+
+void ABlasterCharacter::ShopButtonPressed()
+{
+	if (!BlasterPlayerController || !bCanOpenShop)
+	{
+		return;
+	}
+	// todo: open shop here
 }
 
 
@@ -908,10 +918,12 @@ void ABlasterCharacter::OnComponentEndOverlap(UPrimitiveComponent* OverlappedCom
 
 void ABlasterCharacter::OnEnterShopVolume()
 {
+	bCanOpenShop = true;
 }
 
 void ABlasterCharacter::OnLeaveShopVolume()
 {
+	bCanOpenShop = false;
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)

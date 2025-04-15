@@ -82,6 +82,7 @@ protected:
 	void ChangeEmoteWheelPage(float MouseWheelDirection);
 	void ScrollBoxMouseWheel(float MouseWheelDirection);
 	void ChatButtonPressed();
+	void ShopButtonPressed();
 	void AimOffset(float DeltaTime);
 	void CalculateAO_Pitch();
 	void SimProxiesTurn();
@@ -258,6 +259,7 @@ private:
 	UFUNCTION()
 	void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	bool bCanOpenShop;
 	void OnEnterShopVolume();
 	void OnLeaveShopVolume();
 public:
