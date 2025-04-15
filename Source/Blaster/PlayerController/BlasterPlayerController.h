@@ -28,6 +28,7 @@ public:
 	void SetHUDItem2(FString ItemName, FSlateBrush ItemIcon);
 	void ToggleChat();
 	void SendChatMessage(FName Message);
+	void SetHUDShowShopIcon(bool bShow);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

@@ -260,6 +260,22 @@ void ABlasterPlayerController::SendChatMessage(FName Message)
 	BlasterHUD->CharacterOverlay->Chat->ReceiveMessage(Message);
 }
 
+void ABlasterPlayerController::SetHUDShowShopIcon(bool bShow)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	if (bShow)
+	{
+		BlasterHUD->CharacterOverlay->PlayAnimation(BlasterHUD->CharacterOverlay->ShopIconAnimationIn);
+	}
+	else
+	{
+		BlasterHUD->CharacterOverlay->PlayAnimation(BlasterHUD->CharacterOverlay->ShopIconAnimationOut);
+	}
+}
+
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 //{
 //	if (!IsHUDValid())

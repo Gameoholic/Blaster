@@ -7,6 +7,7 @@
 #include "CharacterOverlay.generated.h"
 
 class UChat;
+class UWidgetAnimation;
 
 /**
  * 
@@ -80,6 +81,12 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UChat* Chat;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ShopIconAnimationIn;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ShopIconAnimationOut;
 
 protected:
 	virtual void NativeOnInitialized() override;

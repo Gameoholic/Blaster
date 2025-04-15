@@ -919,11 +919,23 @@ void ABlasterCharacter::OnComponentEndOverlap(UPrimitiveComponent* OverlappedCom
 void ABlasterCharacter::OnEnterShopVolume()
 {
 	bCanOpenShop = true;
+
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDShowShopIcon(true);
+	}
 }
 
 void ABlasterCharacter::OnLeaveShopVolume()
 {
 	bCanOpenShop = false;
+
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDShowShopIcon(false);
+	}
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
