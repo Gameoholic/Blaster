@@ -26,39 +26,9 @@ void UCharacterOverlay::NativeOnInitialized()
 
 void UCharacterOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	FShopRelatedWidgetSelected PreviousSelectedWidget = ShopRelatedWidgetSelected;
-	if (MainWeapon->IsHovered())
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::MainWeapon;
-	}
-	else if (SecondaryWeapon->IsHovered())
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::SecondaryWeapon;
-	}
-	else if (Item1->IsHovered())
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item1;
-	}
-	else if (Item2->IsHovered())
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item2;
-	}
-	else if (Ability->IsHovered())
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Ability;
-	}
-	else
-	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
-	}
-	if (ShopRelatedWidgetSelected != PreviousSelectedWidget)
-	{
-		OnShopRelatedWidgetSelectionChange();
-	}
-
 	if (bShopOpened)
 	{
-		ChangeShopIconsColors(InDeltaTime);
+		HandleOpenedShopTick(InDeltaTime);
 	}
 
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -99,6 +69,42 @@ void UCharacterOverlay::ShowShopIcon(bool bShow)
 	}
 }
 
+void UCharacterOverlay::HandleOpenedShopTick(float DeltaTime)
+{
+	FShopRelatedWidgetSelected PreviousSelectedWidget = ShopRelatedWidgetSelected;
+	if (MainWeapon->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::MainWeapon;
+	}
+	else if (SecondaryWeapon->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::SecondaryWeapon;
+	}
+	else if (Item1->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item1;
+	}
+	else if (Item2->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item2;
+	}
+	else if (Ability->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Ability;
+	}
+	else
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
+	}
+	if (ShopRelatedWidgetSelected != PreviousSelectedWidget)
+	{
+		OnShopRelatedWidgetSelectionChange();
+	}
+
+	TickShopRelatedWidgetColors(DeltaTime);
+	TickSelectedShopRelatedWidget(DeltaTime);
+}
+
 void UCharacterOverlay::ShowShop(bool bShow)
 {
 	bShopOpened = bShow;
@@ -117,28 +123,63 @@ void UCharacterOverlay::ShowShop(bool bShow)
 		GetOwningPlayer()->SetShowMouseCursor(false);
 
 		FLinearColor Color = FLinearColor(0.0f, 0.0f, 1.0f); // In HSV
-		SetAllShopIconsColors(Color);
+		SetAllShopRelatedWidgetsColor(Color);
 	}
 }
 
-void UCharacterOverlay::OnShopRelatedWidgetSelectionChange()
+void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidgetSelected PreviousWidget)
 {
-	if (ShopRelatedWidgetSelected == FShopRelatedWidgetSelected::MainWeapon)
-	{
-		
-	}
+	GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f));
 }
 
-void UCharacterOverlay::ChangeShopIconsColors(float DeltaTime)
+void UCharacterOverlay::TickShopRelatedWidgetColors(float DeltaTime)
 {
 	const float RateOfChange = 75.0f;
-	ShopIconColorChangeTime += RateOfChange * DeltaTime;
-	ShopIconColorChangeTime = ShopIconColorChangeTime >= 360.0f ? ShopIconColorChangeTime - 360.0f : ShopIconColorChangeTime;
-	FLinearColor Color = FLinearColor(ShopIconColorChangeTime, 1.0f, 1.0f); // In HSV
-	SetAllShopIconsColors(Color);
+	ShopRelatedWidgetColorChangeTime += RateOfChange * DeltaTime;
+	ShopRelatedWidgetColorChangeTime = ShopRelatedWidgetColorChangeTime >= 360.0f ? ShopRelatedWidgetColorChangeTime - 360.0f : ShopRelatedWidgetColorChangeTime;
+	FLinearColor Color = FLinearColor(ShopRelatedWidgetColorChangeTime, 1.0f, 1.0f); // In HSV
+	SetAllShopRelatedWidgetsColor(Color);
 }
 
-void UCharacterOverlay::SetAllShopIconsColors(FLinearColor HSVColor)
+void UCharacterOverlay::TickSelectedShopRelatedWidget(float DeltaTime)
+{
+	const float ShakeDelay = 0.1f;
+	ShopRelatedWidgetShakeTime += DeltaTime;
+	if (ShopRelatedWidgetShakeTime < ShakeDelay)
+	{
+		return;
+	}
+	ShopRelatedWidgetShakeTime = 0.0f;
+
+
+	const float ShakeAmplitude = 10.0f;
+	GetIconFromSelectedShopRelatedWidget()->SetRenderTranslation(FVector2D(
+		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude), 
+		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude)
+	));
+}
+
+UImage* UCharacterOverlay::GetIconFromSelectedShopRelatedWidget(FShopRelatedWidgetSelected Widget) const
+{
+	switch (Widget)
+	{
+	case FShopRelatedWidgetSelected::MainWeapon:
+		return MainWeaponIcon;
+	case FShopRelatedWidgetSelected::SecondaryWeapon:
+		return SecondaryWeaponIcon;
+	case FShopRelatedWidgetSelected::Item1:
+		return Item1Icon;
+	case FShopRelatedWidgetSelected::Item2:
+		return Item2Icon;
+	case FShopRelatedWidgetSelected::Ability:
+		return AbilityIcon;
+	}
+	return nullptr;
+}
+
+
+
+void UCharacterOverlay::SetAllShopRelatedWidgetsColor(FLinearColor HSVColor)
 {
 	MainWeaponIcon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
 	MainWeaponBorder->SetBrushColor(HSVColor.HSVToLinearRGB());

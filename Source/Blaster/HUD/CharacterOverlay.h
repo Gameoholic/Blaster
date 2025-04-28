@@ -142,20 +142,27 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 private:
-	bool bShopOpened = false;
-
 	void ResetHUD();
-
-	FShopRelatedWidgetSelected ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
-	void OnShopRelatedWidgetSelectionChange();
-
-	float ShopIconColorChangeTime = 0.0f;
-	void ChangeShopIconsColors(float DeltaTime);
-	void SetAllShopIconsColors(FLinearColor HSVColor);
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	FSlateBrush InvisibleImage;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	FSlateBrush ShopLineMaterial;
+
+	// Shop:
+	void HandleOpenedShopTick(float DeltaTime);
+	bool bShopOpened = false;
+
+	FShopRelatedWidgetSelected ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
+	void OnShopRelatedWidgetSelectionChange(FShopRelatedWidgetSelected PreviousWidget);
+
+	float ShopRelatedWidgetColorChangeTime = 0.0f;
+	void TickShopRelatedWidgetColors(float DeltaTime);
+	void SetAllShopRelatedWidgetsColor(FLinearColor HSVColor);
+
+	float ShopRelatedWidgetShakeTime = 0.0f;
+	void TickSelectedShopRelatedWidget(float DeltaTime);
+
+	UImage* GetIconFromSelectedShopRelatedWidget(FShopRelatedWidgetSelected Widget) const;
 };

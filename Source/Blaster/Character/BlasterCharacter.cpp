@@ -938,6 +938,7 @@ void ABlasterCharacter::OnLeaveShopVolume()
 		BlasterPlayerController->SetHUDShowShopIcon(false);
 		if (bShopOpened)
 		{
+			bShopOpened = false;
 			BlasterPlayerController->ShowShop(false);
 		}
 	}
