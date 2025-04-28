@@ -118,9 +118,6 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ShopIconAnimationIn;
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* ShopIconAnimationOut;
-
 	void ShowShopIcon(bool bShow);
 	void ShowShop(bool bShow);
 protected:

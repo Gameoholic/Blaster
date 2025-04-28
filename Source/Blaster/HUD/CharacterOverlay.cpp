@@ -12,12 +12,15 @@
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Animation/WidgetAnimation.h"
 
 void UCharacterOverlay::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
 	ResetHUD(); // HUD in editor is preview and contains testing values
+	// Start with shop icon hidden
+	PlayAnimation(ShopIconAnimationIn, ShopIconAnimationIn->GetEndTime(), 1, EUMGSequencePlayMode::Reverse);
 }
 
 void UCharacterOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -80,14 +83,13 @@ void UCharacterOverlay::ResetHUD()
 
 void UCharacterOverlay::ShowShopIcon(bool bShow)
 {
-	UE_LOG(LogTemp, Warning, TEXT("showing: %d"), bShow);
 	if (bShow)
 	{
-		PlayAnimation(ShopIconAnimationIn);
+		PlayAnimation(ShopIconAnimationIn, 0.0f);
 	}
 	else
 	{
-		PlayAnimation(ShopIconAnimationOut);
+		PlayAnimation(ShopIconAnimationIn, 0.0f, 1, EUMGSequencePlayMode::Reverse);
 	}
 }
 
