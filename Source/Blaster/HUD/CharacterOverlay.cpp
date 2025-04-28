@@ -92,10 +92,7 @@ void UCharacterOverlay::HandleOpenedShopTick(float DeltaTime)
 	{
 		SelectedShopRelatedWidget = FShopRelatedWidget::Ability;
 	}
-	else
-	{
-		SelectedShopRelatedWidget = FShopRelatedWidget::None;
-	}
+
 	if (SelectedShopRelatedWidget != PreviousSelectedWidget)
 	{
 		OnShopRelatedWidgetSelectionChange(PreviousSelectedWidget);
@@ -129,7 +126,10 @@ void UCharacterOverlay::ShowShop(bool bShow)
 
 void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidget PreviousWidget)
 {
-	GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f));
+	if (PreviousWidget != FShopRelatedWidget::None)
+	{
+		GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f)); // Reset translation resulting from shake
+	}
 }
 
 void UCharacterOverlay::TickShopRelatedWidgetColors(float DeltaTime)
@@ -143,16 +143,20 @@ void UCharacterOverlay::TickShopRelatedWidgetColors(float DeltaTime)
 
 void UCharacterOverlay::TickSelectedShopRelatedWidget(float DeltaTime)
 {
-	const float ShakeDelay = 0.1f;
+	if (SelectedShopRelatedWidget == FShopRelatedWidget::None)
+	{
+		return;
+	}
+	const float ShakeDelay = 0.03f;
 	ShopRelatedWidgetShakeTime += DeltaTime;
 	if (ShopRelatedWidgetShakeTime < ShakeDelay)
 	{
 		return;
 	}
-	ShopRelatedWidgetShakeTime = 0.0f;
+	ShopRelatedWidgetShakeTime -= ShakeDelay;
 
 
-	const float ShakeAmplitude = 10.0f;
+	const float ShakeAmplitude = 3.0f;
 	GetIconFromSelectedShopRelatedWidget(SelectedShopRelatedWidget)->SetRenderTranslation(FVector2D(
 		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude), 
 		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude)
