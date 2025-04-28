@@ -157,8 +157,8 @@ void UCharacterOverlay::TickSelectedShopRelatedWidget(float DeltaTime)
 
 
 	const float ShakeAmplitude = 3.0f;
-	GetIconFromSelectedShopRelatedWidget(SelectedShopRelatedWidget)->SetRenderTranslation(FVector2D(
-		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude), 
+	GetBorderFromSelectedShopRelatedWidget(SelectedShopRelatedWidget)->SetRenderTranslation(FVector2D(
+		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude),
 		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude)
 	));
 }
@@ -177,6 +177,24 @@ UImage* UCharacterOverlay::GetIconFromSelectedShopRelatedWidget(FShopRelatedWidg
 		return Item2Icon;
 	case FShopRelatedWidget::Ability:
 		return AbilityIcon;
+	}
+	return nullptr;
+}
+
+UBorder* UCharacterOverlay::GetBorderFromSelectedShopRelatedWidget(FShopRelatedWidget Widget) const
+{
+	switch (Widget)
+	{
+	case FShopRelatedWidget::MainWeapon:
+		return MainWeaponBorder;
+	case FShopRelatedWidget::SecondaryWeapon:
+		return SecondaryWeaponBorder;
+	case FShopRelatedWidget::Item1:
+		return Item1Border;
+	case FShopRelatedWidget::Item2:
+		return Item2Border;
+	case FShopRelatedWidget::Ability:
+		return AbilityBorder;
 	}
 	return nullptr;
 }

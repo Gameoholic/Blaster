@@ -165,4 +165,6 @@ private:
 	void TickSelectedShopRelatedWidget(float DeltaTime);
 
 	UImage* GetIconFromSelectedShopRelatedWidget(FShopRelatedWidget Widget) const;
+	UBorder* GetBorderFromSelectedShopRelatedWidget(FShopRelatedWidget Widget) const;
+
 };
