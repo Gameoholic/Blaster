@@ -15,7 +15,7 @@ class UCanvasPanel;
 class UBorder;
 
 UENUM()
-enum class FShopRelatedWidgetSelected : uint8
+enum class FShopRelatedWidget : uint8
 {
 	None UMETA(DisplayName = "None"),
 	MainWeapon UMETA(DisplayName = "MainWeapon"),
@@ -154,8 +154,8 @@ private:
 	void HandleOpenedShopTick(float DeltaTime);
 	bool bShopOpened = false;
 
-	FShopRelatedWidgetSelected ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
-	void OnShopRelatedWidgetSelectionChange(FShopRelatedWidgetSelected PreviousWidget);
+	FShopRelatedWidget SelectedShopRelatedWidget = FShopRelatedWidget::None;
+	void OnShopRelatedWidgetSelectionChange(FShopRelatedWidget PreviousWidget);
 
 	float ShopRelatedWidgetColorChangeTime = 0.0f;
 	void TickShopRelatedWidgetColors(float DeltaTime);
@@ -164,5 +164,5 @@ private:
 	float ShopRelatedWidgetShakeTime = 0.0f;
 	void TickSelectedShopRelatedWidget(float DeltaTime);
 
-	UImage* GetIconFromSelectedShopRelatedWidget(FShopRelatedWidgetSelected Widget) const;
+	UImage* GetIconFromSelectedShopRelatedWidget(FShopRelatedWidget Widget) const;
 };

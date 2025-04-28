@@ -71,34 +71,34 @@ void UCharacterOverlay::ShowShopIcon(bool bShow)
 
 void UCharacterOverlay::HandleOpenedShopTick(float DeltaTime)
 {
-	FShopRelatedWidgetSelected PreviousSelectedWidget = ShopRelatedWidgetSelected;
+	FShopRelatedWidget PreviousSelectedWidget = SelectedShopRelatedWidget;
 	if (MainWeapon->IsHovered())
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::MainWeapon;
+		SelectedShopRelatedWidget = FShopRelatedWidget::MainWeapon;
 	}
 	else if (SecondaryWeapon->IsHovered())
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::SecondaryWeapon;
+		SelectedShopRelatedWidget = FShopRelatedWidget::SecondaryWeapon;
 	}
 	else if (Item1->IsHovered())
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item1;
+		SelectedShopRelatedWidget = FShopRelatedWidget::Item1;
 	}
 	else if (Item2->IsHovered())
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item2;
+		SelectedShopRelatedWidget = FShopRelatedWidget::Item2;
 	}
 	else if (Ability->IsHovered())
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Ability;
+		SelectedShopRelatedWidget = FShopRelatedWidget::Ability;
 	}
 	else
 	{
-		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
+		SelectedShopRelatedWidget = FShopRelatedWidget::None;
 	}
-	if (ShopRelatedWidgetSelected != PreviousSelectedWidget)
+	if (SelectedShopRelatedWidget != PreviousSelectedWidget)
 	{
-		OnShopRelatedWidgetSelectionChange();
+		OnShopRelatedWidgetSelectionChange(PreviousSelectedWidget);
 	}
 
 	TickShopRelatedWidgetColors(DeltaTime);
@@ -127,7 +127,7 @@ void UCharacterOverlay::ShowShop(bool bShow)
 	}
 }
 
-void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidgetSelected PreviousWidget)
+void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidget PreviousWidget)
 {
 	GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f));
 }
@@ -153,25 +153,25 @@ void UCharacterOverlay::TickSelectedShopRelatedWidget(float DeltaTime)
 
 
 	const float ShakeAmplitude = 10.0f;
-	GetIconFromSelectedShopRelatedWidget()->SetRenderTranslation(FVector2D(
+	GetIconFromSelectedShopRelatedWidget(SelectedShopRelatedWidget)->SetRenderTranslation(FVector2D(
 		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude), 
 		FMath::RandRange(-ShakeAmplitude, ShakeAmplitude)
 	));
 }
 
-UImage* UCharacterOverlay::GetIconFromSelectedShopRelatedWidget(FShopRelatedWidgetSelected Widget) const
+UImage* UCharacterOverlay::GetIconFromSelectedShopRelatedWidget(FShopRelatedWidget Widget) const
 {
 	switch (Widget)
 	{
-	case FShopRelatedWidgetSelected::MainWeapon:
+	case FShopRelatedWidget::MainWeapon:
 		return MainWeaponIcon;
-	case FShopRelatedWidgetSelected::SecondaryWeapon:
+	case FShopRelatedWidget::SecondaryWeapon:
 		return SecondaryWeaponIcon;
-	case FShopRelatedWidgetSelected::Item1:
+	case FShopRelatedWidget::Item1:
 		return Item1Icon;
-	case FShopRelatedWidgetSelected::Item2:
+	case FShopRelatedWidget::Item2:
 		return Item2Icon;
-	case FShopRelatedWidgetSelected::Ability:
+	case FShopRelatedWidget::Ability:
 		return AbilityIcon;
 	}
 	return nullptr;
