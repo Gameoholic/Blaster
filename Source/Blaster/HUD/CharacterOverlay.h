@@ -7,7 +7,24 @@
 #include "CharacterOverlay.generated.h"
 
 class UChat;
+class UShop;
 class UWidgetAnimation;
+class USizeBox;
+class UImage;
+class UCanvasPanel;
+
+UENUM()
+enum class FShopRelatedWidgetSelected : uint8
+{
+	None UMETA(DisplayName = "None"),
+	MainWeapon UMETA(DisplayName = "MainWeapon"),
+	SecondaryWeapon UMETA(DisplayName = "SecondaryWeapon"),
+	Item1 UMETA(DisplayName = "Item1"),
+	Item2 UMETA(DisplayName = "Item2"),
+	Ability UMETA(DisplayName = "Ability"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};
 
 /**
  * 
@@ -21,9 +38,8 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 public:
 	bool IsHUDValid();
 
-
-	UPROPERTY(EditDefaultsOnly)
-	FSlateBrush InvisibleImage;
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* CanvasPanel;
 
 	UPROPERTY(meta = (BindWidget))
 	class UBlasterFillableBar* HealthBar;
@@ -54,10 +70,16 @@ public:
 
 
 	UPROPERTY(meta = (BindWidget))
+	USizeBox* MainWeapon;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MainWeaponName;
 
 	UPROPERTY(meta = (BindWidget))
-	class UImage* MainWeaponIcon;
+	UImage* MainWeaponIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* SecondaryWeapon;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SecondaryWeaponName;
@@ -65,13 +87,21 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* SecondaryWeaponIcon;
 
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* Ability;
 
+
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* Item1;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Item1Name;
 
 	UPROPERTY(meta = (BindWidget))
-	class UImage* Item1Icon;
+	UImage* Item1Icon;
+
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* Item2;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Item2Name;
@@ -82,15 +112,29 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UChat* Chat;
 
+	UPROPERTY(meta = (BindWidget))
+	UShop* Shop;
+
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ShopIconAnimationIn;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ShopIconAnimationOut;
 
+	void ShowShopIcon(bool bShow);
+	void ShowShop(bool bShow);
 protected:
 	virtual void NativeOnInitialized() override;
-
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 private:
 	void ResetHUD();
+
+	FShopRelatedWidgetSelected ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
+	void OnShopRelatedWidgetSelectionChange();
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	FSlateBrush InvisibleImage;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	FSlateBrush ShopLineMaterial;
 };

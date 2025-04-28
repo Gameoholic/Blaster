@@ -18,6 +18,7 @@
 #include "Blaster/HUD/Chat.h"
 #include "Components/EditableText.h"
 #include "Blaster/GameInstance/BlasterGameInstance.h"
+#include "Components/SizeBox.h"
 
 
 
@@ -266,14 +267,16 @@ void ABlasterPlayerController::SetHUDShowShopIcon(bool bShow)
 	{
 		return;
 	}
-	if (bShow)
+	BlasterHUD->CharacterOverlay->ShowShopIcon(bShow);
+}
+
+void ABlasterPlayerController::ShowShop(bool bShow)
+{
+	if (!IsHUDValid())
 	{
-		BlasterHUD->CharacterOverlay->PlayAnimation(BlasterHUD->CharacterOverlay->ShopIconAnimationIn);
+		return;
 	}
-	else
-	{
-		BlasterHUD->CharacterOverlay->PlayAnimation(BlasterHUD->CharacterOverlay->ShopIconAnimationOut);
-	}
+	BlasterHUD->CharacterOverlay->ShowShop(bShow);
 }
 
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)

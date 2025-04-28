@@ -259,9 +259,10 @@ private:
 	UFUNCTION()
 	void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	bool bCanOpenShop;
+	bool bCanOpenShop = false;
 	void OnEnterShopVolume();
 	void OnLeaveShopVolume();
+	bool bShopOpened = false;
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	//replication only happens when the variable changes, not every tick.

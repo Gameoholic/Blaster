@@ -516,7 +516,8 @@ void ABlasterCharacter::ShopButtonPressed()
 	{
 		return;
 	}
-	// todo: open shop here
+	bShopOpened = !bShopOpened;
+	BlasterPlayerController->ShowShop(bShopOpened);
 }
 
 

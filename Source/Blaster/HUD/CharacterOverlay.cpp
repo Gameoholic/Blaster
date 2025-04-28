@@ -5,13 +5,54 @@
 #include "Components/TextBlock.h"
 #include "Blaster/HUD/BlasterFillableBar.h"
 #include "Components/Image.h"
-
+#include "Components/SizeBox.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
 void UCharacterOverlay::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
 	ResetHUD(); // HUD in editor is preview and contains testing values
+}
+
+void UCharacterOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	FShopRelatedWidgetSelected PreviousSelectedWidget = ShopRelatedWidgetSelected;
+	if (MainWeapon->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::MainWeapon;
+	}
+	else if (SecondaryWeapon->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::SecondaryWeapon;
+	}
+	else if (Item1->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item1;
+	}
+	else if (Item2->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Item2;
+	}
+	else if (Ability->IsHovered())
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::Ability;
+	}
+	else
+	{
+		ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
+	}
+	if (ShopRelatedWidgetSelected != PreviousSelectedWidget)
+	{
+		OnShopRelatedWidgetSelectionChange();
+	}
+
+	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
 void UCharacterOverlay::ResetHUD()
@@ -36,6 +77,34 @@ void UCharacterOverlay::ResetHUD()
 	Item2Icon->SetBrush(InvisibleImage);
 	Item2Name->SetText(FText::FromString(""));
 }
+
+void UCharacterOverlay::ShowShopIcon(bool bShow)
+{
+	UE_LOG(LogTemp, Warning, TEXT("showing: %d"), bShow);
+	if (bShow)
+	{
+		PlayAnimation(ShopIconAnimationIn);
+	}
+	else
+	{
+		PlayAnimation(ShopIconAnimationOut);
+	}
+}
+
+void UCharacterOverlay::ShowShop(bool bShow)
+{
+
+}
+
+void UCharacterOverlay::OnShopRelatedWidgetSelectionChange()
+{
+	if (ShopRelatedWidgetSelected == FShopRelatedWidgetSelected::MainWeapon)
+	{
+		
+	}
+}
+
+
 
 bool UCharacterOverlay::IsHUDValid()
 {

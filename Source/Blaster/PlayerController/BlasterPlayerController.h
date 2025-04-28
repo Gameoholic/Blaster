@@ -29,6 +29,7 @@ public:
 	void ToggleChat();
 	void SendChatMessage(FName Message);
 	void SetHUDShowShopIcon(bool bShow);
+	void ShowShop(bool bShow);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 
@@ -100,6 +101,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = HUD)
 	TSubclassOf<class UUserWidget> PauseMenuWidget;
+
 
 
 };
