@@ -13,6 +13,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "Animation/WidgetAnimation.h"
+#include "Components/Border.h"
 
 void UCharacterOverlay::NativeOnInitialized()
 {
@@ -55,6 +56,11 @@ void UCharacterOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		OnShopRelatedWidgetSelectionChange();
 	}
 
+	if (bShopOpened)
+	{
+		ChangeShopIconsColors(InDeltaTime);
+	}
+
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
@@ -95,7 +101,24 @@ void UCharacterOverlay::ShowShopIcon(bool bShow)
 
 void UCharacterOverlay::ShowShop(bool bShow)
 {
+	bShopOpened = bShow;
+	if (bShow)
+	{
+		FInputModeGameAndUI InputModeData;
+		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		//InputModeData.SetWidgetToFocus(Shop->TakeWidget());
+		GetOwningPlayer()->SetInputMode(InputModeData);
+		GetOwningPlayer()->SetShowMouseCursor(true);
+	}
+	else
+	{
+		FInputModeGameOnly InputModeData;
+		GetOwningPlayer()->SetInputMode(InputModeData);
+		GetOwningPlayer()->SetShowMouseCursor(false);
 
+		FLinearColor Color = FLinearColor(0.0f, 0.0f, 1.0f); // In HSV
+		SetAllShopIconsColors(Color);
+	}
 }
 
 void UCharacterOverlay::OnShopRelatedWidgetSelectionChange()
@@ -104,6 +127,29 @@ void UCharacterOverlay::OnShopRelatedWidgetSelectionChange()
 	{
 		
 	}
+}
+
+void UCharacterOverlay::ChangeShopIconsColors(float DeltaTime)
+{
+	const float RateOfChange = 75.0f;
+	ShopIconColorChangeTime += RateOfChange * DeltaTime;
+	ShopIconColorChangeTime = ShopIconColorChangeTime >= 360.0f ? ShopIconColorChangeTime - 360.0f : ShopIconColorChangeTime;
+	FLinearColor Color = FLinearColor(ShopIconColorChangeTime, 1.0f, 1.0f); // In HSV
+	SetAllShopIconsColors(Color);
+}
+
+void UCharacterOverlay::SetAllShopIconsColors(FLinearColor HSVColor)
+{
+	MainWeaponIcon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
+	MainWeaponBorder->SetBrushColor(HSVColor.HSVToLinearRGB());
+	SecondaryWeaponIcon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
+	SecondaryWeaponBorder->SetBrushColor(HSVColor.HSVToLinearRGB());
+	AbilityIcon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
+	AbilityBorder->SetBrushColor(HSVColor.HSVToLinearRGB());
+	Item1Icon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
+	Item1Border->SetBrushColor(HSVColor.HSVToLinearRGB());
+	Item2Icon->SetBrushTintColor(HSVColor.HSVToLinearRGB());
+	Item2Border->SetBrushColor(HSVColor.HSVToLinearRGB());
 }
 
 

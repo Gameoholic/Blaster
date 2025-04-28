@@ -12,6 +12,7 @@ class UWidgetAnimation;
 class USizeBox;
 class UImage;
 class UCanvasPanel;
+class UBorder;
 
 UENUM()
 enum class FShopRelatedWidgetSelected : uint8
@@ -79,6 +80,9 @@ public:
 	UImage* MainWeaponIcon;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* MainWeaponBorder;
+
+	UPROPERTY(meta = (BindWidget))
 	USizeBox* SecondaryWeapon;
 
 	UPROPERTY(meta = (BindWidget))
@@ -88,8 +92,16 @@ public:
 	UImage* SecondaryWeaponIcon;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* SecondaryWeaponBorder;
+
+	UPROPERTY(meta = (BindWidget))
 	USizeBox* Ability;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* AbilityIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	UBorder* AbilityBorder;
 
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* Item1;
@@ -101,6 +113,9 @@ public:
 	UImage* Item1Icon;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* Item1Border;
+
+	UPROPERTY(meta = (BindWidget))
 	USizeBox* Item2;
 
 	UPROPERTY(meta = (BindWidget))
@@ -108,6 +123,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Item2Icon;
+
+	UPROPERTY(meta = (BindWidget))
+	UBorder* Item2Border;
 
 	UPROPERTY(meta = (BindWidget))
 	UChat* Chat;
@@ -124,10 +142,16 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 private:
+	bool bShopOpened = false;
+
 	void ResetHUD();
 
 	FShopRelatedWidgetSelected ShopRelatedWidgetSelected = FShopRelatedWidgetSelected::None;
 	void OnShopRelatedWidgetSelectionChange();
+
+	float ShopIconColorChangeTime = 0.0f;
+	void ChangeShopIconsColors(float DeltaTime);
+	void SetAllShopIconsColors(FLinearColor HSVColor);
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	FSlateBrush InvisibleImage;
