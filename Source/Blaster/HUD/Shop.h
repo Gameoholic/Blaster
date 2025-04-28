@@ -16,10 +16,14 @@ class BLASTER_API UShop : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class AWeapon>> PurchasableWeapons;
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	UBlasterScrollBox* Purchasables;
+
 
 	UFUNCTION(BlueprintCallable, meta= (AllowPrivateAccess = "true"))
 	FORCEINLINE UBlasterScrollBox* GetPurchasables() const { return Purchasables; }

@@ -41,6 +41,10 @@ public:
 	bool IsAmmoEmpty();
 	int32 GetMagCapacity();
 
+	// Cost to buy from shop in gold
+	UPROPERTY(EditAnywhere)
+	int32 Cost = 100;
+
 	UPROPERTY(EditAnywhere)
 	class USoundCue* EquipSound;
 

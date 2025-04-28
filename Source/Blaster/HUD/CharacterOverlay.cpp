@@ -14,6 +14,7 @@
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "Animation/WidgetAnimation.h"
 #include "Components/Border.h"
+#include "Blaster/HUD/Shop.h"
 
 void UCharacterOverlay::NativeOnInitialized()
 {
@@ -130,6 +131,7 @@ void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidget Pr
 	{
 		GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f)); // Reset translation resulting from shake
 	}
+	PlayAnimation(ShopAnimationIn, 0.0f);
 }
 
 void UCharacterOverlay::TickShopRelatedWidgetColors(float DeltaTime)
