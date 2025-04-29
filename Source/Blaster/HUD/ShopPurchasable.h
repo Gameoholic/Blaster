@@ -19,8 +19,9 @@ class BLASTER_API UShopPurchasable : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetPurchasableValues(FString _Name, FSlateBrush _Icon, int32 _Cost);
+
 private:
-	int32 Cost;
+	int32 Cost = -1;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PurchasableName;
@@ -30,4 +31,5 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PurchasableCost;
+
 };

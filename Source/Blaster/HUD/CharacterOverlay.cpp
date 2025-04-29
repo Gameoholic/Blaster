@@ -132,6 +132,7 @@ void UCharacterOverlay::OnShopRelatedWidgetSelectionChange(FShopRelatedWidget Pr
 		GetIconFromSelectedShopRelatedWidget(PreviousWidget)->SetRenderTranslation(FVector2D(0.0f, 0.0f)); // Reset translation resulting from shake
 	}
 	PlayAnimation(ShopAnimationIn, 0.0f);
+	Shop->DisplayPurchasables(SelectedShopRelatedWidget);
 }
 
 void UCharacterOverlay::TickShopRelatedWidgetColors(float DeltaTime)

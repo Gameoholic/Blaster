@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Blaster/HUD/CharacterOverlay.h"
 #include "Shop.generated.h"
 
 class UBlasterScrollBox;
+class AWeapon;
+class UShopPurchasable;
 
 /**
  * 
@@ -17,12 +20,16 @@ class BLASTER_API UShop : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<class AWeapon>> PurchasableWeapons;
+	void DisplayPurchasables(FShopRelatedWidget Category);
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	UBlasterScrollBox* Purchasables;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UShopPurchasable> ShopPurchasableClass;
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<AWeapon>> PurchasableWeapons;
 
 
 	UFUNCTION(BlueprintCallable, meta= (AllowPrivateAccess = "true"))

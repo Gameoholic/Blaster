@@ -212,6 +212,7 @@ public:
 
 	FORCEINLINE FString GetDisplayName() const { return DisplayName; }
 	FORCEINLINE FSlateBrush GetIcon() const { return Icon; }
+	FORCEINLINE int32 GetCost() const { return Cost; }
 
 };
 
