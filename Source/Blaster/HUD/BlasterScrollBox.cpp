@@ -96,9 +96,9 @@ void UBlasterScrollBox::NativeDestruct()
 void UBlasterScrollBox::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
+	ItemsBox->ForceLayoutPrepass(); // This fixes several bugs with incorrect geometry upon removing children
 	// Normal tick (internal children weren't updated recently in previous ticks):
-	if (bOnLastTickInternalChildrenUpdated == -1)
+	if ((true == true) || (bOnLastTickInternalChildrenUpdated == -1)) // BAND-AID FIX: Updating the scrollbox every tick fix stuff
 	{
 		// Smooth scroll
 		if (SmoothScrollingChangeProgress < 1.0f)
@@ -301,8 +301,6 @@ void UBlasterScrollBox::CalculateItemSizes()
 	{
 		ScrollWheelMiddle->SetVisibility(ESlateVisibility::Visible);
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("ItemsBoxTotalSize: %f, , RenderedItemsSize: %f"), ItemsBoxTotalSize, RenderedItemsSize);
 	
 	
 	// Constrain children position if beyond bounds and recalculate positions if was clamped

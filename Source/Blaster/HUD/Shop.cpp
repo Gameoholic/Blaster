@@ -9,6 +9,11 @@
 #include "Blueprint/WidgetTree.h"
 
 
+void UShop::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+}
+
 void UShop::DisplayPurchasables(FShopRelatedWidget Category)
 {
 	Purchasables->RemoveAllChildren();
@@ -19,15 +24,29 @@ void UShop::DisplayPurchasables(FShopRelatedWidget Category)
 
 	if (Category == FShopRelatedWidget::MainWeapon || Category == FShopRelatedWidget::SecondaryWeapon)
 	{
-		for (TSubclassOf<AWeapon> WeaponSubclass : PurchasableWeapons)
+		for (TSubclassOf<AWeapon> WeaponClass : PurchasableWeapons)
 		{
-			AWeapon* Weapon = Cast<AWeapon>(WeaponSubclass->GetDefaultObject());
+			AWeapon* Weapon = Cast<AWeapon>(WeaponClass->GetDefaultObject());
 			UShopPurchasable* Purchasable = CreateWidget<UShopPurchasable>(this, ShopPurchasableClass);
 			Purchasable->SetPurchasableValues(Weapon->GetDisplayName(), Weapon->GetIcon(), Weapon->GetCost());
 			Purchasables->AddChild(Purchasable);
 		}
-
 	}
+	else if (Category == FShopRelatedWidget::Ability)
+	{
+		for (TSubclassOf<AWeapon> WeaponClass : PurchasableWeapons2Temp)
+		{
+			AWeapon* Weapon = Cast<AWeapon>(WeaponClass->GetDefaultObject());
+			UShopPurchasable* Purchasable = CreateWidget<UShopPurchasable>(this, ShopPurchasableClass);
+			Purchasable->SetPurchasableValues(Weapon->GetDisplayName(), Weapon->GetIcon(), Weapon->GetCost());
+			Purchasables->AddChild(Purchasable);
+		}
+	}
+	Purchasables->SnapScrollBar(true);
+}
 
+
+void UShop::DisplayNextPurchasable()
+{
 
 }
