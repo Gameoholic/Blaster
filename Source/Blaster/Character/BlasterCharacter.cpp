@@ -520,7 +520,6 @@ void ABlasterCharacter::ShopButtonPressed()
 	BlasterPlayerController->ShowShop(bShopOpened);
 }
 
-
 // RPC that runs on server
 void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message, FName SendingPlayerName)
 {
@@ -531,10 +530,11 @@ void ABlasterCharacter::ServerSendPlayerChatMessage_Implementation(FName Message
 	FString NewMessage = SendingPlayerName.ToString();
 	NewMessage.Append(": ");
 	NewMessage.Append(Message.ToString());
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	if (BlasterGameMode)
 	{
-		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
-		BlasterPlayer->ClientSendMessage(FName(NewMessage));
+		BlasterGameMode->BroadcastChatMessage(FName(NewMessage));
 	}
 }
 

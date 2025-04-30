@@ -105,8 +105,13 @@ void ABlasterGameMode::PlayerKilled(ABlasterCharacter* KilledPlayer, ABlasterPla
 	{
 		AttackerPlayerState->ServerAddToScore(1.0f);
 		AttackerPlayerState->ServerAddToKills(1);
-		AttackerPlayerState->ServerAddMoney(MoneyPerKill);
 		BlasterGameState->ServerUpdateTopScore(AttackerPlayerState);
+		BroadcastChatMessage(FName(FString::Printf(
+			TEXT("%s killed %s"), 
+			*AttackerPlayerState->GetPlayerName(), 
+			*KilledPlayerState->GetPlayerName()
+		)));
+		AttackerPlayerState->ServerAddMoney(MoneyPerKill);
 	}
 	if (KilledPlayerState)
 	{
@@ -130,6 +135,11 @@ void ABlasterGameMode::PlayerKilled(ABlasterCharacter* KilledPlayer, ABlasterPla
 	if (KilledPlayerState)
 	{
 		KilledPlayerState->ServerAddToDeaths(1);
+
+		BroadcastChatMessage(FName(FString::Printf(
+			TEXT("%s died"),
+			*KilledPlayerState->GetPlayerName()
+		)));
 	}
 	if (KilledPlayer)
 	{
@@ -161,4 +171,15 @@ void ABlasterGameMode::PostLogin(APlayerController* NewPlayer)
 	
 }
 
-
+void ABlasterGameMode::BroadcastChatMessage(FName Message)
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*It);
+		BlasterPlayer->ClientSendMessage(Message);
+	}
+}

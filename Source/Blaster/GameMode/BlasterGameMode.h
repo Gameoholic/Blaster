@@ -39,6 +39,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	uint32 MoneyPerKill = 10;
 
+	void BroadcastChatMessage(FName Message);
+
 	//UPROPERTY(EditDefaultsOnly)
 	//float WarmupTime = 10.0f;
 	//UPROPERTY(EditDefaultsOnly)
