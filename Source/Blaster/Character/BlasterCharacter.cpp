@@ -108,14 +108,15 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
-		GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentBeginOverlap);
-		GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentEndOverlap);
 	}
 
 	if (!HasAuthority() && IsLocallyControlled())
 	{
 		NewServerRequestDynamicPlatformStates();
 	}
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ABlasterCharacter::OnComponentEndOverlap);
 
 	LobbyGameState = Cast<ALobbyGameState>(UGameplayStatics::GetGameState(this));
 }
