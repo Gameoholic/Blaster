@@ -4,6 +4,7 @@
 #include "BlasterPlayerState.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Net/UnrealNetwork.h"
+#include "Blaster/Character/BlasterCharacter.h"
 
 void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -11,6 +12,7 @@ void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 	DOREPLIFETIME(ABlasterPlayerState, Deaths);
 	DOREPLIFETIME(ABlasterPlayerState, Kills);
+	DOREPLIFETIME(ABlasterPlayerState, Money);
 }
 
 // Updates score and displays the new score
@@ -48,6 +50,17 @@ void ABlasterPlayerState::OnRep_Kills()
 	DisplayUpdatedKills();
 }
 
+void ABlasterPlayerState::OnRep_Money(uint32 PreviousMoney)
+{
+	if (!IsControllerValid())
+	{
+		return;
+	}
+	uint32 MoneyDifference = Money - PreviousMoney;
+	Controller->SetHUDMoney(Money);
+	Controller->SendChatMessage(FName(FString::Printf(TEXT("+%d Gold"), MoneyDifference)));
+}
+
 void ABlasterPlayerState::DisplayUpdatedKills()
 {
 	if (!IsControllerValid())
@@ -75,6 +88,19 @@ void ABlasterPlayerState::DisplayUpdatedDeaths()
 		return;
 	}
 	Controller->SetHUDDeaths(Deaths);
+}
+
+void ABlasterPlayerState::ServerAddMoney(uint32 Amount)
+{
+	Money += Amount;
+	if (!IsControllerValid())
+	{
+		return;
+	}
+	if (Controller->IsLocalController())
+	{
+		OnRep_Money(Money - Amount);
+	}
 }
 
 

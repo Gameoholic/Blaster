@@ -36,6 +36,9 @@ public:
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
+	UPROPERTY(EditAnywhere)
+	uint32 MoneyPerKill = 10;
+
 	//UPROPERTY(EditDefaultsOnly)
 	//float WarmupTime = 10.0f;
 	//UPROPERTY(EditDefaultsOnly)

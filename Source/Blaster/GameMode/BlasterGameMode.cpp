@@ -105,6 +105,7 @@ void ABlasterGameMode::PlayerKilled(ABlasterCharacter* KilledPlayer, ABlasterPla
 	{
 		AttackerPlayerState->ServerAddToScore(1.0f);
 		AttackerPlayerState->ServerAddToKills(1);
+		AttackerPlayerState->ServerAddMoney(MoneyPerKill);
 		BlasterGameState->ServerUpdateTopScore(AttackerPlayerState);
 	}
 	if (KilledPlayerState)

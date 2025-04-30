@@ -26,15 +26,15 @@ public:
 	void ServerAddToDeaths(int DeathsAmount);
 	void DisplayUpdatedDeaths();
 
+	void ServerAddMoney(uint32 Money);
 
-	/** 
-	* Replication notifies
-	*/
 	virtual void OnRep_Score() override;
 	UFUNCTION()
 	virtual void OnRep_Deaths();
 	UFUNCTION()
 	virtual void OnRep_Kills();
+	UFUNCTION()
+	void OnRep_Money(uint32 PreviousMoney);
 
 private:
 	class ABlasterCharacter* Character = nullptr;
@@ -45,4 +45,6 @@ private:
 	int32 Kills;
 	UPROPERTY(ReplicatedUsing = OnRep_Deaths)
 	int32 Deaths;
+	UPROPERTY(ReplicatedUsing = OnRep_Money)
+	uint32 Money;
 };
