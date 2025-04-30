@@ -45,6 +45,11 @@ void UShop::DisplayPurchasables(FShopRelatedWidget Category)
 	Purchasables->SnapScrollBar(true);
 }
 
+void UShop::OnShopClose()
+{
+	Purchasables->RemoveAllChildren();
+}
+
 
 void UShop::DisplayNextPurchasable()
 {

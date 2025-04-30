@@ -4,8 +4,21 @@
 #include "ShopPurchasable.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/Border.h"
 
 
+
+void UShopPurchasable::NativeOnInitialized()
+{
+	DefaultAppearance = Background->Background;
+}
+
+void UShopPurchasable::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	IsHovered() ? Background->SetBrush(HoveredAppearance) : Background->SetBrush(DefaultAppearance);
+}
 
 void UShopPurchasable::SetPurchasableValues(FString _Name, FSlateBrush _Icon, int32 _Cost)
 {

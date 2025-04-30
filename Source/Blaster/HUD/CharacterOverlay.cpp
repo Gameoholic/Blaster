@@ -122,6 +122,8 @@ void UCharacterOverlay::ShowShop(bool bShow)
 
 		FLinearColor Color = FLinearColor(0.0f, 0.0f, 1.0f); // In HSV
 		SetAllShopRelatedWidgetsColor(Color);
+		Shop->OnShopClose();
+		SelectedShopRelatedWidget = FShopRelatedWidget::None;
 	}
 }
 

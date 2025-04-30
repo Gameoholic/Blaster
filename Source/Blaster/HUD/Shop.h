@@ -21,7 +21,7 @@ class BLASTER_API UShop : public UUserWidget
 	
 public:
 	void DisplayPurchasables(FShopRelatedWidget Category);
-
+	void OnShopClose();
 protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 

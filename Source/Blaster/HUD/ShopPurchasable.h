@@ -8,6 +8,8 @@
 
 class UTextBlock;
 class UImage;
+class UBorder;
+
 /**
  * 
  */
@@ -16,12 +18,19 @@ class BLASTER_API UShopPurchasable : public UUserWidget
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void NativeOnInitialized() override;
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetPurchasableValues(FString _Name, FSlateBrush _Icon, int32 _Cost);
 
 private:
 	int32 Cost = -1;
+
+	UPROPERTY(meta = (BindWidget))
+	UBorder* Background;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PurchasableName;
@@ -32,4 +41,8 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PurchasableCost;
 
+	UPROPERTY(EditAnywhere)
+	FSlateBrush HoveredAppearance;
+
+	FSlateBrush DefaultAppearance;
 };
