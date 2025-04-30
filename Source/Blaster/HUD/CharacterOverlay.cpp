@@ -56,6 +56,14 @@ void UCharacterOverlay::ResetHUD()
 
 	Item2Icon->SetBrush(InvisibleImage);
 	Item2Name->SetText(FText::FromString(""));
+
+	SetMoney(0);
+}
+
+
+void UCharacterOverlay::SetMoney(int32 Money)
+{
+	MoneyAmount->SetText(FText::FromString(FString::Printf(TEXT("%d"), Money)));
 }
 
 void UCharacterOverlay::ShowShopIcon(bool bShow)

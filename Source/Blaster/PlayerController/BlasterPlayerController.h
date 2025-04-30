@@ -30,6 +30,7 @@ public:
 	void SendChatMessage(FName Message);
 	void SetHUDShowShopIcon(bool bShow);
 	void ShowShop(bool bShow);
+	void SetHUDMoney(int32 Amount);
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

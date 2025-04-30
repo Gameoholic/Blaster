@@ -139,8 +139,12 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ShopAnimationIn;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MoneyAmount;
+
 	void ShowShopIcon(bool bShow);
 	void ShowShop(bool bShow);
+	void SetMoney(int32 Money);
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

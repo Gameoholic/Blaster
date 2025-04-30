@@ -279,6 +279,15 @@ void ABlasterPlayerController::ShowShop(bool bShow)
 	BlasterHUD->CharacterOverlay->ShowShop(bShow);
 }
 
+void ABlasterPlayerController::SetHUDMoney(int32 Money)
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->SetMoney(Money);
+}
+
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 //{
 //	if (!IsHUDValid())
