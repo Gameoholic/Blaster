@@ -24,7 +24,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	// Equip weapon at whatever slot is available, and whether to put the new weapon in the main slot
+	void EquipWeapon(AWeapon* WeaponToEquip, bool bForceMainWeaponSlot);
+	// Equip weapon at either main or secondary slot. Will NOT force equip at second slot if main slot is available.
+	void EquipWeaponAtSlot(AWeapon* WeaponToEquip, bool bMainWeaponSlot);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSwitchWeapon();

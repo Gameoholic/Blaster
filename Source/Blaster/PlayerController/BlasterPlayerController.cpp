@@ -288,6 +288,15 @@ void ABlasterPlayerController::SetHUDMoney(int32 Money)
 	BlasterHUD->CharacterOverlay->SetMoney(Money);
 }
 
+void ABlasterPlayerController::PlayNotEnoughMoneyAnimation()
+{
+	if (!IsHUDValid())
+	{
+		return;
+	}
+	BlasterHUD->CharacterOverlay->PlayNotEnoughMoneyAnimation();
+}
+
 //void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 //{
 //	if (!IsHUDValid())

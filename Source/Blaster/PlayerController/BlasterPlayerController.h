@@ -31,6 +31,7 @@ public:
 	void SetHUDShowShopIcon(bool bShow);
 	void ShowShop(bool bShow);
 	void SetHUDMoney(int32 Amount);
+	void PlayNotEnoughMoneyAnimation();
 	//void SetHUDMatchCountdown(float CountdownTime);
 	//void SetHUDAnnouncementCountdown(float CountdownTime);
 

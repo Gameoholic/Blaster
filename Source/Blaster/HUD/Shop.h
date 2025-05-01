@@ -10,6 +10,7 @@
 class UBlasterScrollBox;
 class AWeapon;
 class UShopPurchasable;
+class ABlasterGameState;
 
 /**
  * 
@@ -22,24 +23,19 @@ class BLASTER_API UShop : public UUserWidget
 public:
 	void DisplayPurchasables(FShopRelatedWidget Category);
 	void OnShopClose();
+	void OnPurchasableClicked(UShopPurchasable* PurchasableClicked);
 protected:
+	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	ABlasterGameState* GameState;
+
 	UPROPERTY(meta = (BindWidget))
 	UBlasterScrollBox* Purchasables;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UShopPurchasable> ShopPurchasableClass;
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<AWeapon>> PurchasableWeapons;
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<AWeapon>> PurchasableWeapons2Temp;
-
-	const float PurchasableDisplayDelay = 0.1f;
-	void DisplayNextPurchasable();
-	int32 PurchasableIterator = -1;
-	float NextPurchasableDisplayDelay = 0.0f;
 
 	UFUNCTION(BlueprintCallable, meta= (AllowPrivateAccess = "true"))
 	FORCEINLINE UBlasterScrollBox* GetPurchasables() const { return Purchasables; }

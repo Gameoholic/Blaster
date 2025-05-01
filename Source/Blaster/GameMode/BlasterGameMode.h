@@ -11,6 +11,7 @@
 //	extern BLASTER_API const FName Cooldown; // Match duration has been reached. Display winner and begin timer
 //}
 
+class UShopPurchasable;
 /**
  * 
  */

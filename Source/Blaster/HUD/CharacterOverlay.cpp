@@ -66,6 +66,11 @@ void UCharacterOverlay::SetMoney(int32 Money)
 	MoneyAmount->SetText(FText::FromString(FString::Printf(TEXT("%d"), Money)));
 }
 
+void UCharacterOverlay::PlayNotEnoughMoneyAnimation()
+{
+	PlayAnimation(NotEnoughMoneyAnimation);
+}
+
 void UCharacterOverlay::ShowShopIcon(bool bShow)
 {
 	if (bShow)

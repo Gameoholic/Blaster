@@ -33,6 +33,8 @@
 #include "Blaster/HUD/BlasterScrollBox.h"
 #include "Blaster/HUD/Chat.h"
 #include "Blaster/Shop/ShopVolume.h"
+#include "Blaster/GameState/BlasterGameState.h"
+#include "Blaster/HUD/CharacterOverlay.h"
 
 
 // Sets default values
@@ -377,11 +379,19 @@ void ABlasterCharacter::MoveRight(float Value)
 
 void ABlasterCharacter::Turn(float Value)
 {
+	if (bShopOpened)
+	{
+		return;
+	}
 	AddControllerYawInput(Value);
 }
 
 void ABlasterCharacter::LookUp(float Value)
 {
+	if (bShopOpened)
+	{
+		return;
+	}
 	AddControllerPitchInput(Value);
 }
 
@@ -391,7 +401,7 @@ void ABlasterCharacter::EquipButtonPressed()
 	{
 		if (HasAuthority())
 		{
-			Combat->EquipWeapon(OverlappingWeapon);
+			Combat->EquipWeapon(OverlappingWeapon, true);
 		}
 		else
 		{
@@ -422,6 +432,10 @@ void ABlasterCharacter::ReloadButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
+	if (bShopOpened)
+	{
+		return;
+	}
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -548,6 +562,63 @@ void ABlasterCharacter::OnChatMessageReceived(FName Message)
 	}
 }
 
+void ABlasterCharacter::ServerShopPurchase_Implementation(FShopRelatedWidget PurchasableType, int32 PurchasableIndex)
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+	BlasterGameState = BlasterGameState == nullptr ? Cast<ABlasterGameState>(GetWorld()->GetGameState()) : BlasterGameState;
+	if (!BlasterGameState)
+	{
+		return;
+	}
+	switch (PurchasableType)
+	{
+	case FShopRelatedWidget::MainWeapon:
+		if (PurchasableIndex < BlasterGameState->GetPurchasableWeapons().Num())
+		{
+			TSubclassOf<AWeapon> WeaponSubclass = BlasterGameState->GetPurchasableWeapons()[PurchasableIndex];
+			AWeapon* WeaponBP = WeaponSubclass.GetDefaultObject();
+			if (WeaponBP->GetCost() <= BlasterPlayerState->GetMoney())
+			{
+				// Purchase successful
+				UE_LOG(LogTemp, Warning, TEXT("Purchase successful"));
+				// Spawn weapon object:
+				AWeapon* Weapon = Cast<AWeapon>(GetWorld()->SpawnActor<AActor>(WeaponSubclass, GetActorLocation(), GetActorRotation()));
+				if (Weapon)
+				{
+					ForceEquipWeaponAtSlot(Weapon, true);
+				}
+			}
+		}
+		break;
+	case FShopRelatedWidget::SecondaryWeapon:
+		if (PurchasableIndex < BlasterGameState->GetPurchasableWeapons().Num())
+		{
+			TSubclassOf<AWeapon> WeaponSubclass = BlasterGameState->GetPurchasableWeapons()[PurchasableIndex];
+			AWeapon* WeaponBP = WeaponSubclass.GetDefaultObject();
+			if (WeaponBP->GetCost() <= BlasterPlayerState->GetMoney())
+			{
+				// Purchase successful
+				UE_LOG(LogTemp, Warning, TEXT("Purchase successful 2"));
+				// Spawn weapon object:
+				AWeapon* Weapon = Cast<AWeapon>(GetWorld()->SpawnActor<AActor>(WeaponSubclass, GetActorLocation(), GetActorRotation()));
+				if (Weapon)
+				{
+					ForceEquipWeaponAtSlot(Weapon, false);
+				}
+			}
+		}
+		break;
+	case FShopRelatedWidget::Ability:
+		
+		break;
+	}
+	
+
+}
+
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	if (Combat && Combat->MainWeapon == nullptr) return;
@@ -653,6 +724,10 @@ void ABlasterCharacter::SwitchWeaponButtonReleased()
 
 void ABlasterCharacter::FireButtonPressed()
 {
+	if (bShopOpened)
+	{
+		return;
+	}
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -707,7 +782,15 @@ void ABlasterCharacter::ForceEquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (Combat)
 	{
-		Combat->EquipWeapon(WeaponToEquip);
+		Combat->EquipWeapon(WeaponToEquip, true);
+	}
+}
+
+void ABlasterCharacter::ForceEquipWeaponAtSlot(AWeapon* WeaponToEquip, bool bMainWeaponSlot)
+{
+	if (Combat)
+	{
+		Combat->EquipWeaponAtSlot(WeaponToEquip, bMainWeaponSlot);
 	}
 }
 
@@ -760,7 +843,7 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation() // SERVER RPC
 {
 	if (Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		Combat->EquipWeapon(OverlappingWeapon, true);
 	}
 }
 

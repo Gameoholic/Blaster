@@ -34,7 +34,9 @@ public:
 	UFUNCTION()
 	virtual void OnRep_Kills();
 	UFUNCTION()
-	void OnRep_Money(uint32 PreviousMoney);
+	void OnRep_Money(int32 PreviousMoney);
+
+	FORCEINLINE int32 GetMoney() { return Money; }
 
 private:
 	class ABlasterCharacter* Character = nullptr;
@@ -46,5 +48,5 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Deaths)
 	int32 Deaths;
 	UPROPERTY(ReplicatedUsing = OnRep_Money)
-	uint32 Money;
+	int32 Money;
 };

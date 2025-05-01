@@ -63,6 +63,9 @@ public:
 
 	// On ANY chat message received
 	void OnChatMessageReceived(FName Message);
+
+	UFUNCTION(Server, Reliable)
+	void ServerShopPurchase(FShopRelatedWidget PurchasableType, int32 PurchasableIndex);
 protected:
 	virtual void BeginPlay() override;
 
@@ -93,8 +96,11 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	
+	// Equip weapon at whatever slot is available
 	UFUNCTION(BlueprintCallable)
 	void ForceEquipWeapon(AWeapon* WeaponToEquip);
+	// Equip weapon at either main or secondary slot. Will NOT force equip at second slot if main slot is available.
+	void ForceEquipWeaponAtSlot(AWeapon* WeaponToEquip, bool bMainWeaponSlot);
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* CameraBoom;
@@ -243,7 +249,7 @@ private:
 	void UpdateEmote();
 
 	class UBlasterGameInstance* BlasterGameInstance = nullptr;
-
+	class ABlasterGameState* BlasterGameState = nullptr;
 
 	 //ITEMS
 	UItem* Item1 = nullptr;

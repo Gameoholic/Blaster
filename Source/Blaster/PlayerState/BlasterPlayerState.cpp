@@ -50,7 +50,7 @@ void ABlasterPlayerState::OnRep_Kills()
 	DisplayUpdatedKills();
 }
 
-void ABlasterPlayerState::OnRep_Money(uint32 PreviousMoney)
+void ABlasterPlayerState::OnRep_Money(int32 PreviousMoney)
 {
 	if (!IsControllerValid())
 	{

@@ -165,32 +165,54 @@ void UCombatComponent::ShotgunShellReload()
 
 
 
-void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
+void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip, bool bForceMainWeaponSlot)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr)
 	{
 		return;
 	}
-	// If both weapon slots are taken, replace main weapon. Otherwise, make current main weapon the secondary
-	if (MainWeapon && SecondaryWeapon)
+	if (bForceMainWeaponSlot)
 	{
-		MainWeapon->Drop();
-	}
-	else if (MainWeapon)
-	{
-		SecondaryWeapon = MainWeapon;
-		SecondaryWeapon->SetIsWeaponHidden(true);
-	}
+		// If both weapon slots are taken, replace main weapon. Otherwise, make current main weapon the secondary
+		if (MainWeapon && SecondaryWeapon)
+		{
+			MainWeapon->Drop();
+		}
+		else if (MainWeapon)
+		{
+			SecondaryWeapon = MainWeapon;
+			SecondaryWeapon->SetIsWeaponHidden(true);
+		}
 
-	MainWeapon = WeaponToEquip;
-	MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		MainWeapon = WeaponToEquip;
+		MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	}
+	else
+	{
+		if (MainWeapon && SecondaryWeapon)
+		{
+			MainWeapon->Drop();
+			MainWeapon = WeaponToEquip;
+			MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		}
+		else if (MainWeapon)
+		{
+			SecondaryWeapon = WeaponToEquip;
+			SecondaryWeapon->SetIsWeaponHidden(true);
+		}
+		else
+		{
+			MainWeapon = WeaponToEquip;
+			MainWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		}
+	}
 
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
 	{
 		HandSocket->AttachActor(MainWeapon, Character->GetMesh());
 	}
-	MainWeapon->SetOwner(Character);
+	WeaponToEquip->SetOwner(Character);
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
@@ -205,9 +227,9 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 
 
-	if (MainWeapon->EquipSound)
+	if (WeaponToEquip->EquipSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, WeaponToEquip->EquipSound, Character->GetActorLocation());
 	}
 
 	if (MainWeapon->IsAmmoEmpty())
@@ -217,6 +239,32 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
+}
+
+void UCombatComponent::EquipWeaponAtSlot(AWeapon* WeaponToEquip, bool bMainWeaponSlot)
+{
+	if (WeaponToEquip == nullptr)
+	{
+		return;
+	}
+	if (bMainWeaponSlot)
+	{
+		if (MainWeapon)
+		{
+			MainWeapon->Drop();
+			MainWeapon = nullptr;
+		}
+		EquipWeapon(WeaponToEquip, false);
+	}
+	else
+	{
+		if (SecondaryWeapon)
+		{
+			SecondaryWeapon->Drop();
+			SecondaryWeapon = nullptr;
+		}
+		EquipWeapon(WeaponToEquip, false);
+	}
 }
 
 void UCombatComponent::SwitchWeaponButtonReleased()
