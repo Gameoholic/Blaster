@@ -217,6 +217,14 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip, bool bForceMainWeapon
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
+		if (MainWeapon)
+		{
+			Controller->SendChatMessage(FName("Client hi: 1"));
+		}
+		else
+		{
+			Controller->SendChatMessage(FName("Client hi: 1 no weapon"));
+		}
 		Controller->SetHUDWeaponAmmo(MainWeapon->GetAmmo(), MainWeapon->GetMagCapacity());
 		Controller->SetHUDMainWeapon(MainWeapon->GetDisplayName(), MainWeapon->GetIcon());
 		if (SecondaryWeapon)
@@ -481,10 +489,15 @@ void UCombatComponent::OnRep_MainWeaponEquipped()
 		{
 			HandSocket->AttachActor(MainWeapon, Character->GetMesh());
 		}
+		if (Character->IsLocallyControlled())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GOT REPD sex %d HAS ASUTHORITY"), Character->Controller);
+		}
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 
 		UGameplayStatics::PlaySoundAtLocation(this, MainWeapon->EquipSound, Character->GetActorLocation());
+		UE_LOG(LogTemp, Warning, TEXT("GOT REPD sex %d"), Character->Controller);
 
 		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 		if (Controller)

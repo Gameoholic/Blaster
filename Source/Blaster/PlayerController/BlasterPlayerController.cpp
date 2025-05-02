@@ -173,10 +173,12 @@ void ABlasterPlayerController::SetHUDWeaponAmmo(int32 WeaponRemainingAmmo, int32
 
 void ABlasterPlayerController::SetHUDMainWeapon(FString WeaponName, FSlateBrush WeaponIcon)
 {
+	UE_LOG(LogTemp, Warning, TEXT("sand 1"));
 	if (!IsHUDValid())
 	{
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("sand 2"));
 	BlasterHUD->CharacterOverlay->MainWeaponName->SetText(FText::FromString(WeaponName));
 	BlasterHUD->CharacterOverlay->MainWeaponIcon->SetBrush(WeaponIcon);
 }
